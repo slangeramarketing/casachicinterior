@@ -21,9 +21,9 @@ export default function ReviewSection() {
             Our Client <span className="text-orange-500">Review</span>
           </h2>
 
-          <button className="self-start md:self-auto text-sm font-semibold border border-gray-300 px-5 py-2 rounded-full hover:bg-gray-900 hover:text-white transition">
+          {/* <button className="self-start md:self-auto text-sm font-semibold border border-gray-300 px-5 py-2 rounded-full hover:bg-gray-900 hover:text-white transition">
             View More
-          </button>
+          </button> */}
         </div>
 
         {/* REVIEWS GRID */}
