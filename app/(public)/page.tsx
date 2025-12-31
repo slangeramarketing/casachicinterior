@@ -12,17 +12,40 @@ import ShortAboutSection from '@/components/public/ShortAboutSection'
 import ThirdPartyReviews from '@/components/public/ThirdPartyReviews'
 import WhatsAppFAB from '@/components/public/WhatsAppFAB'
 import WhyChooseUsSection from '@/components/public/WhyChooseUsSection'
+import { projects } from '@/lib/data/projects/projects'
+import { servicesData } from '@/lib/data/services/service.data'
 import React, { useState } from 'react'
 
 export default function page() {
   const [open, setOpen] = useState(false);
+
+  const featuredProjects = projects
+    .filter((p) => p.featured)
+    .slice(0, 3)
+    .map((p) => ({
+      id: p.id,
+      title: p.title,
+      slug:p.slug,
+      subtitle: p.category,
+      description: p.shortDescription,
+      image: p.coverImage,
+    }));
+
+    const designSolutions = servicesData.map((service) => ({
+      id: service.id,
+      title: service.title,
+      slug: service.slug,
+      description: service.shortDescription,
+      image: service.coverImage,
+    }));
+
   return (
     <>
      <HeroSection/>
      <ThirdPartyReviews/>
      <ShortAboutSection/>
-     <FeaturedProjectsSection/>
-     <DesignSolutionsSection/>
+     <FeaturedProjectsSection projects={featuredProjects} />
+     <DesignSolutionsSection services={designSolutions} />
      <WhyChooseUsSection/>
      <DesignProcessSection/>
      <ReviewSection/>

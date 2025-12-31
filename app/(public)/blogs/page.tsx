@@ -5,19 +5,8 @@ import BlogCard from "@/components/admin/BlogCard";
 import SearchInput from "@/components/common/SearchInput";
 import CategorySlider from "@/components/public/CategorySlider";
 import { timeAgo } from "@/lib/utils/timeAgo";
-import blogsData from "@/lib/data/blogs/blogs.json";
+import { BlogData,blogsData } from "@/lib/data/blogs/blog.data";
 
-type Blog = {
-  id: string;
-  title: string;
-  slug: string;
-  description: string;
-  thumbnailImage: string;
-  category: string;
-  subCategory: string;
-  createdAt: string;
-  updatedAt: string;
-};
 
 export default function BlogsPage() {
   const [search, setSearch] = useState("");
@@ -32,7 +21,7 @@ export default function BlogsPage() {
 
   const [activeCategory, setActiveCategory] = useState("All");
 
-  const blogs = blogsData as Blog[];
+  const blogs = blogsData as BlogData[];
 
   const filteredBlogs = blogs.filter((blog) => {
     const matchesCategory =
@@ -74,9 +63,9 @@ export default function BlogsPage() {
             category={blog.subCategory}
             title={blog.title}
             description={blog.description}
-            createdAt={timeAgo(blog.createdAt)}
-            updatedAt={timeAgo(blog.updatedAt)}
-            href={`/blogs/${blog.id}`}
+            createdAt={timeAgo(blog.createdAt.toISOString())}
+            updatedAt={timeAgo(blog.updatedAt.toISOString())}
+            href={`/blogs/${blog.slug}`}
 
             /* Styling */
             wrapperClassName="border border-gray-300 rounded-md overflow-hidden bg-white"

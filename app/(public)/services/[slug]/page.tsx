@@ -1,52 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-
-/* -------------------------------------
-   TYPES
-------------------------------------- */
-type Service = {
-  id: number;
-  title: string;
-  slug: string;
-  shortDescription: string;
-  overview: string;
-  coverImage: string;
-  includes: string[];
-  process: string[];
-};
-
-/* -------------------------------------
-   SERVICE DATA (STATIC for now)
-------------------------------------- */
-const services: Service[] = [
-  {
-    id: 1,
-    title: "Residential Interior Design",
-    slug: "residential-interior-design",
-    shortDescription:
-      "Modern, functional, and personalized home interiors designed around your lifestyle.",
-    overview:
-      "At CasaChic Interior, we specialize in designing residential spaces that balance aesthetics, comfort, and functionality. From compact apartments to luxury villas, our designs are tailored to your daily needs, lifestyle, and long-term comfort.",
-    coverImage:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-    includes: [
-      "Space planning & layout design",
-      "Modular kitchen & wardrobes",
-      "False ceiling & lighting design",
-      "Custom furniture & storage solutions",
-      "Material selection & finishes",
-      "On-site execution & supervision",
-    ],
-    process: [
-      "Consultation & requirement analysis",
-      "Concept design & layout planning",
-      "3D visualization & material finalization",
-      "Execution & site supervision",
-      "Final handover & quality check",
-    ],
-  },
-];
+import { servicesData } from "@/lib/data/services/service.data";
+import * as FiIcons from "react-icons/fi";
 
 /* -------------------------------------
    PAGE
@@ -56,23 +12,18 @@ export default async function ServiceDetailPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
-
-    const {slug}=await params;
-  const service = services.find(
-    (item) => item.slug ===slug
+  const {slug}= await params
+  const service = servicesData.find(
+    (item) => item.slug === slug
   );
-
-console.log("Slug:",slug);
-console.log("All slugs:", services.map(s => s.slug));
-
 
   if (!service) return notFound();
 
   return (
-    <div className="w-full">
+    <div className="w-full mt-8">
 
       {/* ================= HERO ================= */}
-      <section className="relative w-full h-[70vh] flex items-center">
+      <section className="relative w-full h-[65vh] flex items-center">
         <Image
           src={service.coverImage}
           alt={service.title}
@@ -82,32 +33,32 @@ console.log("All slugs:", services.map(s => s.slug));
         />
         <div className="absolute inset-0 bg-black/60" />
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6">
-          <p className="text-sm text-gray-300 mb-2">
+        <div className="relative z-10 max-w-6xl mx-auto px-6 text-white">
+          <p className="text-sm text-gray-300 mb-3">
             <Link href="/services" className="hover:underline">
               Services
             </Link>{" "}
             / {service.title}
           </p>
 
-          <h1 className="text-4xl md:text-5xl font-bold text-white">
+          <h1 className="text-4xl md:text-5xl font-bold">
             {service.title}
           </h1>
 
-          <p className="mt-4 max-w-2xl text-gray-200 text-base md:text-lg">
+          <p className="mt-4 max-w-2xl text-gray-200">
             {service.shortDescription}
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
             <Link
               href="/contact"
-              className="px-8 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition"
+              className="px-8 py-3 bg-orange-500 rounded-md font-semibold hover:bg-orange-600"
             >
               Get Free Consultation
             </Link>
             <Link
               href="/projects"
-              className="px-8 py-3 border border-white text-white font-semibold rounded-md hover:bg-white hover:text-gray-900 transition"
+              className="px-8 py-3 border border-white rounded-md hover:bg-white hover:text-gray-900"
             >
               View Projects
             </Link>
@@ -117,32 +68,40 @@ console.log("All slugs:", services.map(s => s.slug));
 
       {/* ================= OVERVIEW ================= */}
       <section className="max-w-6xl mx-auto px-6 py-24">
-        <div className="max-w-3xl">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Designing Homes That Feel Like You
-          </h2>
-
-          <p className="mt-6 text-gray-600 leading-relaxed">
-            {service.overview}
-          </p>
-        </div>
+        <h2 className="text-3xl font-bold text-gray-900 mb-6">
+          Service Overview
+        </h2>
+        <p className="text-gray-600 leading-relaxed max-w-3xl">
+          {service.overview}
+        </p>
       </section>
 
-      {/* ================= WHAT'S INCLUDED ================= */}
+      {/* ================= INCLUDES ================= */}
       <section className="bg-gray-50 py-24">
         <div className="max-w-6xl mx-auto px-6">
           <h3 className="text-3xl font-bold text-gray-900 mb-12">
-            What This Service Includes
+            What’s Included
           </h3>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {service.includes.map((item, index) => (
               <div
                 key={index}
-                className="flex items-start gap-3 bg-white p-5 rounded-lg border border-gray-200"
+                className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg transition"
               >
-                <span className="text-orange-500 font-bold">✔</span>
-                <p className="text-gray-700">{item}</p>
+                <div className="relative h-44">
+                  <Image
+                    src={item.image}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="p-5">
+                  <h4 className="font-semibold text-gray-900">
+                    {item.title}
+                  </h4>
+                </div>
               </div>
             ))}
           </div>
@@ -152,41 +111,52 @@ console.log("All slugs:", services.map(s => s.slug));
       {/* ================= PROCESS ================= */}
       <section className="max-w-6xl mx-auto px-6 py-24">
         <h3 className="text-3xl font-bold text-gray-900 mb-12">
-          Our Design & Execution Process
+          Our Process
         </h3>
 
-        <div className="space-y-6">
-          {service.process.map((step, index) => (
-            <div
-              key={index}
-              className="flex gap-6 items-start"
-            >
-              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-orange-500 text-white font-bold">
-                {index + 1}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {service.processSteps.map((step) => {
+            const Icon =
+              (FiIcons as any)[step.icon] || FiIcons.FiCheckCircle;
+
+            return (
+              <div
+                key={step.step}
+                className="flex gap-5 items-start"
+              >
+                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-orange-500 text-white">
+                  <Icon size={22} />
+                </div>
+
+                <div>
+                  <h4 className="font-semibold text-lg text-gray-900">
+                    {step.title}
+                  </h4>
+                  <p className="mt-1 text-gray-600">
+                    {step.description}
+                  </p>
+                </div>
               </div>
-              <p className="text-gray-700 text-lg">{step}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </section>
 
-      {/* ================= FINAL CTA ================= */}
-      <section className="bg-gray-900 py-20">
-        <div className="max-w-5xl mx-auto px-6 text-center">
-          <h3 className="text-3xl md:text-4xl font-bold text-white">
-            Ready to Transform Your Home?
-          </h3>
-          <p className="mt-4 text-gray-300">
-            Let’s design a space that reflects your lifestyle and comfort.
-          </p>
+      {/* ================= CTA ================= */}
+      <section className="bg-gray-900 py-20 text-center">
+        <h3 className="text-3xl md:text-4xl font-bold text-white">
+          Ready to Start Your Project?
+        </h3>
+        <p className="mt-4 text-gray-300">
+          Let’s create a space that matches your vision.
+        </p>
 
-          <Link
-            href="/contact"
-            className="inline-block mt-8 px-8 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600 transition"
-          >
-            Book Free Consultation
-          </Link>
-        </div>
+        <Link
+          href="/contact"
+          className="inline-block mt-8 px-8 py-3 bg-orange-500 text-white font-semibold rounded-md hover:bg-orange-600"
+        >
+          Book Free Consultation
+        </Link>
       </section>
     </div>
   );

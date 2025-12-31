@@ -9,9 +9,15 @@ import { IoIosArrowRoundBack } from "react-icons/io";
 
 interface PageRouteHeaderProps {
   showBack?: boolean;
+  fallbackHref?: string; // 👈 ADD THIS
 }
 
-export function PageRouteHeader({ showBack = true }: PageRouteHeaderProps) {
+
+
+export function PageRouteHeader({
+  showBack = true,
+  fallbackHref = "/", // 👈 default fallback
+}: PageRouteHeaderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
@@ -23,11 +29,19 @@ export function PageRouteHeader({ showBack = true }: PageRouteHeaderProps) {
       .join(" / ")
       .toUpperCase();
 
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push(fallbackHref);
+    }
+  };
+
   return (
     <div className="flex items-center gap-2 mb-4">
       {showBack && (
         <button
-          onClick={() => router.back()}
+          onClick={handleBack}
           className="p-1 rounded hover:bg-gray-100"
           aria-label="Go Back"
         >

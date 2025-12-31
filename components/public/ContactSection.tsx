@@ -1,8 +1,46 @@
 "use client";
 
+import { useState } from "react";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 
 export default function ContactSection() {
+  const [loading, setLoading] = useState(false);
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    message: "",
+  });
+
+    const handleChange = (
+      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
+      setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+      e.preventDefault();
+      setLoading(true);
+
+      const res = await fetch("/send-mail.php", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams(form).toString(),
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (data.success) {
+        alert("Thank you! We will contact you soon.");
+        setForm({ name: "", email: "", phone: "", message: "" });
+      } else {
+        alert("Something went wrong. Please try again.");
+      }
+    };
+
   return (
     <section className="w-full py-24 bg-white" id="contact">
       <div className="max-w-5xl mx-auto px-6">
@@ -41,14 +79,23 @@ export default function ContactSection() {
           </div>
 
           {/* FORM */}
-          <form className="space-y-6 mb-8 lg:px-8">
+          <form onSubmit={handleSubmit} className="space-y-6 mb-8 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <input
+                name="name" 
+                value={form.name} 
+                onChange={handleChange} 
+                required
                 type="text"
                 placeholder="Name"
                 className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+
               />
               <input
+                name="email" 
+                value={form.email} 
+                onChange={handleChange} 
+                required
                 type="email"
                 placeholder="Email"
                 className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
@@ -56,12 +103,20 @@ export default function ContactSection() {
             </div>
 
             <input
+              name="phone" 
+              value={form.phone} 
+              onChange={handleChange} 
+              required
               type="tel"
               placeholder="Phone No"
               className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
             />
 
             <textarea
+              name="message" 
+              value={form.message} 
+              onChange={handleChange} 
+              required
               placeholder="Message"
               rows={4}
               className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm resize-none focus:outline-none focus:border-orange-500"

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
+import { servicesData } from "@/lib/data/services/service.data";
 
 export default function Header() {
   const pathname = usePathname();
@@ -76,7 +77,7 @@ export default function Header() {
 
           {/* DROPDOWN (HOVER SAFE) */}
           <div
-            className="relative"
+            className="relative w-fit"
             onMouseEnter={() => setDropdownOpen(true)}
             onMouseLeave={() => setDropdownOpen(false)}
           >
@@ -87,9 +88,10 @@ export default function Header() {
             {/* IMPORTANT: Dropdown is NEVER unmounted */}
             <div
               className={`
-                absolute top-full left-0 mt-2 w-56
+                absolute top-full left-0 mt-2
                 bg-white text-gray-800 rounded-md shadow-lg
                 transition-all duration-200
+                w-60
                 ${
                   dropdownOpen
                     ? "opacity-100 visible translate-y-0"
@@ -97,18 +99,15 @@ export default function Header() {
                 }
               `}
             >
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Modular Interiors
-              </Link>
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Home Interiors
-              </Link>
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Home Renovation
-              </Link>
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Commercial Spaces
-              </Link>
+              {servicesData.map((service) => (
+                <Link
+                  key={service.id}
+                  href={`/services/${service.slug}`}
+                  className="block px-4 py-2 hover:bg-gray-100"
+                >
+                  {service.title}
+                </Link>
+              ))}
             </div>
           </div>
 
@@ -130,7 +129,7 @@ export default function Header() {
 
           {/* CTA */}
           <Link
-            href="#contact"
+            href="/contact"
             className="
               border border-white px-5 py-2 rounded-full
               transition hover:bg-white hover:text-black
@@ -163,33 +162,16 @@ export default function Header() {
           </summary>
 
           <div className="ml-4 mt-2 space-y-2 text-sm">
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Modular Interiors
-            </button>
-
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Home Interiors
-            </button>
-
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Home Renovation
-            </button>
-
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Commercial Spaces
-            </button>
+            {servicesData.map((service) => (
+              <Link
+                key={service.id}
+                href={`/services/${service.slug}`}
+                onClick={() => setMenuOpen(false)}
+                className="block"
+              >
+                {service.title}
+              </Link>
+            ))}
           </div>
         </details>
 

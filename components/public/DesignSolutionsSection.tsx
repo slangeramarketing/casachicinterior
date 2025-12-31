@@ -4,7 +4,23 @@ import Image from "next/image";
 import { useRef } from "react";
 import { designSolutions } from "@/lib/data/designSolutions";
 
-export default function DesignSolutionsSection() {
+
+/* -------------------------------------
+   TYPES
+------------------------------------- */
+export interface DesignSolution {
+  id: number;
+  title: string;
+  description: string;
+  image: string;
+  slug: string;
+}
+
+interface Props {
+  services: DesignSolution[];
+}
+
+export default function DesignSolutionsSection({ services }: Props) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -60,7 +76,7 @@ export default function DesignSolutionsSection() {
           ref={sliderRef}
           className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide pb-4"
         >
-          {designSolutions.map((item) => (
+          {services.map((item) => (
             <div
               key={item.id}
               className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition"

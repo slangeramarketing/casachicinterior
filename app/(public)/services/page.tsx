@@ -1,68 +1,6 @@
+import { servicesData } from "@/lib/data/services/service.data";
 import Image from "next/image";
 import Link from "next/link";
-
-/* -------------------------------------
-   TYPES
-------------------------------------- */
-type Service = {
-  id: number;
-  title: string;
-  slug: string;
-  description: string;
-  image: string;
-};
-
-/* -------------------------------------
-   SERVICES DATA (Unsplash Images)
-------------------------------------- */
-const services: Service[] = [
-  {
-    id: 1,
-    title: "Residential Interior Design",
-    slug: "residential-interior-design",
-    description:
-      "Modern, functional, and personalized home interiors designed around your lifestyle.",
-    image:
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-  },
-  {
-    id: 2,
-    title: "Commercial Interior Design",
-    slug: "commercial-interior-design",
-    description:
-      "Office and commercial spaces that enhance productivity and brand identity.",
-    image:
-      "https://images.unsplash.com/photo-1497366216548-37526070297c",
-  },
-  {
-    id: 3,
-    title: "Turnkey Interior Solutions",
-    slug: "turnkey-interior-solutions",
-    description:
-      "End-to-end interior execution from concept to final handover.",
-    image:
-      "https://images.unsplash.com/photo-1600210492486-724fe5c67fb0",
-  },
-  {
-    id: 4,
-    title: "Custom Furniture & Woodwork",
-    slug: "custom-furniture-woodwork",
-    description:
-      "Made-to-measure furniture crafted for durability and aesthetics.",
-    image:
-      "https://images.unsplash.com/photo-1615874959474-d609969a20ed",
-  },
-  {
-    id: 5,
-    title: "Design Consultancy",
-    slug: "design-consultancy",
-    description:
-      "Professional design guidance, layouts, and material planning.",
-    image:
-      "https://images.unsplash.com/photo-1594125674965-70d796b6693f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-  },
-];
-
 /* -------------------------------------
    PAGE
 ------------------------------------- */
@@ -115,14 +53,14 @@ export default function ServicesPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {services.map((service) => (
+          {servicesData.map((service) => (
             <div
               key={service.id}
               className="group border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-xl transition"
             >
               <div className="relative h-[220px]">
                 <Image
-                  src={service.image}
+                  src={service.coverImage}
                   alt={service.title}
                   fill
                   className="object-cover group-hover:scale-105 transition duration-300"
@@ -135,7 +73,7 @@ export default function ServicesPage() {
                 </h3>
 
                 <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-                  {service.description}
+                  {service.shortDescription}
                 </p>
 
                 <Link

@@ -2,8 +2,26 @@
 
 import Image from "next/image";
 import { featuredProjects } from "@/lib/data/featuredProjects";
+import { useRouter } from "next/navigation";
 
-export default function FeaturedProjectsSection() {
+/* -------------------------------------
+   TYPES
+------------------------------------- */
+export interface FeaturedProject {
+  id: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  image: string;
+  slug:string;
+}
+
+interface Props {
+  projects: FeaturedProject[];
+}
+
+export default function FeaturedProjectsSection({ projects }: Props) {
+  const router=useRouter();
   return (
     <section className="w-full py-20 bg-white">
       <div className="max-w-7xl mx-auto px-6">
@@ -26,7 +44,7 @@ export default function FeaturedProjectsSection() {
           <div className="absolute left-4 top-0 h-full w-[2px] bg-orange-200 lg:left-1/2" />
 
           <div className="space-y-20">
-            {featuredProjects.map((project, index) => {
+            {projects.map((project, index) => {
               const isLeft = index % 2 === 0;
 
               return (
@@ -81,7 +99,7 @@ export default function FeaturedProjectsSection() {
                     </p>
 
                     <div className={isLeft ? "" : "lg:flex lg:justify-end"}>
-                      <button className="mt-6 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full text-sm font-semibold transition">
+                      <button onClick={()=>router.push(`/projects/${project.slug}`)} className="mt-6 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full text-sm font-semibold transition">
                         See More
                       </button>
                     </div>

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import SearchInput from "@/components/common/SearchInput";
 import CategorySlider from "@/components/public/CategorySlider";
-import { projects } from "@/lib/data/projects";
+import { projects } from "@/lib/data/projects/projects";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,20 +17,40 @@ export default function ProjectsPage() {
   ];
 
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [search, setSearch] = useState("");
+
 
   /* ---------------- FILTER LOGIC ---------------- */
   const filteredProjects = useMemo(() => {
-    if (selectedCategory === "All") return projects;
+    let data = [...projects];
 
+    /* -------- CATEGORY FILTER -------- */
     if (selectedCategory === "Featured") {
-      return projects.filter((p) => p.featured);
+      data = data.filter((p) => p.featured);
+    } else if (selectedCategory !== "All") {
+      data = data.filter((p) =>
+        p.category
+          .toLowerCase()
+          .includes(selectedCategory.toLowerCase())
+      );
     }
 
-    return projects.filter(
-      (p) =>
-        p.category.toLowerCase() === selectedCategory.toLowerCase()
-    );
-  }, [selectedCategory]);
+    /* -------- SEARCH FILTER -------- */
+    if (search.trim()) {
+      const q = search.toLowerCase();
+
+      data = data.filter(
+        (p) =>
+          p.title.toLowerCase().includes(q) ||
+          p.shortDescription.toLowerCase().includes(q) ||
+          p.category.toLowerCase().includes(q)
+      );
+    }
+
+    return data;
+  }, [projects, selectedCategory, search]);
+
+
 
   return (
     <div className="w-full bg-white">
@@ -54,18 +74,26 @@ export default function ProjectsPage() {
         </div>
       </section>
 
-      {/* ================= SEARCH ================= */}
-      <section className="max-w-7xl mx-auto px-6 pb-4">
-        <SearchInput />
-      </section>
+      <div className="flex lg:flex-row flex-col justify-between px-4 lg:px-32 gap-4">
+        {/* ================= CATEGORY SLIDER ================= */}
+        <section className="lg:w-[50%] px-6">
+          <CategorySlider
+            categories={categories}
+            onChange={setSelectedCategory}
+          />
+        </section>
 
-      {/* ================= CATEGORY SLIDER ================= */}
-      <section className="max-w-7xl mx-auto px-6">
-        <CategorySlider
-          categories={categories}
-          onChange={setSelectedCategory}
-        />
-      </section>
+          {/* ================= SEARCH ================= */}
+        <section className="lg:w-[40%] px-6 pb-4 flex justify-end">
+          <SearchInput
+            value={search}
+            placeholder="Search projects..."
+            onChange={setSearch}
+            className="w-full"
+          />
+
+        </section>
+      </div>
 
       {/* ================= PROJECT GRID ================= */}
       <section className="max-w-7xl mx-auto px-6 py-20">
@@ -114,7 +142,7 @@ export default function ProjectsPage() {
 
                   {/* CTA */}
                   <Link
-                    href={`/projects/${project.id}`}
+                    href={`/projects/${project.slug}`}
                     className="inline-block mt-4 text-sm font-semibold text-orange-500 hover:underline"
                   >
                     View Project →
