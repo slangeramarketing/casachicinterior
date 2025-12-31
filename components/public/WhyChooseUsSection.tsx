@@ -1,0 +1,103 @@
+"use client";
+
+import Image from "next/image";
+import {
+  whyChooseUsData,
+  positionClasses,
+} from "@/lib/data/whyChooseUs";
+
+export default function WhyChooseUsSection() {
+  return (
+    <section className="w-full py-32 bg-[#f8f8f8]">
+      <div className="max-w-7xl mx-auto px-6 flex justify-center">
+
+        {/* DESKTOP RADIAL */}
+        <div className="relative hidden lg:flex items-center justify-center min-h-[600px] w-[85%]">
+
+          {/* CENTER */}
+          <div className="relative z-10 bg-white rounded-full w-[360px] h-[360px] flex flex-col items-center justify-center text-center shadow-lg px-4">
+            <Image
+              src="/media/static/why-choose-men.png"
+              alt="Why Choose Us"
+              width={150}
+              height={150}
+              className="rounded-full mb-4"
+            />
+
+            <h2 className="text-3xl font-bold text-gray-900">
+              Why <span className="text-orange-500">Choose</span> Us
+            </h2>
+
+            <p className="mt-3 text-sm text-gray-600 px-8">
+              Transforming spaces with precision, creativity, and quality craftsmanship.
+            </p>
+          </div>
+
+          {/* ORBIT ITEMS */}
+          {whyChooseUsData.map((item) => {
+            const Icon = item.icon;
+
+            return (
+              <div
+                key={item.id}
+                className={`absolute ${
+                  item.position ? positionClasses[item.position] : ""
+                } flex items-center gap-2`}
+              >
+                <div className="bg-orange-500 text-white w-14 h-14 rounded-full flex items-center justify-center text-2xl">
+                  <Icon />
+                </div>
+
+                <div className="bg-white px-4 py-2 rounded-md shadow text-sm font-semibold text-gray-800 max-w-[220px]">
+                  {item.title}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* MOBILE */}
+        <div className="lg:hidden">
+          <div className="text-center mb-12">
+            <Image
+              src="/media/static/why-choose-men.png"
+              alt="Why Choose Us"
+              width={140}
+              height={140}
+              className="rounded-full mx-auto mb-4"
+            />
+
+            <h2 className="text-3xl font-bold text-gray-900">
+              Why <span className="text-orange-500">Choose</span> Us
+            </h2>
+
+            <p className="mt-3 text-sm text-gray-600 max-w-md mx-auto">
+              Transforming spaces with precision, creativity, and quality craftsmanship.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {whyChooseUsData.map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div
+                  key={item.id}
+                  className="flex items-center gap-4 bg-white p-4 rounded-lg shadow"
+                >
+                  <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                    <Icon />
+                  </div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    {item.title}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
+    </section>
+  );
+}

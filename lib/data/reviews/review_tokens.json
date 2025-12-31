@@ -1,0 +1,18 @@
+[
+  {
+    "id": "rt1",
+    "project_id": "p1",
+    "client_id": "c1",
+    "token": "a9f1d2c8-4f01-4b9a-9e21-xyz123",
+    "expires_at": "2025-03-31T23:59:59Z",
+    "used": true
+  },
+  {
+    "id": "rt2",
+    "project_id": "p2",
+    "client_id": "c2",
+    "token": "b7e8a1f0-8d22-4c99-abc9-xyz789",
+    "expires_at": "2025-04-15T23:59:59Z",
+    "used": false
+  }
+]

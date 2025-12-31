@@ -3,6 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+    /* brand Color  */
+  --color-primary:#F97316;
+  --color-secondary:#F2F2F2;
+
+    /* brand Background */
+  --bg-primary:#F97316;
+  --bg-secondary:#F2F2F2;
+  --bg-hover:#DD5E06;
 }
 
 @theme inline {
@@ -10,17 +19,123 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --color-primary: var(--color-primary);
+  --color-secondary:var(--color-secondary);
+
+  --color-bg-primary:var(--bg-primary);
+  --color-bg-secondary:var(--bg-secondary);
+  --color-bg-hover:var(--bg-hover);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+
+.ProseMirror {
+  min-height: 240px;
+  outline: none;
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.ProseMirror p {
+  margin: 0.6em 0;
+}
+
+.ProseMirror h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+}
+
+.ProseMirror h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.ProseMirror ul {
+  padding-left: 1.2rem;
+}
+
+.ProseMirror code {
+  background: #f4f4f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* globals.css */
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================
+   WhatsApp Floating Action Button
+============================ */
+
+.whatsapp-fab {
+  position: fixed;
+  right: 20px;          /* 👈 RIGHT side */
+  bottom: 20px;         /* 👈 BOTTOM */
+  width: 56px;
+  height: 56px;
+  background-color: #25d366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+}
+
+/* Pulse effect */
+.pulse-ring {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(37, 211, 102, 0.45);
+  border-radius: 50%;
+  animation: pulse 1.6s infinite;
+  z-index: 1;
+}
+
+.whatsapp-fab img {
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.8);
+    opacity: 0;
+  }
+}
+
+/* ============================
+   Responsive
+============================ */
+@media (max-width: 768px) {
+  .whatsapp-fab {
+    width: 50px;
+    height: 50px;
+    right: 16px;
+    bottom: 16px;
+  }
+}
+
+
+@keyframes highlight {
+  0% { box-shadow: 0 0 0 0 rgba(34,197,94,.4); }
+  100% { box-shadow: 0 0 0 12px rgba(34,197,94,0); }
 }

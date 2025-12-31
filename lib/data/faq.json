@@ -1,0 +1,52 @@
+[
+  {
+    "id": "f1",
+    "question": "What services do you offer?",
+    "answer": "We provide complete interior design solutions including residential interiors, commercial interiors, modular kitchens, renovation work, space planning, 3D design, material selection, and turnkey execution."
+  },
+  {
+    "id": "f2",
+    "question": "How do I start my project with you?",
+    "answer": "You can start by contacting us through our website or phone. Our team will schedule an initial consultation to understand your requirements."
+  },
+  {
+    "id": "f3",
+    "question": "Do you provide 3D designs before starting the work?",
+    "answer": "Yes, we provide detailed 3D designs so you can visualize the space before execution begins."
+  },
+  {
+    "id": "f4",
+    "question": "How long does a typical interior project take?",
+    "answer": "Project timelines vary based on scope and size, but most residential projects take between 6 to 12 weeks."
+  },
+  {
+    "id": "f5",
+    "question": "What are your pricing or budget options?",
+    "answer": "Our pricing is flexible and transparent. We offer customized solutions based on your budget and requirements."
+  },
+  {
+    "id": "f6",
+    "question": "Do you help with material selection?",
+    "answer": "Yes, our experts assist you in selecting the best materials, finishes, and fittings for your project."
+  },
+  {
+    "id": "f7",
+    "question": "Can I request changes after the design is presented?",
+    "answer": "Absolutely. We allow design revisions to ensure the final outcome matches your expectations."
+  },
+  {
+    "id": "f8",
+    "question": "Do you offer complete turnkey execution?",
+    "answer": "Yes, we provide end-to-end turnkey execution including design, material sourcing, and on-site execution."
+  },
+  {
+    "id": "f9",
+    "question": "Will I get regular updates during the execution phase?",
+    "answer": "Yes, we keep you informed with regular progress updates throughout the execution phase."
+  },
+  {
+    "id": "f10",
+    "question": "Do you work on both new homes and renovation projects?",
+    "answer": "Yes, we handle both new home interiors as well as renovation and remodeling projects."
+  }
+]

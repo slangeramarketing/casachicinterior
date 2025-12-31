@@ -1,0 +1,50 @@
+[
+  {
+    "id": "1",
+    "title": "Modern Living Room Interior Design Ideas",
+    "slug": "modern-living-room-interior-design-ideas",
+    "description": "Explore modern living room interior design ideas with clean layouts, neutral tones, and smart furniture choices.",
+    "thumbnailImage": "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
+    "category": "Interior Design",
+    "subCategory": "Living Room",
+    "richText": "<h2>Modern Living Room Design</h2><p>A modern living room focuses on simplicity, functionality, and elegance. Clean lines and open layouts create a clutter-free environment.</p><img src='https://images.unsplash.com/photo-1600585154340-be6161a56a0c' alt='Modern Living Room' /><h3>Key Features</h3><ul><li>Neutral color palette</li><li>Minimal furniture</li><li>Natural lighting</li></ul><h3>Design Steps</h3><ol><li>Choose a base color</li><li>Select functional furniture</li><li>Add subtle decor</li></ol>",
+    "createdAt": "2025-01-10T10:30:00.000Z",
+    "updatedAt": "2025-02-15T14:45:00.000Z"
+  },
+  {
+    "id": "2",
+    "title": "Luxury Bedroom Interior Design for Comfort",
+    "slug": "luxury-bedroom-interior-design-for-comfort",
+    "description": "Luxury bedroom interior design ideas that combine comfort, aesthetics, and premium materials.",
+    "thumbnailImage": "https://images.unsplash.com/photo-1616594039964-ae9021a400a0",
+    "category": "Interior Design",
+    "subCategory": "Bedroom",
+    "richText": "<h2>Luxury Bedroom Interior</h2><p>A luxury bedroom is designed to provide maximum comfort while maintaining a premium look.</p><img src='https://images.unsplash.com/photo-1616594039964-ae9021a400a0' alt='Luxury Bedroom' /><h3>Elements of Luxury</h3><ul><li>High-quality fabrics</li><li>Ambient lighting</li><li>Custom wardrobes</li></ul><h3>How to Style</h3><ol><li>Use layered lighting</li><li>Invest in a statement bed</li><li>Keep the palette elegant</li></ol>",
+    "createdAt": "2025-01-12T09:15:00.000Z",
+    "updatedAt": "2025-02-18T11:20:00.000Z"
+  },
+  {
+    "id": "3",
+    "title": "Modular Kitchen Design for Modern Homes",
+    "slug": "modular-kitchen-design-for-modern-homes",
+    "description": "Smart and space-efficient modular kitchen design ideas for modern homes.",
+    "thumbnailImage": "https://images.unsplash.com/photo-1600489000022-c2086d79f9d4",
+    "category": "Interior Design",
+    "subCategory": "Kitchen",
+    "richText": "<h2>Modular Kitchen Design</h2><p>Modular kitchens are designed for efficiency, functionality, and aesthetics.</p><img src='https://images.unsplash.com/photo-1600489000022-c2086d79f9d4' alt='Modular Kitchen' /><h3>Advantages</h3><ul><li>Easy maintenance</li><li>Optimized storage</li><li>Modern appearance</li></ul><h3>Planning Process</h3><ol><li>Analyze kitchen layout</li><li>Choose modular units</li><li>Install smart storage</li></ol>",
+    "createdAt": "2025-01-15T08:00:00.000Z",
+    "updatedAt": "2025-02-20T16:10:00.000Z"
+  },
+  {
+    "id": "4",
+    "title": "Stylish Bathroom Interior Design Trends",
+    "slug": "stylish-bathroom-interior-design-trends",
+    "description": "Latest bathroom interior design trends that blend style, comfort, and functionality.",
+    "thumbnailImage": "https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b",
+    "category": "Interior Design",
+    "subCategory": "Bathroom",
+    "richText": "<h2>Bathroom Interior Trends</h2><p>Modern bathroom interiors focus on clean finishes, smart fittings, and soothing colors.</p><img src='https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b' alt='Modern Bathroom' /><h3>Trending Ideas</h3><ul><li>Wall-mounted vanities</li><li>Matte finish tiles</li><li>Smart mirrors</li></ul><h3>Design Tips</h3><ol><li>Use anti-slip tiles</li><li>Install proper ventilation</li><li>Keep storage minimal</li></ol>",
+    "createdAt": "2025-01-18T12:40:00.000Z",
+    "updatedAt": "2025-02-22T09:55:00.000Z"
+  }
+]
