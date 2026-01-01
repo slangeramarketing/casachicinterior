@@ -2,6 +2,12 @@
 
 import { useState } from "react";
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import Alert from "@/components/common/Alert";
+
+const PHONE_REGEX = /^[6-9]\d{9}$/;
+const EMAIL_REGEX =
+  /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 
 export default function ContactSection() {
   const [loading, setLoading] = useState(false);
@@ -12,37 +18,127 @@ export default function ContactSection() {
     message: "",
   });
 
-    const handleChange = (
-      e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-    ) => {
-      setForm({ ...form, [e.target.name]: e.target.value });
-    };
+  const [alert, setAlert] = useState<{
+    type: "success" | "error";
+    title: string;
+    description?: string;
+  } | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      setLoading(true);
+  const [errors, setErrors] = useState<{
+    phone?: string;
+    email?: string;
+  }>({});
 
-      const res = await fetch("/send-mail.php", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: new URLSearchParams(form).toString(),
+
+
+const handleChange = (
+  e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+) => {
+  const { name, value } = e.target;
+
+  setForm({ ...form, [name]: value });
+
+  // Live validation
+  if (name === "phone") {
+    if (!PHONE_REGEX.test(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: "Enter a valid 10-digit mobile number",
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, phone: undefined }));
+    }
+  }
+
+  if (name === "email") {
+    if (!EMAIL_REGEX.test(value)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "Enter a valid email address",
+      }));
+    } else {
+      setErrors((prev) => ({ ...prev, email: undefined }));
+    }
+  }
+};
+
+
+
+
+
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+
+  if (loading) return;
+
+  setLoading(true);
+
+  try {
+    const res = await fetch("/send-mail.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams(form).toString(),
+    });
+
+    if (!res.ok) {
+      throw new Error("Server error");
+    }
+
+    const data = await res.json();
+
+    if (errors.phone || errors.email) {
+      setAlert({
+        type: "error",
+        title: "Invalid Input",
+        description: "Please correct the highlighted fields.",
       });
-
-      const data = await res.json();
       setLoading(false);
+      return;
+    }
 
-      if (data.success) {
-        alert("Thank you! We will contact you soon.");
-        setForm({ name: "", email: "", phone: "", message: "" });
-      } else {
-        alert("Something went wrong. Please try again.");
-      }
-    };
+
+    if (data.success) {
+      setAlert({
+        type: "success",
+        title: "Message Sent",
+        description: "Thank you! We will contact you shortly.",
+      });
+      setForm({ name: "", email: "", phone: "", message: "" });
+    } else {
+      setAlert({
+        type: "error",
+        title: "Submission Failed",
+        description: "Please try again after some time.",
+      });
+    }
+
+  } catch (error) {
+    setAlert({
+      type: "error",
+      title: "Network Error",
+      description: "Unable to connect to server. Try later.",
+    });
+
+    // console.error(error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <section className="w-full py-24 bg-white" id="contact">
+
+      {alert && (
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          description={alert.description}
+          onClose={() => setAlert(null)}
+        />
+      )}
       <div className="max-w-5xl mx-auto px-6">
 
         {/* HEADER */}
@@ -88,29 +184,59 @@ export default function ContactSection() {
                 required
                 type="text"
                 placeholder="Name"
-                className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                className="h-11 w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-gray-300"
 
               />
-              <input
-                name="email" 
-                value={form.email} 
-                onChange={handleChange} 
-                required
-                type="email"
-                placeholder="Email"
-                className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
-              />
+              <div>
+                <input
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  required
+                  type="email"
+                  placeholder="Email"
+                  className={`
+                    w-full border rounded-md px-4 py-3 text-sm
+                    focus:outline-none
+                    ${errors.email
+                      ? "border-red-500"
+                      : "border-gray-300 focus:border-gray-300"}
+                  `}
+                />
+
+                {errors.email && (
+                  <p className="text-xs text-red-500 p-2">
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
             </div>
 
-            <input
-              name="phone" 
-              value={form.phone} 
-              onChange={handleChange} 
+            <div>
+              <input
+              name="phone"
+              value={form.phone}
+              onChange={handleChange}
               required
               type="tel"
               placeholder="Phone No"
-              className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+              maxLength={10}
+              className={`
+                w-full border rounded-md px-4 py-3 text-sm
+                focus:outline-none
+                ${errors.phone
+                  ? "border-red-500"
+                  : "border-gray-300 focus:border-gray-300"}
+              `}
             />
+
+            {errors.phone && (
+              <p className="text-xs text-red-500 p-2">
+                {errors.phone}
+              </p>
+            )}
+            </div>
 
             <textarea
               name="message" 
@@ -119,15 +245,22 @@ export default function ContactSection() {
               required
               placeholder="Message"
               rows={4}
-              className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm resize-none focus:outline-none focus:border-orange-500"
+              className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm resize-none focus:outline-none focus:border-gray-300"
             />
 
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-md transition"
+              disabled={loading}
+              className={`
+                w-full py-3 rounded-md font-semibold transition
+                ${loading
+                  ? "bg-orange-300 cursor-not-allowed"
+                  : "bg-orange-500 hover:bg-orange-600 text-white"}
+              `}
             >
-              Submit
+              {loading ? "Sending..." : "Submit"}
             </button>
+
           </form>
         </div>
 

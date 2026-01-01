@@ -1,9 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  reactCompiler: true,
+  // ✅ Static export for shared hosting
+  output: "export",
 
+  // ✅ Required when using next/image on static hosting
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: "https",
@@ -18,11 +21,12 @@ const nextConfig: NextConfig = {
     ],
   },
 
-  experimental: {
-    serverActions: {
-      bodySizeLimit: "10mb", // or "5mb"
-    },
-  },
+  // ❌ REMOVE serverActions (not supported in static export)
+  // ❌ REMOVE reactCompiler (not needed for static hosting)
+
+  // ⚠️ Experimental features disabled for static build
+  experimental: {},
+
 };
 
 export default nextConfig;

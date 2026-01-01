@@ -1,18 +1,11 @@
 "use client";
 
-import { useParams, notFound } from "next/navigation";
-import { projects } from "@/lib/data/projects/projects";
+import { Project} from "@/lib/data/projects/projects";
 import * as Fi from "react-icons/fi";
 import ProjectGallery from "@/components/public/ProjectGallery";
-import Link from "next/link";
 import { PageRouteHeader } from "@/components/common/PageHeader";
 
-export default function ProjectDetailPage() {
-  const { slug } = useParams<{ slug: string }>();
-
-  const project = projects.find(p => p.slug === slug);
-  if (!project) notFound();
-
+export default function SingleProject({ project }: { project: Project }) {
   return (
     <section className="max-w-7xl mx-auto px-6 py-32 space-y-24">
 

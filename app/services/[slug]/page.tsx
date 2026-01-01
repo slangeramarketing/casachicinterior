@@ -4,6 +4,12 @@ import { notFound } from "next/navigation";
 import { servicesData } from "@/lib/data/services/service.data";
 import * as FiIcons from "react-icons/fi";
 
+export function generateStaticParams() {
+  return servicesData.map((project) => ({
+    slug: project.slug,
+  }));
+}
+
 /* -------------------------------------
    PAGE
 ------------------------------------- */

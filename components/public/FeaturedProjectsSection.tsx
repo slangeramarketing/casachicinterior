@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { featuredProjects } from "@/lib/data/featuredProjects";
+
 import { useRouter } from "next/navigation";
 
 /* -------------------------------------

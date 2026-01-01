@@ -4,14 +4,13 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { BiCategory } from "react-icons/bi";
 
-import { BlogDTO } from "@/types/blogs";
-
 import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
 import SearchInput from "@/components/common/SearchInput";
 import FilterDropdown from "@/components/common/FilterDropdown";
 import CreateButton from "@/components/common/CreateButton";
 import BlogCard from "@/components/admin/BlogCard";
 import { timeAgo } from "@/lib/utils/timeAgo";
+import { BlogDTO } from "@/types/blogs";
 
 /* =========================
    PROPS

@@ -44,7 +44,7 @@ export default function HeroSection() {
             </p>
 
             <Link
-              href="#"
+              href="/contact"
               className="inline-block mt-6 bg-bg-primary hover:bg-white hover:text-black text-white px-6 py-3 rounded-full text-sm font-semibold transition"
             >
               Book Free Consultation

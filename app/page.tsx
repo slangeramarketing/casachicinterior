@@ -52,7 +52,7 @@ export default function page() {
      <ContactSection/>
      <FAQSection/>
       <WhatsAppFAB
-          phoneNumber="919876543210"
+          phoneNumber="918740990990"
           message="Hi, I saw your portfolio and want to connect"
         />
 

@@ -1,11 +1,17 @@
 // types/blogs.ts
 
-import { UserPublicDTO } from "./user";
+
 
 /* -------------------------------------
    Blog Status
 ------------------------------------- */
 export type BlogStatus = "draft" | "published";
+
+export interface BlogAuther{
+    id:string;
+    name?:string;
+    avatar:string
+}
 
 /* -------------------------------------
    SEO (UI + DTO SAFE)
@@ -35,7 +41,7 @@ export interface BlogDTO {
   status: BlogStatus;
   featured: boolean;
 
-  author: UserPublicDTO;
+  author: BlogAuther;
 
   seo: BlogSEO; // ✅ ALWAYS PRESENT FOR UI
 
@@ -103,7 +109,7 @@ export function mapBlogToDTO(doc: any): BlogDTO {
     featured: doc.featured,
 
     author: {
-      _id: doc.author._id.toString(),
+      id: doc.author._id.toString(),
       name: doc.author.name,
       avatar: doc.author.avatar || "",
     },

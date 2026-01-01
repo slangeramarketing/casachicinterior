@@ -1,8 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useRef } from "react";
-import { designSolutions } from "@/lib/data/designSolutions";
 
 
 /* -------------------------------------
@@ -22,6 +22,8 @@ interface Props {
 
 export default function DesignSolutionsSection({ services }: Props) {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
 
   const scrollLeft = () => {
     sliderRef.current?.scrollBy({
@@ -79,7 +81,8 @@ export default function DesignSolutionsSection({ services }: Props) {
           {services.map((item) => (
             <div
               key={item.id}
-              className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition"
+              onClick={() => router.push(`/services/${item.slug}`)}
+              className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition cursor-pointer"
             >
               <div className="relative w-full h-48">
                 <Image
