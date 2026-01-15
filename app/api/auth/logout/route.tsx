@@ -1,5 +1,6 @@
-import { logoutController } from "@/modules/user/user.controller";
+import { authController } from "@/modules/auth/auth.controller";
+
 
 export async function POST() {
-  return logoutController();
+  return authController.logout();
 }

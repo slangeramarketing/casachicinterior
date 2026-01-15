@@ -1,0 +1,15 @@
+import ProfilePage from "@/components/admin/ProfilePage";
+import { getAuthUser } from "@/lib/auth";
+import { userServer } from "@/modules/users/user.server";
+
+export default async function ProfileServerPage() {
+  const authUser = await getAuthUser();
+  if (!authUser) {
+    throw new Error("Unauthorized");
+  }
+
+  // 👇 DB se full user lao
+  const user = await userServer.getById(authUser.userId);
+
+  return <ProfilePage user={user} />;
+}

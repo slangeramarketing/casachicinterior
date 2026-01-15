@@ -2,10 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createUserAction,
-  updateUserAction,
-} from "@/modules/user/user.action";
 
 /* =========================
    TYPES
@@ -21,8 +17,8 @@ interface UserFormData {
 
 interface UserFormProps {
   mode: "create" | "update";
-  userId?: string;
   initialData?: Omit<UserFormData, "password">;
+  onSubmit: (data: any) => Promise<void>;
 }
 
 /* =========================
@@ -30,8 +26,8 @@ interface UserFormProps {
 ========================= */
 export default function UserForm({
   mode,
-  userId,
   initialData,
+  onSubmit
 }: UserFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -53,22 +49,20 @@ export default function UserForm({
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
-  ) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
       if (mode === "create") {
-        await createUserAction({
+        await onSubmit({
           name: form.name,
           email: form.email,
           password: form.password!,
           role: form.role,
         });
       } else {
-        await updateUserAction(userId!, {
+        await onSubmit({
           name: form.name,
           role: form.role,
         });
@@ -87,24 +81,19 @@ export default function UserForm({
   ========================= */
   return (
     <div className="flex flex-col w-full items-center px-10">
-      <div className="flex flex-col gap-1 w-full max-w-xl">
-        <h1 className="text-xl font-semibold text-gray-800">
-          {mode === "create" ? "Create User" : "Update User"}
-        </h1>
-      </div>
 
       <form
         onSubmit={handleSubmit}
-        className="max-w-xl w-full rounded-xl border bg-white p-6 mt-8"
+        className="max-w-xl w-full rounded-xl border border-gray-300 bg-white px-8 py-18"
       >
-        <div className="space-y-4">
+        <div className="space-y-6">
           <input
             name="name"
             value={form.name}
             onChange={handleChange}
             placeholder="Name"
             required
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded border border-gray-300 px-3 py-2"
           />
 
           <input
@@ -115,7 +104,7 @@ export default function UserForm({
             placeholder="Email"
             required
             disabled={mode === "update"}
-            className="w-full rounded border px-3 py-2 disabled:bg-gray-100"
+            className="w-full rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100"
           />
 
           {mode === "create" && (
@@ -126,7 +115,7 @@ export default function UserForm({
               onChange={handleChange}
               placeholder="Password"
               required
-              className="w-full rounded border px-3 py-2"
+              className="w-full rounded border border-gray-300 px-3 py-2"
             />
           )}
 
@@ -134,7 +123,7 @@ export default function UserForm({
             name="role"
             value={form.role}
             onChange={handleChange}
-            className="w-full rounded border px-3 py-2"
+            className="w-full rounded border border-gray-300 px-3 py-2"
           >
             <option value="super_admin">Super Admin</option>
             <option value="admin">Admin</option>
@@ -144,7 +133,7 @@ export default function UserForm({
 
         <button
           disabled={loading}
-          className="mt-6 w-full rounded bg-black text-white py-2"
+          className="mt-6 w-full rounded bg-bg-primary text-white py-2"
         >
           {mode === "create" ? "Create User" : "Update User"}
         </button>

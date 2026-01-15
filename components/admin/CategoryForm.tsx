@@ -2,24 +2,15 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createCategoryAction,
-  updateCategoryAction,
-} from "@/modules/category/category.actions";
-
-/* -------------------------------------
-   Types
-------------------------------------- */
-export interface CategoryFormData {
-  name: string;
-  slug: string;
-  description?: string;
-  isActive: boolean;
-}
+import { categoryServer } from "@/modules/blog-category/category.server";
+import { CreateCategoryDTO, ResponseCategoryDTO } from "@/modules/blog-category/category.dto";
 
 interface CategoryFormProps {
-  initialData?: CategoryFormData;
+  initialData?: ResponseCategoryDTO;
   categoryId?: string;
+
+  onCreate?: (data: CreateCategoryDTO) => Promise<void>;
+  onUpdate?: (id: string, data: CreateCategoryDTO) => Promise<void>;
 }
 
 /* -------------------------------------
@@ -28,12 +19,14 @@ interface CategoryFormProps {
 export default function CategoryForm({
   initialData,
   categoryId,
+  onCreate,
+  onUpdate
 }: CategoryFormProps) {
   const router = useRouter();
 
   const isEdit = Boolean(categoryId);
 
-  const [form, setForm] = useState<CategoryFormData>({
+  const [form, setForm] = useState<CreateCategoryDTO>({
     name: "",
     slug: "",
     description: "",
@@ -47,9 +40,14 @@ export default function CategoryForm({
   /* -------------------------------------
      Prefill (UPDATE)
   ------------------------------------- */
-  useEffect(() => {
+   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        name: initialData.name,
+        slug: initialData.slug,
+        description: initialData.description,
+        isActive: initialData.isActive,
+      });
     }
   }, [initialData]);
 
@@ -92,29 +90,25 @@ export default function CategoryForm({
   /* -------------------------------------
      Submit Handler
   ------------------------------------- */
-  const handleSubmit = async (formData: FormData) => {
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    setLoading(true);
+ const handleSubmit = async () => {
+    try {
+      setErrorMessage(null);
+      setLoading(true);
 
-    const res = isEdit
-      ? await updateCategoryAction(categoryId!, formData)
-      : await createCategoryAction(formData);
+      if (isEdit && onUpdate && categoryId) {
+        await onUpdate(categoryId, form);
+      }
 
-    setLoading(false);
+      if (!isEdit && onCreate) {
+        await onCreate(form);
+      }
 
-    if (!res?.success) {
-      setErrorMessage(
-        res?.message || "Something went wrong. Please try again."
-      );
-      return;
+      router.push("/admin/blogs/categories");
+    } catch (err: any) {
+      setErrorMessage(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
     }
-
-    setSuccessMessage(
-      isEdit
-        ? "Category updated successfully. Redirecting…"
-        : "Category created successfully. Redirecting…"
-    );
   };
 
   /* -------------------------------------

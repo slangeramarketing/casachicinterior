@@ -4,8 +4,14 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
+import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
+import { ServiceResponseDTO } from "@/modules/services/service.dto";
 
-export default function Header() {
+interface HeaderProps {
+  featuredServiceList:ServiceResponseDTO[];
+}
+
+export default function Header({featuredServiceList}:HeaderProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
 
@@ -97,18 +103,12 @@ export default function Header() {
                 }
               `}
             >
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Modular Interiors
+              {featuredServiceList?.map((service) => (
+                <Link key={service.id} href={`/services/${service.slug}`} className="block px-4 py-2 hover:bg-gray-100">
+                {service.title}
               </Link>
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Home Interiors
-              </Link>
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Home Renovation
-              </Link>
-              <Link href="#" className="block px-4 py-2 hover:bg-gray-100">
-                Commercial Spaces
-              </Link>
+              ))}
+              
             </div>
           </div>
 

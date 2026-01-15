@@ -1,8 +1,110 @@
 "use client";
 
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
+import cities from "@/lib/data/indian-cities.json";
+import { useState } from "react";
+import { submitContactAction } from "@/app/(public)/actions/message.action";
+
 
 export default function ContactSection() {
+  const [city, setCity] = useState<string>("");
+  const [customCity, setCustomCity] = useState<string>("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    city: "",
+    customCity: "",
+    message: "",
+  });
+
+  const [status, setStatus] = useState<{
+    loading: boolean;
+    error: string | null;
+    success: boolean;
+  }>({
+    loading: false,
+    error: null,
+    success: false,
+  });
+
+
+  const updateField = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+
+
+  /*****************************
+       Form Action Handler 
+   ******************************/
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    setStatus({ loading: true, error: null, success: false });
+
+    const finalCity =
+      form.city === "Other" ? form.customCity : form.city;
+
+    // Basic client-side validation (UX only)
+    if (
+      !form.name ||
+      !form.email ||
+      !form.phone ||
+      !finalCity ||
+      !form.message
+    ) {
+      setStatus({
+        loading: false,
+        error: "Please fill all required fields.",
+        success: false,
+      });
+      return;
+    }
+
+    try {
+      await submitContactAction({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        city: finalCity,
+        message: form.message,
+      });
+
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        city: "",
+        customCity: "",
+        message: "",
+      });
+
+      setStatus({
+        loading: false,
+        error: null,
+        success: true,
+      });
+    } catch (err) {
+      setStatus({
+        loading: false,
+        error: "Something went wrong. Please try again.",
+        success: false,
+      });
+    }
+  };
+
+
+
+
   return (
     <section className="w-full py-24 bg-white" id="contact">
       <div className="max-w-5xl mx-auto px-6">
@@ -40,40 +142,125 @@ export default function ContactSection() {
             />
           </div>
 
+          <div className="w-full flex justify-center items-center">
+            {/* STATUS MESSAGE */}
+            {status.error && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-4 py-2 mb-6 w-full">
+                {status.error}
+              </p>
+            )}
+
+            {status.success && (
+              <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-md px-4 py-2 mb-6 w-full">
+                Thank you! Your message has been sent successfully.
+              </p>
+            )}
+          </div>
+
           {/* FORM */}
-          <form className="space-y-6 mb-8 lg:px-8">
+          <form
+            onSubmit={handleSubmit}
+            className="space-y-6 mb-8 lg:px-8"
+          >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <input
                 type="text"
+                name="name"
                 placeholder="Name"
+                value={form.name}
+                onChange={updateField}
                 className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                required
               />
+
               <input
                 type="email"
+                name="email"
                 placeholder="Email"
+                value={form.email}
+                onChange={updateField}
                 className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                required
               />
             </div>
 
             <input
               type="tel"
+              name="phone"
               placeholder="Phone No"
+              value={form.phone}
+              onChange={updateField}
               className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+              required
             />
 
+            {/* CITY DROPDOWN */}
+            <div className="space-y-3">
+              <select
+                name="city"
+                value={form.city}
+                onChange={(e) => {
+                  updateField(e);
+                  if (e.target.value !== "Other") {
+                    setForm((prev) => ({
+                      ...prev,
+                      customCity: "",
+                    }));
+                  }
+                }}
+                className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm bg-white focus:outline-none focus:border-orange-500"
+                required
+              >
+                <option value="" disabled>
+                  Select City
+                </option>
+
+                {cities.map((cityName) => (
+                  <option key={cityName} value={cityName}>
+                    {cityName}
+                  </option>
+                ))}
+              </select>
+
+              {/* SHOW ONLY WHEN OTHER */}
+              {form.city === "Other" && (
+                <input
+                  type="text"
+                  name="customCity"
+                  placeholder="Enter your city"
+                  value={form.customCity}
+                  onChange={updateField}
+                  className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                  required
+                />
+              )}
+            </div>
+
             <textarea
+              name="message"
               placeholder="Message"
               rows={4}
+              value={form.message}
+              onChange={updateField}
               className="w-full border border-gray-300 rounded-md px-4 py-3 text-sm resize-none focus:outline-none focus:border-orange-500"
+              required
             />
 
             <button
               type="submit"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-3 rounded-md transition"
+              disabled={status.loading}
+              className={`w-full font-semibold py-3 rounded-md transition
+                ${
+                  status.loading
+                    ? "bg-orange-300 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600 text-white"
+                }`}
             >
-              Submit
+              {status.loading ? "Submitting..." : "Submit"}
             </button>
           </form>
+
+
         </div>
 
       </div>

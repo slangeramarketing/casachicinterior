@@ -1,5 +1,6 @@
 "use client";
 
+import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import Link from "next/link";
 import {
   FiPhone,
@@ -9,7 +10,12 @@ import {
   FiInstagram,
 } from "react-icons/fi";
 
-export default function Footer() {
+  interface HeaderProps {
+    featuredServiceList:ServiceResponseDTO[];
+  }
+
+export default function Footer({featuredServiceList}:HeaderProps) {
+
   return (
     <footer className="bg-gradient-to-b from-[#0B1220] to-[#070C16] text-gray-300">
       <div className="max-w-7xl mx-auto px-6 py-16">
@@ -43,10 +49,13 @@ export default function Footer() {
               Design Solutions
             </h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="#">Modular Interiors</Link></li>
-              <li><Link href="#">Home Interiors</Link></li>
-              <li><Link href="#">Home Renovation</Link></li>
-              <li><Link href="#">Commercial Spaces</Link></li>
+              {featuredServiceList?.map((service) => (
+                <li>
+                <Link key={service.id} href={`/services/${service.slug}`} >
+                {service.title}
+              </Link>
+              </li>
+              ))}
             </ul>
           </div>
 

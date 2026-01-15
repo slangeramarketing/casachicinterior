@@ -3,7 +3,7 @@ import {
   updateCategoryController,
   deleteCategoryController,
   getCategoryByIdController,
-} from "@/modules/category/category.controller";
+} from "@/modules/blog-category/category.controller";
 
 
 /* -------------------------------------

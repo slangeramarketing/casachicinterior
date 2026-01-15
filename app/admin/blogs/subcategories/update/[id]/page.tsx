@@ -1,9 +1,9 @@
 import SubCategoryForm from "@/components/admin/SubCategoryForm";
-import { getSubCategoryByIdRaw } from "@/modules/subcategory/subcategory.service";
-import { getAllCategories } from "@/modules/category/category.service";
 import mongoose from "mongoose";
 import { notFound } from "next/navigation";
-import { CreateSubCategoryInputDTO } from "@/types/subCategory";
+import { subCategoryServer } from "@/modules/blog-subcategory/subcategory.server";
+import { categoryServer } from "@/modules/blog-category/category.server";
+import { PageRouteHeader } from "@/components/common/PageHeader";
 
 export default async function EditSubCategoryPage({
   params,
@@ -12,36 +12,32 @@ export default async function EditSubCategoryPage({
 }) {
   const { id } = await params;
 
-  if (!mongoose.Types.ObjectId.isValid(id)) notFound();
+  if (id) notFound();
 
-  const subCategory = await getSubCategoryByIdRaw(id);
+  const subCategory = await subCategoryServer.getById(id);
   if (!subCategory) notFound();
 
-  const categories = await getAllCategories();
-
-  // 🔑 DTO → Form DTO mapping (IMPORTANT)
-  const initialData: CreateSubCategoryInputDTO = {
-    name: subCategory.name,
-    slug: subCategory.slug,
-    description: subCategory.description,
-    categoryId:
-      typeof subCategory.category === "string"
-        ? subCategory.category
-        : subCategory.category._id,
-    isActive: subCategory.isActive,
-  };
+  const categories = await categoryServer.getAll();
 
   return (
-    <div className="max-w-3xl mx-auto pt-6">
-      <h1 className="text-2xl font-semibold mb-4">
-        Edit Sub-Category
-      </h1>
+    <div className="w-full flex flex-col items-center">
+      <div className="w-full px-4">
+        <PageRouteHeader />
+      </div>
 
-      <SubCategoryForm
-        initialData={initialData}
-        subCategoryId={id}
-        categoryData={categories}
-      />
+      <div className="pt-6 w-1/2">
+        <h1 className="text-2xl font-semibold mb-4">
+          Create Category
+        </h1>
+
+        <SubCategoryForm
+          initialData={subCategory}
+          subCategoryId={id}
+          categoryData={categories}
+        />
+      </div>
     </div>
   );
 }
+
+

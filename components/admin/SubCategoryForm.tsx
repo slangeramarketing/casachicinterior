@@ -2,20 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  createSubCategoryAction,
-  updateSubCategoryAction,
-} from "@/modules/subcategory/subcategory.action";
-import { CreateSubCategoryInputDTO } from "@/types/subCategory";
-import { CategoryDTO } from "@/types/category";
+import { ResponseCategoryDTO } from "@/modules/blog-category/category.dto";
+import { CreateSubCategoryDTO, SubCategoryResponseDTO, UpdateSubCategoryDTO } from "@/modules/blog-subcategory/subcategory.dto";
+
 
 /* -------------------------------------
    Props
 ------------------------------------- */
 interface SubCategoryFormProps {
-  initialData?: CreateSubCategoryInputDTO;
+  initialData?: SubCategoryResponseDTO;
   subCategoryId?: string;
-  categoryData: CategoryDTO[];
+  categoryData: ResponseCategoryDTO[];
+  onCreate?: (data: CreateSubCategoryDTO) => Promise<void>;
+  onUpdate?: (id: string, data: UpdateSubCategoryDTO) => Promise<void>;
 }
 
 /* -------------------------------------
@@ -25,11 +24,13 @@ export default function SubCategoryForm({
   initialData,
   subCategoryId,
   categoryData,
+  onCreate,
+  onUpdate
 }: SubCategoryFormProps) {
   const router = useRouter();
   const isEdit = Boolean(subCategoryId);
 
-  const [form, setForm] = useState<CreateSubCategoryInputDTO>({
+  const [form, setForm] = useState<CreateSubCategoryDTO>({
     name: "",
     slug: "",
     description: "",
@@ -46,7 +47,13 @@ export default function SubCategoryForm({
   ------------------------------------- */
   useEffect(() => {
     if (initialData) {
-      setForm(initialData);
+      setForm({
+        name: initialData.name,
+        slug: initialData.slug,
+        description: initialData.description || "",
+        categoryId: initialData.categoryId,
+        isActive: initialData.isActive,
+      });
     }
   }, [initialData]);
 
@@ -90,26 +97,25 @@ export default function SubCategoryForm({
      Submit
   ------------------------------------- */
   const handleSubmit = async (formData: FormData) => {
+    try{
     setErrorMessage(null);
-    setSuccessMessage(null);
     setLoading(true);
 
-    const res = isEdit
-      ? await updateSubCategoryAction(subCategoryId!, formData)
-      : await createSubCategoryAction(formData);
-
-    setLoading(false);
-
-    if (!res?.success) {
-      setErrorMessage(res?.message || "Something went wrong.");
-      return;
+    if (isEdit && onUpdate && subCategoryId) {
+        await onUpdate(subCategoryId, form);
     }
 
-    setSuccessMessage(
-      isEdit
-        ? "Sub-Category updated successfully."
-        : "Sub-Category created successfully."
-    );
+    if (!isEdit && onCreate) {
+        await onCreate(form);
+    }
+    
+    router.push("/admin/blogs/categories");
+  }catch (err: any) {
+      setErrorMessage(err.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+
   };
 
   /* -------------------------------------
@@ -148,7 +154,7 @@ export default function SubCategoryForm({
         >
           <option value="">Select Category</option>
           {categoryData.map((cat) => (
-            <option key={cat._id} value={cat._id}>
+            <option key={cat.id} value={cat.id}>
               {cat.name}
             </option>
           ))}

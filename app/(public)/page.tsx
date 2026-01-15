@@ -1,43 +1,14 @@
-"use client"
-import ContactSection from '@/components/public/ContactSection'
-import DesignProcessSection from '@/components/public/DesignProcessSection'
-import DesignSolutionsSection from '@/components/public/DesignSolutionsSection'
-import EnquiryModal from '@/components/public/EnquiryModal'
-import EnquiryStickyTab from '@/components/public/EnquiryStickyTab'
-import FAQSection from '@/components/public/FAQSection'
-import FeaturedProjectsSection from '@/components/public/FeaturedProjectsSection'
-import HeroSection from '@/components/public/HeroSection'
-import ReviewSection from '@/components/public/ReviewSection'
-import ShortAboutSection from '@/components/public/ShortAboutSection'
-import ThirdPartyReviews from '@/components/public/ThirdPartyReviews'
-import WhatsAppFAB from '@/components/public/WhatsAppFAB'
-import WhyChooseUsSection from '@/components/public/WhyChooseUsSection'
-import React, { useState } from 'react'
 
-export default function page() {
-  const [open, setOpen] = useState(false);
+
+import LandingPage from "@/components/public/LandingPage"
+import { serviceServer } from "@/modules/services/service.server";
+
+export default async  function page() {
+
+  const featuredServiceList=await serviceServer.getFeatured(5);
   return (
     <>
-     <HeroSection/>
-     <ThirdPartyReviews/>
-     <ShortAboutSection/>
-     <FeaturedProjectsSection/>
-     <DesignSolutionsSection/>
-     <WhyChooseUsSection/>
-     <DesignProcessSection/>
-     <ReviewSection/>
-     <ContactSection/>
-     <FAQSection/>
-      <WhatsAppFAB
-          phoneNumber="919876543210"
-          message="Hi, I saw your portfolio and want to connect"
-        />
-
-        <EnquiryStickyTab onClick={() => setOpen(true)} />
-        {/* Modal */}
-      <EnquiryModal open={open} onClose={() => setOpen(false)}>
-        <ContactSection />
-      </EnquiryModal>
+     <LandingPage featuredServiceList={featuredServiceList} />
     </>
   )
 }

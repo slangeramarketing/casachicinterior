@@ -6,28 +6,29 @@ import {
   IconPackKey,
   resolveIcon,
 } from "@/lib/utils/iconRegistry";
-import { FiSearch } from "react-icons/fi";
+import { FiSearch, FiX } from "react-icons/fi";
 
 interface IconPickerProps {
-  value: string; // e.g. "fi:FiEdit3"
+  value?: string; // e.g. "fi:FiEdit3"
   onChange: (value: string) => void;
 }
 
 export default function IconPicker({
-  value,
+  value = "",
   onChange,
 }: IconPickerProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+  const [manual, setManual] = useState("");
   const [activePack, setActivePack] =
     useState<IconPackKey>("fi");
 
   /* -------------------------------------
-     Parse selected value safely
+     Parse selected icon safely
   ------------------------------------- */
   const [pack, iconName] = value
     ? (value.split(":") as [IconPackKey, string])
-    : [activePack, ""];
+    : [undefined, undefined];
 
   const SelectedIcon =
     pack && iconName
@@ -35,35 +36,68 @@ export default function IconPicker({
       : null;
 
   /* -------------------------------------
-     Filter icons by search
+     Filter icons
   ------------------------------------- */
   const iconNames = useMemo(() => {
-    const packIcons = ICON_PACKS[activePack];
-    return Object.keys(packIcons).filter((name) =>
+    const icons = ICON_PACKS[activePack];
+    return Object.keys(icons).filter((name) =>
       name.toLowerCase().includes(query.toLowerCase())
     );
   }, [activePack, query]);
 
+  /* -------------------------------------
+     Clear icon
+  ------------------------------------- */
+  function clearIcon() {
+    onChange("");
+    setManual("");
+    setQuery("");
+  }
+
+  /* -------------------------------------
+     Manual submit
+  ------------------------------------- */
+  function applyManual() {
+    if (!manual.includes(":")) return;
+    onChange(manual.trim());
+    setManual("");
+    setOpen(false);
+  }
+
   return (
     <div className="relative w-full">
-      {/* Selected button */}
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center gap-3 border border-gray-300 rounded px-3 py-2 bg-white"
-      >
-        {SelectedIcon && (
-          <SelectedIcon className="text-lg text-orange-500" />
+      {/* Selected */}
+      <div className="flex items-center gap-2">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className="flex-1 flex items-center gap-3 border border-gray-300 rounded px-3 py-2 bg-white"
+        >
+          {SelectedIcon && (
+            <SelectedIcon className="text-lg text-bg-primary" />
+          )}
+          <span className="text-sm text-gray-700 truncate">
+            {value || "Select icon"}
+          </span>
+        </button>
+
+        {/* Clear */}
+        {value && (
+          <button
+            type="button"
+            onClick={clearIcon}
+            className="p-2 border rounded text-gray-500 hover:bg-red-50 hover:text-red-600"
+            title="Remove icon"
+          >
+            <FiX />
+          </button>
         )}
-        <span className="text-sm text-gray-700 truncate">
-          {value || "Select icon"}
-        </span>
-      </button>
+      </div>
 
       {open && (
-        <div className="absolute z-40 mt-2 w-full bg-white border border-gray-300 rounded shadow-lg">
-          {/* Pack selector */}
-          <div className="flex gap-2 p-2 border-b">
+        <div className="absolute z-40 mt-2 w-full bg-white border rounded border-gray-300 shadow-lg">
+          {/* Packs */}
+          <div className="flex gap-2 p-2 border-b border-gray-300">
             {(Object.keys(ICON_PACKS) as IconPackKey[]).map(
               (key) => (
                 <button
@@ -72,7 +106,7 @@ export default function IconPicker({
                   onClick={() => setActivePack(key)}
                   className={`px-2 py-1 text-xs rounded ${
                     activePack === key
-                      ? "bg-orange-500 text-white"
+                      ? "bg-bg-primary text-white"
                       : "bg-gray-100 text-gray-600"
                   }`}
                 >
@@ -83,7 +117,7 @@ export default function IconPicker({
           </div>
 
           {/* Search */}
-          <div className="flex items-center gap-2 px-3 py-2 border-b">
+          <div className="flex items-center gap-2 px-3 py-2 border-b border-gray-300">
             <FiSearch className="text-gray-400 text-sm" />
             <input
               type="text"
@@ -94,19 +128,13 @@ export default function IconPicker({
             />
           </div>
 
-          {/* Icon grid */}
-          <div className="max-h-64 overflow-y-auto grid grid-cols-5 gap-2 p-3">
-            {iconNames.length === 0 && (
-              <p className="col-span-5 text-xs text-gray-400 text-center">
-                No icons found
-              </p>
-            )}
-
+          {/* Grid */}
+          <div className="max-h-56 overflow-y-auto grid grid-cols-5 gap-2 p-3">
             {iconNames.map((name) => {
               const Icon = resolveIcon(activePack, name);
-              const iconValue = `${activePack}:${name}`;
-
               if (!Icon) return null;
+
+              const iconValue = `${activePack}:${name}`;
 
               return (
                 <button
@@ -117,11 +145,11 @@ export default function IconPicker({
                     setOpen(false);
                     setQuery("");
                   }}
-                  className={`flex flex-col items-center justify-center gap-1 p-2 rounded border text-xs hover:bg-gray-100
+                  className={`flex flex-col items-center gap-1 p-2 rounded border border-gray-300 text-xs hover:bg-gray-100
                     ${
                       value === iconValue
-                        ? "border-orange-500 text-orange-600"
-                        : "border-gray-200 text-gray-600"
+                        ? "border-bg-primary text-bg-primary"
+                        : "border-gray-200"
                     }`}
                 >
                   <Icon className="text-lg" />
@@ -131,6 +159,24 @@ export default function IconPicker({
                 </button>
               );
             })}
+          </div>
+
+          {/* Manual input */}
+          <div className="border-t border-gray-300 p-3 space-y-2">
+            <input
+              type="text"
+              placeholder="Manual icon (e.g. fi:FiHome)"
+              value={manual}
+              onChange={(e) => setManual(e.target.value)}
+              className="w-full border border-gray-300 rounded px-2 py-2 text-xs"
+            />
+            <button
+              type="button"
+              onClick={applyManual}
+              className="w-full text-xs bg-bg-primary text-white py-1 rounded"
+            >
+              Apply icon
+            </button>
           </div>
         </div>
       )}

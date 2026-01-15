@@ -3,8 +3,12 @@
 import Image from "next/image";
 import { useRef } from "react";
 import { designSolutions } from "@/lib/data/designSolutions";
+import { ServiceResponseDTO } from "@/modules/services/service.dto";
 
-export default function DesignSolutionsSection() {
+interface HeaderProps {
+  featuredServiceList:ServiceResponseDTO[];
+}
+export default function DesignSolutionsSection({featuredServiceList}:HeaderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const scrollLeft = () => {
@@ -60,26 +64,26 @@ export default function DesignSolutionsSection() {
           ref={sliderRef}
           className="flex gap-6 overflow-x-auto scroll-smooth scrollbar-hide pb-4"
         >
-          {designSolutions.map((item) => (
+          {featuredServiceList.map((item) => (
             <div
               key={item.id}
               className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition"
             >
               <div className="relative w-full h-48">
                 <Image
-                  src={item.image}
+                  src={item.coverImage}
                   alt={item.title}
                   fill
                   className="object-cover"
                 />
               </div>
 
-              <div className="p-5">
+              <div className="py-5 px-4">
                 <h3 className="font-semibold text-lg leading-snug">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm text-white/90">
-                  {item.description}
+                <p className="mt-2 text-sm text-gray-100">
+                  {item.shortDescription}
                 </p>
               </div>
             </div>

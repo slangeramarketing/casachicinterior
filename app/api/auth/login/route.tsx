@@ -1,7 +1,7 @@
 import db from "@/lib/db";
-import { loginController } from "@/modules/user/user.controller";
+import { authController } from "@/modules/auth/auth.controller";
 
 export async function POST(req: Request) {
   db();
-  return loginController(req as any);
+  return authController.login(req as any);
 }

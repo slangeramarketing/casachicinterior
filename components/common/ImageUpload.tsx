@@ -2,7 +2,7 @@
 
 import { useState, ChangeEvent } from "react";
 import Image from "next/image";
-import defaultImg from "@/public/media/static/default.jpg";
+import defaultImg from "@/public/assets/default.jpg";
 
 interface ImageUploadProps {
   label?: string;

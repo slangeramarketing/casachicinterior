@@ -2,11 +2,19 @@
 
 import { useState } from "react";
 import { FaReply, FaPaperPlane } from "react-icons/fa";
-import { MdOutlineMail, MdOutlineDateRange, MdClose } from "react-icons/md";
+import {
+  MdOutlineMail,
+  MdOutlineDateRange,
+  MdClose,
+  MdKeyboardArrowDown,
+  MdKeyboardArrowUp,
+} from "react-icons/md";
 import md5 from "md5";
+import { formatDateTime } from "@/lib/utils/formatDateTime";
+import { CiLocationOn } from "react-icons/ci";
 
 /* =========================
-   GRAVATAR HELPER
+   HELPERS
 ========================= */
 function getGravatar(email: string): string {
   const hash = md5(email.trim().toLowerCase());
@@ -16,57 +24,65 @@ function getGravatar(email: string): string {
 /* =========================
    TYPES
 ========================= */
-export interface Message {
+interface MessageReply {
+  sender: "admin" | "client";
+  message: string;
+  repliedAt: string;
+}
+
+interface MessageThread {
   id: string;
   name: string;
   email: string;
-  date: string;
+  createdAt: string;
   message: string;
+  city:string;
+  replies: MessageReply[];
 }
 
 interface Props {
-  data: Message;
+  data: MessageThread;
   onReplySubmit?: (id: string, reply: string) => void;
 }
 
 /* =========================
    COMPONENT
 ========================= */
-export default function MessageCard({ data, onReplySubmit }: Props) {
+export default function MessageThreadCard({
+  data,
+  onReplySubmit,
+}: Props) {
   const [showReply, setShowReply] = useState(false);
   const [reply, setReply] = useState("");
+  const [showThread, setShowThread] = useState(false);
 
   function handleSend() {
     if (!reply.trim()) return;
     onReplySubmit?.(data.id, reply);
     setReply("");
     setShowReply(false);
+    setShowThread(true); // auto-expand after reply
   }
 
-  function handleCancel() {
-    setReply("");
-    setShowReply(false);
-  }
+  const hasReplies = data.replies.length > 0;
 
   return (
     <div className="w-full bg-white rounded-lg p-4 sm:p-5 flex gap-4">
-      
       {/* Avatar */}
       <img
         src={getGravatar(data.email)}
         alt={data.name}
-        className="w-10 h-10 rounded-full object-cover"
+        className="w-10 h-10 rounded-full"
       />
 
-      {/* Content */}
       <div className="flex-1">
-        
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+        <div className="flex justify-between items-start">
           <div>
             <h4 className="text-sm font-semibold text-black">
               {data.name}
             </h4>
+
             <div className="flex flex-wrap gap-3">
               <p className="text-xs text-gray-500 flex items-center gap-1">
                 <MdOutlineMail size={14} />
@@ -74,22 +90,69 @@ export default function MessageCard({ data, onReplySubmit }: Props) {
               </p>
               <span className="text-xs text-gray-400 flex items-center gap-1">
                 <MdOutlineDateRange size={14} />
-                {data.date}
+                {formatDateTime(data.createdAt)}
+              </span>
+              <span className="text-xs text-gray-400 flex items-center gap-1">
+                <CiLocationOn size={14} />
+                {data.city}
               </span>
             </div>
           </div>
+
+          {/* THREAD TOGGLE (only if replies exist) */}
+          {hasReplies && (
+            <button
+              onClick={() => setShowThread((v) => !v)}
+              className="text-gray-500 hover:text-gray-700"
+              title={showThread ? "Hide replies" : "Show replies"}
+            >
+              {showThread ? (
+                <MdKeyboardArrowUp size={22} />
+              ) : (
+                <MdKeyboardArrowDown size={22} />
+              )}
+            </button>
+          )}
         </div>
 
-        {/* Message */}
+        {/* Root Message */}
         <p className="mt-3 text-sm text-black leading-relaxed">
           {data.message}
         </p>
 
-        {/* Reply Button (hidden when reply box open) */}
+        {/* Thread Replies (collapsible) */}
+        {showThread && (
+          <div className="mt-4 space-y-3">
+            {data.replies.map((replyItem, index) => (
+              <div
+                key={index}
+                className={`ml-6 border-l-2 pl-3 ${
+                  replyItem.sender === "admin"
+                    ? "border-orange-400 bg-orange-50"
+                    : "border-gray-300 bg-gray-50"
+                } rounded-md p-2`}
+              >
+                <p className="text-xs font-semibold text-gray-700">
+                  {replyItem.sender === "admin"
+                    ? "Admin Reply"
+                    : data.name}
+                </p>
+                <p className="text-sm text-gray-800 mt-1">
+                  {replyItem.message}
+                </p>
+                <p className="text-[11px] text-gray-400 mt-1">
+                  {formatDateTime(replyItem.repliedAt)}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Reply Button */}
         {!showReply && (
           <button
             onClick={() => setShowReply(true)}
-            className="mt-3 inline-flex items-center gap-2 text-xs font-medium bg-bg-secondary px-2 py-1 rounded-md cursor-pointer"
+            className="mt-4 inline-flex items-center gap-2 text-xs font-medium bg-bg-secondary px-2 py-1 rounded-md"
           >
             <FaReply size={10} />
             Reply
@@ -98,7 +161,7 @@ export default function MessageCard({ data, onReplySubmit }: Props) {
 
         {/* Reply Box */}
         {showReply && (
-          <div className="mt-3 rounded-md p-3">
+          <div className="mt-3 rounded-md p-3 bg-gray-50">
             <textarea
               rows={3}
               value={reply}
@@ -108,19 +171,16 @@ export default function MessageCard({ data, onReplySubmit }: Props) {
             />
 
             <div className="flex justify-end gap-2 mt-2">
-              {/* Cancel */}
               <button
-                onClick={handleCancel}
-                title="Cancel reply"
-                className="inline-flex items-center justify-center bg-gray-200 text-gray-600 px-3 py-1.5 rounded-md hover:bg-gray-300"
+                onClick={() => setShowReply(false)}
+                className="bg-gray-200 text-gray-600 px-3 py-1.5 rounded-md"
               >
                 <MdClose size={16} />
               </button>
 
-              {/* Send */}
               <button
                 onClick={handleSend}
-                className="inline-flex items-center gap-2 bg-[#F97316] text-white px-4 py-1.5 rounded-md text-sm hover:opacity-90"
+                className="inline-flex items-center gap-2 bg-[#F97316] text-white px-4 py-1.5 rounded-md text-sm"
               >
                 <FaPaperPlane size={14} />
                 Send

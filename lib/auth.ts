@@ -1,23 +1,59 @@
-import jwt, { JwtPayload, Secret , SignOptions   } from "jsonwebtoken";
-
-const JWT_SECRET: Secret = process.env.JWT_SECRET!;
-const EXPIRES_IN: SignOptions["expiresIn"] =
-  (process.env.JWT_EXPIRES_IN as SignOptions["expiresIn"]) ?? "7d";
 
 
-export function signToken(payload:string | object | Buffer) {
-  if(!JWT_SECRET){
-    throw new Error("JWT_SECRET is not defined");
+/* ---------------------------------------
+   lib/auth.ts
+---------------------------------------- */
+
+import { cookies } from "next/headers";
+import { verifyJwt } from "./jwt";
+import { JwtPayload } from "@/modules/auth/auth.types";
+
+/**
+ * Read auth token from HTTP-only cookie
+ * and return verified JWT payload
+ *
+ * Throws Error if unauthenticated
+ */
+export async function requireAuth(): Promise<JwtPayload> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get("auth_token")?.value;
+  console.log("TOKEN: ",token);
+
+  if (!token) {
+    throw new Error("UNAUTHORIZED");
   }
-  return jwt.sign(payload, JWT_SECRET, { 
-    expiresIn: EXPIRES_IN 
-  });
+
+  const payload = verifyJwt(token);
+  if (!payload) {
+    throw new Error("UNAUTHORIZED");
+  }
+
+  return payload;
 }
 
-export function verifyToken(token:string): JwtPayload | string | null {
+/**
+ * Require authentication + role authorization
+ */
+export async function requireRole(
+  allowedRoles: Array<"admin" | "super_admin">
+): Promise<JwtPayload> {
+  const payload = await requireAuth();
+
+  if (!allowedRoles.includes(payload.role)) {
+    throw new Error("FORBIDDEN");
+  }
+
+  return payload;
+}
+
+/**
+ * Optional helper (non-throwing)
+ * Useful for layouts / conditional UI
+ */
+export async function getAuthUser(): Promise<JwtPayload | null> {
   try {
-    return jwt.verify(token, JWT_SECRET);
-  } catch (err) {
+    return await requireAuth();
+  } catch {
     return null;
   }
 }

@@ -8,10 +8,9 @@ import SearchInput from "@/components/common/SearchInput";
 import { MdEdit } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useRouter } from "next/navigation";
-import { UserListDTO } from "@/modules/user/dto/user.output.dto";
 import ConfirmActionDialog from "@/components/admin/ConfirmActionDialogProps";
-import { deleteUserAction } from "@/modules/user/user.action";
 import CreateButton from "@/components/common/CreateButton";
+import { UserResponseDTO } from "@/modules/users/user.dto";
 
 /* =========================
    GRAVATAR
@@ -25,7 +24,8 @@ function getGravatar(email: string): string {
    PROPS
 ========================= */
 interface UsersClientPageProps {
-  users: UserListDTO[];
+  users: UserResponseDTO[];
+  onDelete: (userId: string) => Promise<void>;
 }
 
 /* =========================
@@ -33,13 +33,14 @@ interface UsersClientPageProps {
 ========================= */
 export default function UsersClientPage({
   users,
+  onDelete
 }: UsersClientPageProps) {
   const router = useRouter();
 
   /* =========================
      COLUMNS
   ========================= */
-  const columns: Column<UserListDTO>[] = [
+  const columns: Column<UserResponseDTO>[] = [
     {
       key: "profile",
       label: "Profile",
@@ -77,7 +78,7 @@ export default function UsersClientPage({
       render: (row) => (
         <div className="flex gap-2">
           <button
-            onClick={() => router.push(`/admin/users/${row.id}`)}
+            onClick={() => router.push(`/admin/users/update/${row.id}`)}
           >
             <MdEdit size={20} />
           </button>
@@ -87,7 +88,7 @@ export default function UsersClientPage({
             description="This User will be permanently deleted. This action cannot be undone."
             confirmText="Delete"
             danger
-            action={() => deleteUserAction(row.id)}
+            action={() => onDelete(row.id)}
             trigger={
                 <button
                 title="Delete"
@@ -120,7 +121,7 @@ export default function UsersClientPage({
       </div>
 
       {/* Table */}
-      <TableUi<UserListDTO> columns={columns} data={users} />
+      <TableUi<UserResponseDTO> columns={columns} data={users} />
     </div>
   );
 }

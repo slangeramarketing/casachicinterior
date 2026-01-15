@@ -1,17 +1,19 @@
-import { getAllUsers } from "@/modules/user/user.service";
+import { userServer } from "@/modules/users/user.server";
 import UserList from "@/components/clientPage/users/UserList";
 
 /* -------------------------------------
    Server Page
 ------------------------------------- */
 export default async function UsersPage() {
-  /*
-    Server-side DB fetch
-  */
-  const { users } = await getAllUsers({
+  const users = await userServer.list({
     page: 1,
     limit: 20,
   });
 
-  return <UserList users={users} />;
+  async function handleDelete(userId: string) {
+    "use server";
+    await userServer.delete(userId);
+  }
+
+  return <UserList users={users} onDelete={handleDelete} />;
 }

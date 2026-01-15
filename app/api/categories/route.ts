@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import {
   getAllCategoriesController,
   createCategoryController,
-} from "@/modules/category/category.controller";
+} from "@/modules/blog-category/category.controller";
 
 /* -------------------------------------
    GET: All Categories

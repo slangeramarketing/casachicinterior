@@ -1,9 +1,8 @@
-import BlogList from "@/components/clientPage/BlogList";
-import { getAllBlogsService } from "@/modules/blogs/blog.service";
-import { BlogDTO } from "@/types/blogs";
+import BlogList from "@/components/clientPage/blogs/BlogList";
+import { blogServer } from "@/modules/blogs/blog.server";
 
 export default async function AdminBlogsPage() {
-  const blogs: BlogDTO[] = await getAllBlogsService();
+  const blogs = await blogServer.getAll();
 
   return (
     <div>

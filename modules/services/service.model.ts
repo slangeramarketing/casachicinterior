@@ -1,154 +1,151 @@
-import mongoose, { Schema, Document } from "mongoose";
+/***************************************************
+ * File: modules/services/service.model.ts
+ * Layer: Model
+ *
+ * Purpose:
+ * - Defines MongoDB schema for Service module
+ *
+ * Responsibilities:
+ * - Declare Mongoose schema structure
+ * - Enforce data shape at database level
+ *
+ * Restrictions:
+ * - Must NOT contain business logic
+ * - Must NOT contain validation rules beyond schema-level
+ * - Must NOT export anything except the Mongoose model
+ ***************************************************/
+
+import { Schema, Types, model, models } from "mongoose";
 
 /* -------------------------------------
-   SUB TYPES
+   Service Schema
 ------------------------------------- */
-interface IIncludeItem {
-  image: string;
-  title: string;
-}
-
-interface IProcessStep {
-  icon: string;
-  step: number;
-  title: string;
-  description: string;
-}
-
-/* -------------------------------------
-   SERVICE INTERFACE
-------------------------------------- */
-export interface IService extends Document {
-  title: string;
-  slug: string;
-
-  shortDescription: string;
-  overview: string;
-
-  coverImage: string;
-  galleryImages: string[];
-
-  includes: IIncludeItem[];
-  processSteps: IProcessStep[];
-
-  featured: boolean;
-  isActive: boolean;
-
-  seo: {
-    metaTitle?: string;
-    metaDescription?: string;
-  };
-
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-/* -------------------------------------
-   SERVICE SCHEMA
-------------------------------------- */
-const ServiceSchema = new Schema<IService>(
+const ServiceSchema = new Schema(
   {
+    /* ---------------------------
+       Core Identity
+    --------------------------- */
+    slug: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+      trim: true,
+    },
+
     title: {
       type: String,
       required: true,
       trim: true,
     },
 
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      lowercase: true,
-      index: true,
-    },
-
+    /* ---------------------------
+       Content
+    --------------------------- */
     shortDescription: {
       type: String,
       required: true,
-      maxlength: 200,
+      trim: true,
     },
 
-    overview: {
+    description: {
       type: String,
       required: true,
     },
 
+    /* ---------------------------
+       Category Reference (IMPORTANT)
+    --------------------------- */
+    categoryId: {
+      type: Types.ObjectId,
+      ref: "ServiceCategory",
+      required: true,
+      index: true,
+    },
+
+    /* ---------------------------
+       Media
+    --------------------------- */
     coverImage: {
       type: String,
       required: true,
     },
 
-    galleryImages: {
+    gallery: {
       type: [String],
       default: [],
     },
 
-    /* -------- INCLUDES -------- */
-    includes: [
-      {
-        image: {
-          type: String,
-          required: true,
-        },
-        title: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-      },
-    ],
+    /* ---------------------------
+       Business Value
+    --------------------------- */
+    highlights: {
+      type: [String],
+      required: true,
+      default: [],
+    },
 
-    /* -------- PROCESS STEPS -------- */
-    processSteps: [
-      {
-        icon: {
-          type: String,
-          required: true,
-        },
-        step: {
-          type: Number,
-          required: true,
-        },
-        title: {
-          type: String,
-          required: true,
-          trim: true,
-        },
-        description: {
-          type: String,
-          required: true,
-        },
-      },
-    ],
+    /* ---------------------------
+       SEO & Marketing
+    --------------------------- */
+    seoTitle: {
+      type: String,
+      trim: true,
+    },
 
+    seoDescription: {
+      type: String,
+      trim: true,
+    },
+
+    seoKeywords: {
+      type: [String],
+      default: [],
+    },
+
+    /* ---------------------------
+       Admin Controls
+    --------------------------- */
     featured: {
       type: Boolean,
       default: false,
+      index: true,
     },
 
-    isActive: {
-      type: Boolean,
-      default: true,
+    status: {
+      type: String,
+      enum: ["draft", "published"],
+      default: "draft",
+      index: true,
     },
 
-    seo: {
-      metaTitle: {
-        type: String,
-        trim: true,
-      },
-      metaDescription: {
-        type: String,
-        trim: true,
-      },
+    displayOrder: {
+      type: Number,
+      default: 0,
+      index: true,
+    },
+
+    /* ---------------------------
+       CTA
+    --------------------------- */
+    ctaText: {
+      type: String,
+      trim: true,
+    },
+
+    ctaLink: {
+      type: String,
+      trim: true,
     },
   },
   {
-    timestamps: true,
+    timestamps: true, // createdAt & updatedAt
+    versionKey: false,
   }
 );
 
 /* -------------------------------------
-   MODEL EXPORT
+   Model Export
 ------------------------------------- */
-export default mongoose.models.Service ||
-  mongoose.model<IService>("Service", ServiceSchema);
+export const ServiceModel =
+  models.Service || model("Service", ServiceSchema);

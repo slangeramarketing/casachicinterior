@@ -1,30 +1,40 @@
-import { ReactNode } from "react";
-import { redirect } from "next/navigation";
-import { getAuthUser } from "@/lib/auth-server";
-import AdminShell from "./AdminShell";
+/* ---------------------------------------
+   app/admin/layout.tsx
+---------------------------------------- */
 
-interface AdminLayoutProps {
-  children: ReactNode;
-}
+import { ReactNode } from "react";
+import { requireRole } from "@/lib/auth";
+
+import AdminSidebar from "@/components/admin/Sidebar";
+import AdminHeader from "@/components/admin/AdminHeader";
 
 export default async function AdminLayout({
   children,
-}: AdminLayoutProps) {
-  /*
-    🔐 Server-side auth check
-  */
-  const authUser = await getAuthUser();
+}: {
+  children: ReactNode;
+}) {
+  // 🔐 SERVER-SIDE AUTH CHECK
+  await requireRole(["admin", "super_admin"]);
 
-  if (
-    !authUser ||
-    (authUser.role !== "admin" &&
-      authUser.role !== "super_admin")
-  ) {
-    redirect("/auth-page/login");
-  }
+  return (
+    <div className="flex h-screen w-full overflow-hidden">
 
-  /*
-    ✅ Auth passed → render client shell
-  */
-  return <AdminShell>{children}</AdminShell>;
+      {/* SIDEBAR */}
+      <div className="hidden md:block w-[250px] border-r border-gray-200">
+        <AdminSidebar />
+      </div>
+
+      {/* MAIN AREA */}
+      <div className="flex-1 flex flex-col">
+
+        {/* HEADER */}
+        <AdminHeader />
+
+        {/* CONTENT */}
+        <div className="flex-1 overflow-y-auto p-6 ">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
 }
