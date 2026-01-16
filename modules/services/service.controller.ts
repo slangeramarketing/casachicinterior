@@ -19,8 +19,9 @@
  * - This file exports a stateless object with methods
  ***************************************************/
 
-import { serviceService } from "./service.service";
+
 import { serviceMapper } from "./service.mapper";
+import { getServiceBySlug, listServices } from "./service.service";
 
 /* -------------------------------------
    Controller Object
@@ -31,7 +32,7 @@ export const serviceController = {
    * - Get all published services (public API)
    */
   async getPublicServices() {
-    const records = await serviceService.list({ publicOnly: true });
+    const records = await listServices({ publicOnly: true });
     return serviceMapper.toResponseList(records);
   },
 
@@ -40,7 +41,7 @@ export const serviceController = {
    * - Get service by slug (public API)
    */
   async getServiceBySlug(slug: string) {
-    const record = await serviceService.getBySlug(slug);
+    const record = await getServiceBySlug(slug);
     if (!record) {
       return null;
     }

@@ -16,10 +16,10 @@
  ***************************************************/
 
 import { NextRequest, NextResponse } from "next/server";
-import { userService } from "./user.service";
 import { userMapper } from "./user.mapper";
 import { getAuthUser } from "@/lib/auth";
 import { parseUserRole, parseUserStatus } from "./user.dto";
+import { createUser, listUsers } from "./user.service";
 
 /**
  * GET /api/users
@@ -42,7 +42,7 @@ export async function GET(req: NextRequest) {
     };
 
 
-    const records = await userService.listUsers(
+    const records = await listUsers(
       authUser.role,
       filters
     );
@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
 
-    const record = await userService.createUser(
+    const record = await createUser(
       authUser.role,
       body
     );

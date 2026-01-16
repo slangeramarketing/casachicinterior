@@ -18,8 +18,9 @@
  * - Exports a stateless object with methods
  ***************************************************/
 
-import { serviceCategoryService } from "./service-category.service";
+
 import { serviceCategoryMapper } from "./service-category.mapper";
+import { listServiceCategories } from "./service-category.service";
 
 export const serviceCategoryController = {
   /**
@@ -27,7 +28,7 @@ export const serviceCategoryController = {
    */
   async getPublicCategories() {
     const records =
-      await serviceCategoryService.list({ publicOnly: true });
+      await listServiceCategories({ publicOnly: true });
 
     return serviceCategoryMapper.toResponseList(records);
   },

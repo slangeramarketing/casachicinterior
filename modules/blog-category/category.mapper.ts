@@ -14,8 +14,8 @@
  * - Must NOT contain business logic
  ***************************************************/
 
+import { ResponseCategoryDTO } from "./category.dto";
 import { CategoryRecord } from "./category.types";
-import { ResponseDTO } from "./category.dto";
 
 export const categoryMapper = {
   /**
@@ -29,7 +29,7 @@ export const categoryMapper = {
    * Returns:
    * - Client-safe CategoryResponseDTO
    */
-  toResponse(record: CategoryRecord): ResponseDTO {
+  toResponse(record: CategoryRecord): ResponseCategoryDTO {
     return {
       id: record._id.toString(),
       name: record.name,
@@ -45,7 +45,7 @@ export const categoryMapper = {
    * Purpose:
    * - Convert multiple records at once
    */
-  toResponseList(records: CategoryRecord[]): ResponseDTO[] {
+  toResponseList(records: CategoryRecord[]): ResponseCategoryDTO[] {
     return records.map(this.toResponse);
   },
 };

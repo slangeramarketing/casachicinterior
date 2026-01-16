@@ -24,6 +24,7 @@ import {
   UpdateSubCategoryDTO,
 } from "./subcategory.dto";
 import { categoryRepository } from "../blog-category/category.repository";
+import db from "@/lib/db";
 
 /**
  * Create subcategory
@@ -31,6 +32,7 @@ import { categoryRepository } from "../blog-category/category.repository";
 export async function createSubCategory(
   data: CreateSubCategoryDTO
 ): Promise<SubCategoryRecord> {
+  db();
   if (!data.name || !data.slug || !data.categoryId) {
     throw new Error("Name, slug and categoryId are required");
   }
@@ -57,7 +59,7 @@ export async function createSubCategory(
     name: data.name,
     slug: data.slug,
     description: data.description,
-    category: data.categoryId as any,
+    categoryId: data.categoryId as any,
     isActive: data.isActive ?? true,
   });
 }
@@ -69,10 +71,11 @@ export async function updateSubCategory(
   id: string,
   data: UpdateSubCategoryDTO
 ): Promise<SubCategoryRecord> {
+  db();
   const existing = await getSubCategoryById(id);
 
   // validate category change
-  if (data.categoryId && data.categoryId !== existing.category.toString()) {
+  if (data.categoryId && data.categoryId !== existing.categoryId.toString()) {
     const category = await categoryRepository.getById(data.categoryId);
     if (!category) {
       throw new Error("Parent category not found");
@@ -81,7 +84,7 @@ export async function updateSubCategory(
 
   // enforce unique slug under same category
   if (data.slug || data.categoryId) {
-    const categoryId = data.categoryId ?? existing.category.toString();
+    const categoryId = data.categoryId ?? existing.categoryId.toString();
     const slug = data.slug ?? existing.slug;
 
     const conflict = await subCategoryRepository.filter({
@@ -103,7 +106,7 @@ export async function updateSubCategory(
     name: data.name,
     slug: data.slug,
     description: data.description,
-    category: data.categoryId as any,
+    categoryId: data.categoryId as any,
     isActive: data.isActive,
   });
 
@@ -120,6 +123,7 @@ export async function updateSubCategory(
 export async function deleteSubCategory(
   id: string
 ): Promise<SubCategoryRecord> {
+  db();
   const deleted = await subCategoryRepository.deleteById(id);
   if (!deleted) {
     throw new Error("Subcategory not found");
@@ -133,6 +137,7 @@ export async function deleteSubCategory(
 export async function getSubCategoryById(
   id: string
 ): Promise<SubCategoryRecord> {
+  db();
   const subcategory = await subCategoryRepository.getById(id);
   if (!subcategory) {
     throw new Error("Subcategory not found");
@@ -146,6 +151,7 @@ export async function getSubCategoryById(
 export async function getAllSubCategories(): Promise<
   SubCategoryRecord[]
 > {
+  db();
   return subCategoryRepository.getAll();
 }
 
@@ -155,6 +161,7 @@ export async function getAllSubCategories(): Promise<
 export async function getSubCategoriesByCategory(
   categoryId: string
 ): Promise<SubCategoryRecord[]> {
+  db();
   return subCategoryRepository.getByCategory(categoryId);
 }
 
@@ -166,5 +173,6 @@ export async function filterSubCategories(filter: {
   slug?: string;
   isActive?: boolean;
 }): Promise<SubCategoryRecord[]> {
+  db();
   return subCategoryRepository.filter(filter);
 }

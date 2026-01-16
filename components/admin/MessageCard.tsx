@@ -9,9 +9,11 @@ import {
   MdKeyboardArrowDown,
   MdKeyboardArrowUp,
 } from "react-icons/md";
-import md5 from "md5";
-import { formatDateTime } from "@/lib/utils/formatDateTime";
 import { CiLocationOn } from "react-icons/ci";
+import md5 from "md5";
+
+import Alert from "@/components/common/Alert";
+import { formatDateTime } from "@/lib/utils/formatDateTime";
 
 /* =========================
    HELPERS
@@ -36,13 +38,13 @@ interface MessageThread {
   email: string;
   createdAt: string;
   message: string;
-  city:string;
+  city: string;
   replies: MessageReply[];
 }
 
 interface Props {
   data: MessageThread;
-  onReplySubmit?: (id: string, reply: string) => void;
+  onReplySubmit?: (id: string, reply: string) => Promise<void>;
 }
 
 /* =========================
@@ -53,18 +55,50 @@ export default function MessageThreadCard({
   onReplySubmit,
 }: Props) {
   const [showReply, setShowReply] = useState(false);
-  const [reply, setReply] = useState("");
   const [showThread, setShowThread] = useState(false);
+  const [reply, setReply] = useState("");
 
-  function handleSend() {
-    if (!reply.trim()) return;
-    onReplySubmit?.(data.id, reply);
-    setReply("");
-    setShowReply(false);
-    setShowThread(true); // auto-expand after reply
-  }
+  const [loading, setLoading] = useState(false);
+  const [alert, setAlert] = useState<{
+    type: "success" | "error";
+    title: string;
+    message?: string;
+  } | null>(null);
 
   const hasReplies = data.replies.length > 0;
+
+  /* =========================
+     HANDLERS
+  ========================= */
+  async function handleSend() {
+    if (!reply.trim() || !onReplySubmit) return;
+
+    try {
+      setLoading(true);
+
+      await onReplySubmit(data.id, reply);
+
+      setReply("");
+      setShowReply(false);
+      setShowThread(true);
+
+      setAlert({
+        type: "success",
+        title: "Reply sent",
+        message: "Your reply has been delivered successfully.",
+      });
+    } catch (err) {
+      console.error(err);
+
+      setAlert({
+        type: "error",
+        title: "Reply failed",
+        message: "Unable to send reply. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
     <div className="w-full bg-white rounded-lg p-4 sm:p-5 flex gap-4">
@@ -76,6 +110,18 @@ export default function MessageThreadCard({
       />
 
       <div className="flex-1">
+        {/* Alert */}
+        {alert && (
+          <div className="mb-3">
+            <Alert
+              type={alert.type}
+              title={alert.title}
+              message={alert.message}
+              onClose={() => setAlert(null)}
+            />
+          </div>
+        )}
+
         {/* Header */}
         <div className="flex justify-between items-start">
           <div>
@@ -99,7 +145,7 @@ export default function MessageThreadCard({
             </div>
           </div>
 
-          {/* THREAD TOGGLE (only if replies exist) */}
+          {/* Thread toggle */}
           {hasReplies && (
             <button
               onClick={() => setShowThread((v) => !v)}
@@ -120,7 +166,7 @@ export default function MessageThreadCard({
           {data.message}
         </p>
 
-        {/* Thread Replies (collapsible) */}
+        {/* Replies */}
         {showThread && (
           <div className="mt-4 space-y-3">
             {data.replies.map((replyItem, index) => (
@@ -180,10 +226,17 @@ export default function MessageThreadCard({
 
               <button
                 onClick={handleSend}
-                className="inline-flex items-center gap-2 bg-[#F97316] text-white px-4 py-1.5 rounded-md text-sm"
+                disabled={loading}
+                className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-md text-sm
+                  ${
+                    loading
+                      ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                      : "bg-[#F97316] text-white"
+                  }
+                `}
               >
                 <FaPaperPlane size={14} />
-                Send
+                {loading ? "Sending..." : "Send"}
               </button>
             </div>
           </div>

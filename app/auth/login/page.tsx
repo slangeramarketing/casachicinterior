@@ -70,7 +70,7 @@ export default function AdminLoginPage() {
       }
 
       setSuccess("Login successful");
-      router.replace("/admin");
+      router.replace("/admin/home");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error");
       console.log("AUth ERROR: ",err)
@@ -108,7 +108,7 @@ export default function AdminLoginPage() {
         )}
 
         {/* Form */}
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleLogin} className="space-y-5 pb-6">
 
           {/* Email */}
           <div>
@@ -163,12 +163,12 @@ export default function AdminLoginPage() {
           </button>
 
           {/* Future: Forgot Password */}
-          <p className="text-center text-sm text-gray-500">
+          {/*<p className="text-center text-sm text-gray-500">
             Forgot password?{" "}
             <span className="text-[#F97316] cursor-pointer">
               Reset
             </span>
-          </p>
+          </p>*/}
         </form>
       </div>
     </div>

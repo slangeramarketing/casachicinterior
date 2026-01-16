@@ -29,7 +29,7 @@ export const subCategoryMapper = {
       name: record.name,
       slug: record.slug,
       description: record.description,
-      categoryId: record.category.toString(),
+      categoryId: record.categoryId.toString(),
       isActive: record.isActive,
       createdAt: record.createdAt.toISOString(),
       updatedAt: record.updatedAt.toISOString(),

@@ -4,8 +4,9 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
-import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
+import logoTransparent from "@/public/assets/logoTransparent.png";
+import Image from "next/image";
 
 interface HeaderProps {
   featuredServiceList:ServiceResponseDTO[];
@@ -62,16 +63,37 @@ export default function Header({featuredServiceList}:HeaderProps) {
       className={`
         fixed top-0 left-0 w-full z-50
         transition-transform duration-300
+        h-20
         ${showHeader ? "translate-y-0" : "-translate-y-full"}
         ${isHome ? "bg-bg-primary lg:bg-transparent" : "bg-bg-primary"}
       `}
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-        {/* LOGO */}
-        <Link href="/" className="text-lg font-bold text-white">
-          CASA CHIC INTERIOR
-        </Link>
+            {/* LOGO */}
+          <Link href="/" className="flex flex-col items-center text-lg font-bold text-white">
+            {isHome ? (
+              <>
+                {/* Mobile view: show image + text below */}
+                <div className="flex flex-col items-center sm:hidden">
+                  <span className="mt-2">CASA CHIC INTERIOR</span>
+                </div>
+
+                {/* Desktop view: show only image */}
+                <div className="hidden sm:block">
+                  <Image 
+                    src={logoTransparent} 
+                    height={80} 
+                    width={80} 
+                    alt="Casa-Chic-Interior-LOGO"  
+                  />
+                </div>
+              </>
+            ) : (
+              <h2>CASA CHIC INTERIOR</h2>
+            )}
+          </Link>
+
 
         {/* DESKTOP MENU */}
         <nav className="hidden md:flex items-center gap-8 text-white">
@@ -209,12 +231,20 @@ export default function Header({featuredServiceList}:HeaderProps) {
           About Us
         </Link>
 
-        <button
-          onClick={() => setMenuOpen(false)}
+        {/* <button
           className="w-full border border-white py-2 rounded-full mt-4"
         >
           Book Free Consultation
-        </button>
+        </button> */}
+
+          <Link
+            href="#contact"
+            className="
+              w-full border border-white py-2 rounded-full mt-4 text-center
+            "
+          >
+            Book Free Consultation
+          </Link>
       </div>
     )}
 

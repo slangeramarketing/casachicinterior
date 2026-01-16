@@ -21,6 +21,7 @@ import { messageRepository } from "./message.repository";
 import { MessageRecord } from "./message.types";
 import { buildNewContactEmail } from "@/lib/email/templates/new-contact";
 import { buildReplyToClientEmail } from "@/lib/email/templates/reply-to-client";
+import db from "@/lib/db";
 
 /**
  * Purpose:
@@ -52,17 +53,17 @@ export async function createMessage(
   const record = await messageRepository.create(data);
 
   // ✅ 2. SEND EMAIL (side-effect)
-//   await sendMail({
-//     to: process.env.MAIL_TO!, // business email
-//     subject: "New Enquiry Received – CasaChic Interior",
-//     html: buildNewContactEmail({
-//       name: record.name,
-//       email: record.email,
-//       phone: record.phone,
-//       city: record.city,
-//       message: record.message,
-//     }),
-//   });
+  await sendMail({
+    to: process.env.MAIL_TO!, // business email
+    subject: "New Enquiry Received – CasaChic Interior",
+    html: buildNewContactEmail({
+      name: record.name,
+      email: record.email,
+      phone: record.phone,
+      city: record.city,
+      message: record.message,
+    }),
+  });
 
   // ✅ 3. RETURN DB RECORD
   return record;
@@ -96,15 +97,15 @@ export async function replyToMessage(
   }
 
   // 2️⃣ Send reply email to client (side-effect)
-//   await sendMail({
-//     to: updated.email, 
-//     subject: "Response from CasaChic Interior – Your Enquiry",
-//     html: buildReplyToClientEmail({
-//       clientName: updated.name,
-//       adminReply: replyMessage,
-//       originalMessage: updated.message,
-//     }),
-//   });
+  await sendMail({
+    to: updated.email, 
+    subject: "Response from CasaChic Interior – Your Enquiry",
+    html: buildReplyToClientEmail({
+      clientName: updated.name,
+      adminReply: replyMessage,
+      originalMessage: updated.message,
+    }),
+  });
 
   return updated;
 }
@@ -114,6 +115,7 @@ export async function replyToMessage(
  * - Fetch all messages (admin inbox)
  */
 export async function getAllMessages(): Promise<MessageRecord[]> {
+  db();
   return messageRepository.findAll();
 }
 
@@ -124,6 +126,7 @@ export async function getAllMessages(): Promise<MessageRecord[]> {
 export async function getMessageById(
   messageId: string
 ): Promise<MessageRecord> {
+  db();
   const record = await messageRepository.findById(messageId);
 
   if (!record) {
@@ -140,6 +143,7 @@ export async function getMessageById(
 export async function markMessageAsRead(
   messageId: string
 ): Promise<MessageRecord> {
+  db();
   const updated =
     await messageRepository.markAsRead(messageId);
 

@@ -34,9 +34,9 @@ async function seedSuperAdmin() {
   }
 
   await User.create({
-    name: "Super Admin",
-    email: "admin@gmail.com",
-    password: "admin@123", // auto-hashed by schema
+    name: "Rohit Kumar",
+    email: "427rohitkumar@gmail.com",
+    password: "Teamnoida@1234", // auto-hashed by schema
     role: "super_admin",
     status: "active", // ✅ REQUIRED (new model)
   });

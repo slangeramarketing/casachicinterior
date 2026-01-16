@@ -16,6 +16,8 @@ type NewContactEmailInput = {
 export function buildNewContactEmail(
   data: NewContactEmailInput
 ): string {
+
+  const BASE_URL = process.env.PUBLIC_SITE_URL || "https://casachicinterior.com";
   return `
 <!DOCTYPE html>
 <html>
@@ -27,7 +29,7 @@ export function buildNewContactEmail(
           <tr>
             <td>
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+                src="${BASE_URL}/assets/contactEmailBanner.png"
                 width="600"
                 style="display:block;width:100%"
               />

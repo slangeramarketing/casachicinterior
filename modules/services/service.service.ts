@@ -19,6 +19,7 @@
 import { Types } from "mongoose";
 import { serviceRepository } from "./service.repository";
 import { ServiceRecord } from "./service.types";
+import db from "@/lib/db";
 
 /* =====================================================
    Create Service
@@ -26,6 +27,7 @@ import { ServiceRecord } from "./service.types";
 export async function createService(
   data: Partial<ServiceRecord>
 ): Promise<ServiceRecord> {
+  db();
   const existing = await serviceRepository.findBySlug(
     data.slug!
   );
@@ -42,6 +44,7 @@ export async function createService(
 export async function getServiceById(
   id: string
 ): Promise<ServiceRecord | null> {
+  db();
   return serviceRepository.findById(id);
 }
 
@@ -51,6 +54,7 @@ export async function getServiceById(
 export async function getServiceBySlug(
   slug: string
 ): Promise<ServiceRecord | null> {
+  db();
   const service =
     await serviceRepository.findBySlug(slug);
 
@@ -73,6 +77,7 @@ export async function listServices(options?: {
   featured?: boolean;
   limit?: number;
 }): Promise<ServiceRecord[]> {
+  db();
   const filter: {
     status?: "draft" | "published";
     categoryId?: Types.ObjectId;
@@ -104,6 +109,7 @@ export async function updateService(
   id: string,
   data: Partial<ServiceRecord>
 ): Promise<ServiceRecord | null> {
+  db();
   return serviceRepository.updateById(id, data);
 }
 
@@ -113,5 +119,6 @@ export async function updateService(
 export async function deleteService(
   id: string
 ): Promise<boolean> {
+  db();
   return serviceRepository.deleteById(id);
 }

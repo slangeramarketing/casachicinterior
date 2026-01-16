@@ -19,6 +19,7 @@ import { BlogRecord } from "./blog.types";
 import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
 import { subCategoryRepository } from "../blog-subcategory/subcategory.repository";
 import { categoryRepository } from "../blog-category/category.repository";
+import db from "@/lib/db";
 
 /**
  * Create blog
@@ -27,6 +28,7 @@ export async function createBlog(
   authorId: string,
   data: CreateBlogDTO
 ): Promise<BlogRecord> {
+  db();
   if (!data.title || !data.slug || !data.categoryId) {
     throw new Error("Title, slug and categoryId are required");
   }
@@ -83,6 +85,7 @@ export async function updateBlog(
   id: string,
   data: UpdateBlogDTO
 ): Promise<BlogRecord> {
+  db();
   const existing = await getBlogById(id);
 
   // validate category change
@@ -149,6 +152,7 @@ export async function updateBlog(
  * Delete blog
  */
 export async function deleteBlog(id: string): Promise<BlogRecord> {
+  db();
   const deleted = await blogRepository.deleteById(id);
   if (!deleted) {
     throw new Error("Blog not found");
@@ -160,6 +164,7 @@ export async function deleteBlog(id: string): Promise<BlogRecord> {
  * Get blog by ID
  */
 export async function getBlogById(id: string): Promise<BlogRecord> {
+  db();
   const blog = await blogRepository.getById(id);
   if (!blog) {
     throw new Error("Blog not found");
@@ -171,6 +176,7 @@ export async function getBlogById(id: string): Promise<BlogRecord> {
  * Get all blogs
  */
 export async function getAllBlogs(): Promise<BlogRecord[]> {
+  db();
   return blogRepository.getAll();
 }
 
@@ -184,5 +190,6 @@ export async function filterBlogs(filter: {
   subCategoryId?: string;
   slug?: string;
 }): Promise<BlogRecord[]> {
+  db();
   return blogRepository.filter(filter);
 }

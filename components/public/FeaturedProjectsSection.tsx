@@ -2,6 +2,28 @@
 
 import Image from "next/image";
 import { featuredProjects } from "@/lib/data/featuredProjects";
+import { motion } from "framer-motion";
+
+const slideVariant = {
+  hiddenLeft: {
+    opacity: 0,
+    x: -80,
+  },
+  hiddenRight: {
+    opacity: 0,
+    x: 80,
+  },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: {
+      duration: 0.7,
+      ease: "easeOut",
+    },
+  },
+} as const;
+
+
 
 export default function FeaturedProjectsSection() {
   return (
@@ -35,7 +57,11 @@ export default function FeaturedProjectsSection() {
                   className="relative grid grid-cols-1 lg:grid-cols-2 gap-10 items-start"
                 >
                   {/* IMAGE */}
-                  <div
+                  <motion.div
+                    initial={isLeft ? "hiddenLeft" : "hiddenRight"}
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={slideVariant}
                     className={`relative flex pl-10 lg:pl-0 ${
                       isLeft ? "lg:justify-end lg:order-1" : "lg:justify-start lg:order-2"
                     }`}
@@ -48,16 +74,22 @@ export default function FeaturedProjectsSection() {
                         className="object-cover"
                       />
                     </div>
-                  </div>
+                  </motion.div>
+
 
                   {/* CONTENT */}
-                  <div
+                  <motion.div
+                    initial={isLeft ? "hiddenRight" : "hiddenLeft"}
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={slideVariant}
                     className={`relative pl-10 lg:pl-12 text-left ${
                       isLeft
                         ? "lg:order-2 lg:text-left"
                         : "lg:order-1 lg:text-right lg:pr-12"
                     }`}
                   >
+
                     <span
                       className={`absolute top-4 w-3 h-3 rounded-full bg-orange-500
                         left-[10px] right-auto lg:top-2
@@ -85,7 +117,7 @@ export default function FeaturedProjectsSection() {
                         See More
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 </div>
               );
             })}

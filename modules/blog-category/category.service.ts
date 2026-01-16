@@ -19,6 +19,7 @@
 import { categoryRepository } from "./category.repository";
 import { CategoryRecord } from "./category.types";
 import { CreateCategoryDTO, UpdateCategoryDTO } from "./category.dto";
+import db from "@/lib/db";
 
 export const categoryService = {
   /**
@@ -32,6 +33,7 @@ export const categoryService = {
    * - Created Category DB record
    */
   async create(data: CreateCategoryDTO): Promise<CategoryRecord> {
+    db();
     // basic validation
     if (!data.name || !data.slug) {
       throw new Error("Name and slug are required");
@@ -59,6 +61,7 @@ export const categoryService = {
     id: string,
     data: UpdateCategoryDTO
   ): Promise<CategoryRecord> {
+    db();
     const existing = await categoryService.getById(id);
 
     // slug uniqueness check (only if changed)
@@ -84,6 +87,7 @@ export const categoryService = {
    * - Delete category
    */
   async delete(id: string): Promise<CategoryRecord> {
+    db();
     const deleted = await categoryRepository.deleteById(id);
 
     if (!deleted) {
@@ -98,6 +102,7 @@ export const categoryService = {
    * - Get category by ID
    */
   async getById(id: string): Promise<CategoryRecord> {
+    db();
     const category = await categoryRepository.getById(id);
 
     if (!category) {
@@ -112,6 +117,7 @@ export const categoryService = {
    * - Get all categories
    */
   async getAll(): Promise<CategoryRecord[]> {
+    db();
     return categoryRepository.getAll();
   },
 
@@ -120,10 +126,12 @@ export const categoryService = {
    * - Get filtered categories
    */
   async filter(filter: {
+    
     isActive?: boolean;
     slug?: string;
     name?: string;
   }): Promise<CategoryRecord[]> {
+    db();
     return categoryRepository.filter(filter);
   },
 };

@@ -1,7 +1,10 @@
 "use client";
 
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
+import Image from "next/image";
 import Link from "next/link";
+import logoTransparent from "@/public/assets/logoTransparent.png";
+
 import {
   FiPhone,
   FiMail,
@@ -26,7 +29,9 @@ export default function Footer({featuredServiceList}:HeaderProps) {
           {/* BRAND */}
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">
-              CASA CHIC INTERIOR
+              <Link href="/">
+                <Image src={logoTransparent} height={80} width={80} alt="Casa-Chic-Interior-LOGO" />
+              </Link>
             </h2>
             <p className="text-sm leading-relaxed">
               India’s most trusted home interior design service with
@@ -85,7 +90,11 @@ export default function Footer({featuredServiceList}:HeaderProps) {
               </li>
               <li className="flex items-center gap-3">
                 <FiMail className="text-orange-400" />
-                salescasachic@gmail.com
+                contact@casachicinterior.com
+              </li>
+              <li className="flex items-center gap-3">
+                <FiMail className="text-orange-400" />
+                info@casachicinterior.com
               </li>
               <li className="flex items-center gap-3">
                 <FiMapPin className="text-orange-400" />

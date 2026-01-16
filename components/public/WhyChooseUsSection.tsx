@@ -5,6 +5,24 @@ import {
   whyChooseUsData,
   positionClasses,
 } from "@/lib/data/whyChooseUs";
+import { motion } from "framer-motion";
+
+const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
+
+const floatAnimation = (delay: number) => ({
+  animate: {
+    y: [0, -12, 0],
+    transition: {
+      duration: 3,
+      repeat: Infinity,
+      delay,
+      ease: EASE_IN_OUT,
+    },
+  },
+});
+
+
+
 
 export default function WhyChooseUsSection() {
   return (
@@ -38,8 +56,9 @@ export default function WhyChooseUsSection() {
             const Icon = item.icon;
 
             return (
-              <div
+              <motion.div
                 key={item.id}
+                {...floatAnimation(item.id * 0.3)}
                 className={`absolute ${
                   item.position ? positionClasses[item.position] : ""
                 } flex items-center gap-2`}
@@ -51,7 +70,7 @@ export default function WhyChooseUsSection() {
                 <div className="bg-white px-4 py-2 rounded-md shadow text-sm font-semibold text-gray-800 max-w-[220px]">
                   {item.title}
                 </div>
-              </div>
+              </motion.div>
             );
           })}
         </div>

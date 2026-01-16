@@ -128,7 +128,7 @@ export default function ContactSection() {
             <ContactInfo
               icon={<FiMail />}
               title="Email"
-              value="help@casachic.com"
+              value="contact@casachicinterior.com"
             />
             <ContactInfo
               icon={<FiPhone />}
