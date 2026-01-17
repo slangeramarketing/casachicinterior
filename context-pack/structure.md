@@ -1,6 +1,36 @@
 Canonical Project Structure:
 
+
+
+# Project Structure – Data Flow Oriented
+
 app/
+ ├─ (public)/
+ │   ├─ page.tsx              # UI only
+ │   ├─ services/
+ │   │   └─ page.tsx
+ │   └─ actions/
+ │       ├─ services.actions.ts
+ │       ├─ blogs.actions.ts
+ │       └─ messages.actions.ts
+ │
+ ├─ admin/
+ │   ├─ page.tsx
+ │   └─ actions/
+ │       ├─ services.actions.ts
+ │       ├─ users.actions.ts
+ │
+modules/
+ ├─ services/
+ │   ├─ service.server.ts
+ │   ├─ service.service.ts
+ │   ├─ service.repository.ts
+ │   └─ service.mapper.ts
+
+
+
+
+ app/
   (public)/
     layout.tsx              # Public landing layout (Server Component)
     page.tsx                # Home page (Server Page, imports Client UI)
@@ -23,6 +53,7 @@ app/
       update/
         [id]/
           page.tsx          # Read + Update blog (Server Page)
+
 
 
 modules/

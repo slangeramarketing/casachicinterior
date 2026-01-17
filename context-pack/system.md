@@ -11,3 +11,19 @@ Strict rules:
 - Enforce read/write flow rules strictly
 
 
+# System Guarantees
+
+## Build-Time Safety
+- DB is never accessed during build or prerender
+- Server Actions execute only at runtime
+
+## Scalability
+- Mobile apps can reuse service + repository layers
+- UI remains thin and replaceable
+
+## Maintainability
+- Clear ownership of logic
+- Easy debugging of DB-related errors
+
+
+

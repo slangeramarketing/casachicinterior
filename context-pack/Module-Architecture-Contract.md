@@ -196,3 +196,17 @@ GOLDEN RULE
 "If data is formatted, it is no longer domain data."
 
 Formatting belongs ONLY at the boundary.
+
+
+
+# Module Contract
+
+Every module MUST have:
+
+- *.repository.ts  → DB access only
+- *.service.ts     → business logic
+- *.server.ts      → auth + mapping
+- *.actions.ts     → Next.js entry point
+
+No layer may skip another layer.
+

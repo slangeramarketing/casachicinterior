@@ -2,6 +2,7 @@ import ServiceCategoryList, {
   CategoryItem,
 } from "@/components/clientPage/services/ServiceCategoryList";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
+import { deleteServiceCategoryAction, getAllServiceCategoriesAction } from "../../actions/admin.service-categories.actions";
 
 /* =====================================================
    Server Page
@@ -10,15 +11,14 @@ export default async function ServiceCategoryServerPage() {
   /* =============================
      Fetch from DB (REAL DATA)
   ============================= */
-  const categories = await serviceCategoryServer.getAll();
+  const categories = await getAllServiceCategoriesAction();
   console.log("Category Data: ", categories);
 
   /* =============================
      Server Action: Delete
   ============================= */
   async function handleDelete(id: string) {
-    "use server";
-    await serviceCategoryServer.remove(id);
+    await deleteServiceCategoryAction(id);
   }
 
   /* =============================

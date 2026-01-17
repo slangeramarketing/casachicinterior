@@ -3,7 +3,7 @@
 import { FiMail, FiPhone, FiMapPin } from "react-icons/fi";
 import cities from "@/lib/data/indian-cities.json";
 import { useState } from "react";
-import { submitContactAction } from "@/app/(public)/actions/message.action";
+import { submitContactAction } from "@/app/(public)/actions/public.message.action";
 
 
 export default function ContactSection() {

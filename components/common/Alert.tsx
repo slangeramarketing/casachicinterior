@@ -48,10 +48,16 @@ import {
 /* =====================================================
    Types
 ===================================================== */
-export type AlertType = "success" | "error";
+
+export interface AlertType{
+  type: "success" | "error";
+  title: string;
+  message?: string;
+}
+
 
 interface AlertProps {
-  type: AlertType;
+  type: "success" | "error";
   title: string;
   message?: string;
   onClose?: () => void;

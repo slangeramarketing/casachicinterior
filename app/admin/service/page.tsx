@@ -11,6 +11,7 @@
 import ServiceList from "@/components/clientPage/services/ServiceList";
 import { serviceServer } from "@/modules/services/service.server";
 import { revalidatePath } from "next/cache";
+import { getAllServicesAction } from "../actions/admin.service.action";
 
 /* =====================================================
    Page
@@ -19,25 +20,17 @@ export default async function AdminServiceServerPage() {
   /* -----------------------------
      Fetch services (DB)
   ----------------------------- */
-  const services = await serviceServer.getAll();
+  const services = await getAllServicesAction();
 
-  /* -----------------------------
-     Server Action: Delete
-  ----------------------------- */
-  async function handleDelete(serviceId: string) {
-    "use server";
-
-    await serviceServer.remove(serviceId);
-
-    // refresh list after delete
-    revalidatePath("/admin/service");
+  if(!services){
+    return <div>No services found.</div>
   }
+
 
   return (
     <ServiceList
       services={services}
       isAdmin
-      onDelete={handleDelete}
     />
   );
 }

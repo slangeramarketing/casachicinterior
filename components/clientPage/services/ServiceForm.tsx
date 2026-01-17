@@ -16,8 +16,8 @@ import ImageGalleryUpload from "@/components/common/ImageGalleryUpload";
 import { uploadImage } from "@/lib/uploadImage";
 import { ChipInputField } from "@/components/common/ChipInputField";
 // import ProcessStepsField, { ProcessStepInput } from "@/components/admin/ProcessStepsField";
-import ServiceShowcaseForm from "@/components/admin/ServiceShowcaseForm";
 import { ToggleSwitch } from "@/components/common/ToggleSwitch";
+import { createServiceAction, updateServiceAction } from "@/app/admin/actions/admin.service.action";
 
 /* =====================================================
    Types
@@ -36,6 +36,7 @@ interface ServiceFormProps {
   categories: CategoryOption[];
 
   initialData?: {
+    id:string;
     title: string;
     slug: string;
     shortDescription: string;
@@ -54,7 +55,6 @@ interface ServiceFormProps {
     ctaLink?: string;
   };
 
-  onSubmit: (data: any) => Promise<void>;
 }
 
 /* =====================================================
@@ -64,7 +64,6 @@ export default function ServiceForm({
   mode,
   categories,
   initialData,
-  onSubmit,
 }: ServiceFormProps) {
   const router = useRouter();
 
@@ -76,6 +75,8 @@ export default function ServiceForm({
     title: string;
     message?: string;
   } | null>(null);
+
+  const id= initialData?.id || "";
 
   /* =========================
      Form State
@@ -122,7 +123,7 @@ export default function ServiceForm({
   }, [form.title, mode]);
 
 
-  /* =========================
+/* =========================
     Submit
   ========================= */
   async function handleSubmit() {
@@ -137,10 +138,7 @@ export default function ServiceForm({
       let coverImageUrl = initialData?.coverImage || "";
 
       if (form.coverImage instanceof File) {
-        coverImageUrl = await uploadImage(
-          form.coverImage,
-          "services"
-        );
+        coverImageUrl = await uploadImage(form.coverImage, "services");
         setProgress(30);
       }
 
@@ -153,16 +151,11 @@ export default function ServiceForm({
         galleryUrls = [];
 
         for (let i = 0; i < form.gallery.length; i++) {
-          const url = await uploadImage(
-            form.gallery[i],
-            "services"
-          );
+          const url = await uploadImage(form.gallery[i], "services");
           galleryUrls.push(url);
 
           // progress calc (30 → 90)
-          setProgress(
-            30 + Math.floor(((i + 1) / form.gallery.length) * 60)
-          );
+          setProgress(30 + Math.floor(((i + 1) / form.gallery.length) * 60));
         }
       }
 
@@ -184,17 +177,21 @@ export default function ServiceForm({
       /* -------------------------
         4. Submit to Server
       ------------------------- */
-      await onSubmit(payload);
+      if (mode === "create") {
+        await createServiceAction(payload);
+        setAlert({
+          type: "success",
+          title: "Service created",
+        });
+      } else if (mode === "update") {
+        await updateServiceAction(id, payload);
+        setAlert({
+          type: "success",
+          title: "Service updated",
+        });
+      }
 
       setProgress(100);
-
-      setAlert({
-        type: "success",
-        title:
-          mode === "create"
-            ? "Service created"
-            : "Service updated",
-      });
     } catch (err: any) {
       setAlert({
         type: "error",
@@ -205,6 +202,7 @@ export default function ServiceForm({
       setLoading(false);
     }
   }
+
 
   /* =====================================================
      UI

@@ -10,28 +10,16 @@ import { ServiceCard } from "@/components/clientPage/services/ServiceCard";
 import CreateButton from "@/components/common/CreateButton";
 import { useRouter } from "next/navigation";
 import { LiaStackExchange } from "react-icons/lia";
+import { ServiceResponseDTO } from "@/modules/services/service.dto";
+import { deleteServiceAction } from "@/app/admin/actions/admin.service.action";
 
-/* =====================================================
-   Types (UI only)
-===================================================== */
-export interface ServiceItem {
-  id: string;
-  slug: string;
-  title: string;
-  shortDescription: string;
-  coverImage: string;
-  featured?: boolean;
-  createdAt: string;
-}
+
 
 interface ServiceListProps {
-  services: ServiceItem[];
+  services: ServiceResponseDTO[];
 
   /** context control */
   isAdmin?: boolean;
-
-  /** admin only */
-  onDelete?: (id: string) => Promise<void>;
 }
 
 /* =====================================================
@@ -50,7 +38,6 @@ const FILTER_OPTIONS: FilterOption<ServiceFilter>[] = [
 export default function ServiceList({
   services,
   isAdmin = false,
-  onDelete,
 }: ServiceListProps) {
   const router = useRouter();
 
@@ -76,6 +63,14 @@ export default function ServiceList({
       return matchesSearch && matchesFilter;
     });
   }, [services, search, filter]);
+
+
+   async function onDelete(id: string) {
+    // noop
+    await deleteServiceAction(id);
+    // client-side refresh 
+    router.refresh();
+  }
 
   /* =====================================================
      UI

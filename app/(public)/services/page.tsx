@@ -1,21 +1,37 @@
+"use client";
+
 import ServiceList from "@/components/clientPage/services/ServiceList";
 import { PageRouteHeader } from "@/components/common/PageHeader";
-import { serviceServer } from "@/modules/services/service.server";
+import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { getAllServicesAction } from "../actions/public.service.action";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 
 /* -------------------------------------
    PAGE
 ------------------------------------- */
-export default async function ServicesPage() {
-  /* -----------------------------
-       Fetch services (DB)
-    ----------------------------- */
-    const services = await serviceServer.getAll();
+export default function ServicesPage() {
+  const [allServiceList, setAllServiceList]=useState<ServiceResponseDTO[]>([]);
+
+  /* ===============================
+     Fetched All Services
+     ================================== */
+  useEffect(()=>{
+    async function loadService(){
+      try{
+        const services=await getAllServicesAction();
+        setAllServiceList(services);
+      }catch(err){
+        console.error("Error fetching all services:", err);
+      }
+    }
+
+    loadService();
+  },[]);
+
   return (
     <div className="w-full mt-8">
 
@@ -56,7 +72,7 @@ export default async function ServicesPage() {
         id="services"
         className="max-w-7xl mx-auto px-6 py-24"
       >
-        <ServiceList services={services} />
+        <ServiceList services={allServiceList} />
       </section>
 
       {/* ================= CTA ================= */}

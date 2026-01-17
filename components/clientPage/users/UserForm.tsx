@@ -2,23 +2,14 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createUserAction, updateUserAction } from "@/app/admin/actions/admin.users.action";
+import { UserCreateDTO, UserResponseDTO } from "@/modules/users/user.dto";
+import Alert, { AlertType } from "@/components/common/Alert";
 
-/* =========================
-   TYPES
-========================= */
-type UserRole = "super_admin" | "admin" | "user";
-
-interface UserFormData {
-  name: string;
-  email: string;
-  password?: string;
-  role: UserRole;
-}
 
 interface UserFormProps {
   mode: "create" | "update";
-  initialData?: Omit<UserFormData, "password">;
-  onSubmit: (data: any) => Promise<void>;
+  initialData?: Omit<UserResponseDTO, "password">;
 }
 
 /* =========================
@@ -27,15 +18,17 @@ interface UserFormProps {
 export default function UserForm({
   mode,
   initialData,
-  onSubmit
 }: UserFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const id=initialData?.id || "";
 
-  const [form, setForm] = useState<UserFormData>({
+  const [alert,setAlert]=useState<AlertType | null>(null);
+
+  const [form, setForm] = useState<UserCreateDTO>({
     name: initialData?.name || "",
     email: initialData?.email || "",
-    role: initialData?.role || "user",
+    role: initialData?.role,
     password: "",
   });
 
@@ -55,22 +48,37 @@ export default function UserForm({
 
     try {
       if (mode === "create") {
-        await onSubmit({
+        await createUserAction({
           name: form.name,
           email: form.email,
           password: form.password!,
           role: form.role,
         });
+
+        setAlert({
+          type: "success",
+          title: "User created successfully",
+          message: "The new user has been created.",
+        })
       } else {
-        await onSubmit({
-          name: form.name,
-          role: form.role,
-        });
+        await updateUserAction(
+          id,
+          form
+        );
+        setAlert({
+          type: "success",
+          title: "User Updated successfully",
+          message: "The user has been updated.",
+        })
       }
 
       router.push("/admin/users");
     } catch (error: any) {
-      alert(error.message || "Operation failed");
+      setAlert({
+        type: "error",
+        title: "Something went wrong",
+        message: error?.message || "Please try again.",
+      })
     } finally {
       setLoading(false);
     }
@@ -81,7 +89,15 @@ export default function UserForm({
   ========================= */
   return (
     <div className="flex flex-col w-full items-center px-10">
-
+ 
+     {alert && (
+      <Alert 
+         type={alert?.type || "success"}
+         title={alert?.title || ""}
+         message={alert?.message}
+         onClose={() => setAlert(null)}
+      />
+     )}
       <form
         onSubmit={handleSubmit}
         className="max-w-xl w-full rounded-xl border border-gray-300 bg-white px-8 py-18"

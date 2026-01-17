@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import ConfirmActionDialog from "@/components/admin/ConfirmActionDialogProps";
 import CreateButton from "@/components/common/CreateButton";
 import { UserResponseDTO } from "@/modules/users/user.dto";
+import { deleteUserAction } from "@/app/admin/actions/admin.users.action";
 
 /* =========================
    GRAVATAR
@@ -25,7 +26,6 @@ function getGravatar(email: string): string {
 ========================= */
 interface UsersClientPageProps {
   users: UserResponseDTO[];
-  onDelete: (userId: string) => Promise<void>;
 }
 
 /* =========================
@@ -33,9 +33,14 @@ interface UsersClientPageProps {
 ========================= */
 export default function UsersClientPage({
   users,
-  onDelete
 }: UsersClientPageProps) {
+
   const router = useRouter();
+
+
+  async function handleDelete(userId: string) {
+    await deleteUserAction(userId);
+  }
 
   /* =========================
      COLUMNS
@@ -88,7 +93,7 @@ export default function UsersClientPage({
             description="This User will be permanently deleted. This action cannot be undone."
             confirmText="Delete"
             danger
-            action={() => onDelete(row.id)}
+            action={() => handleDelete(row.id)}
             trigger={
                 <button
                 title="Delete"

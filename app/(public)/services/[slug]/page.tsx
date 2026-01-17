@@ -1,7 +1,6 @@
 import ServiceDetail from "@/components/clientPage/services/ServiceDetail";
-import { serviceServer } from "@/modules/services/service.server";
-import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getServiceBySlugAction } from "../../actions/public.service.action";
 
 
 /* -------------------------------------
@@ -17,7 +16,7 @@ export default async function ServiceDetailPage({
   /* ---------------------------------
        Fetch service (ADMIN)
     --------------------------------- */
-    const service = await serviceServer.getBySlug(slug);
+    const service = await getServiceBySlugAction(slug);
     if (!service) return notFound();
 
 

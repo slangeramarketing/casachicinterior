@@ -16,8 +16,8 @@
  * - Must NOT contain business logic
  ***************************************************/
 
+import { getAllServiceCategoriesAction, getServiceCategoryByIdAction } from "@/app/admin/actions/admin.service-categories.actions";
 import ServiceCategoryForm from "@/components/clientPage/services/ServiceCategoryForm";
-import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 import { notFound } from "next/navigation";
 
 /* =====================================================
@@ -30,11 +30,10 @@ export default async function UpdateServiceCategoryPage({
 }) {
   const { id } =await params;
 
-  console.log("ID: ",id);
   /* ---------------------------------
      Fetch category being edited
   --------------------------------- */
-  const category = await serviceCategoryServer.getById(id);
+  const category = await getServiceCategoryByIdAction(id);
 
     if (!category) {
         notFound();
@@ -43,22 +42,8 @@ export default async function UpdateServiceCategoryPage({
   /* ---------------------------------
      Fetch all categories (for dropdown)
   --------------------------------- */
-  const categories = await serviceCategoryServer.getAll();
+  const categories = await getAllServiceCategoriesAction();
 
-  /* =====================================================
-     Server Action: Update Category
-  ===================================================== */
-  async function updateCategoryAction(data: {
-    name: string;
-    slug: string;
-    parentId: string | null;
-    displayOrder: number;
-    status: "active" | "inactive";
-  }) {
-    "use server";
-
-    await serviceCategoryServer.update(id, data);
-  }
 
   /* ---------------------------------
      Render
@@ -68,13 +53,13 @@ export default async function UpdateServiceCategoryPage({
       mode="update"
       categories={categories}
       initialData={{
+        id: category.id,
         name: category.name,
         slug: category.slug,
         parentId: category.parentId,
         displayOrder: category.displayOrder,
         status: category.status,
       }}
-      onSubmit={updateCategoryAction}
     />
   );
 }

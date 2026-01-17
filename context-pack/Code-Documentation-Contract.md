@@ -198,4 +198,14 @@ Any code that does not follow this contract:
 
 
 
+# Documentation Contract
+
+Each file must clearly state:
+- its layer
+- what it is allowed to call
+- what it must NOT call
+
+Violation of layer rules is considered a bug.
+
+
 

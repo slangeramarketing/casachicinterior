@@ -18,8 +18,13 @@
 
 import { notFound } from "next/navigation";
 import ServiceForm from "@/components/clientPage/services/ServiceForm";
-import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
-import { serviceServer } from "@/modules/services/service.server";
+import { getServiceByIdAction } from "../../actions/admin.service.action";
+import { getServiceCategoryByIdAction } from "../../actions/admin.service-categories.actions";
+
+interface CategoryOption {
+  id: string;
+  name: string;
+}
 
 /* =====================================================
    Page
@@ -31,34 +36,23 @@ export default async function UpdateServiceServerPage({
 }) {
   const { id } = await params;
 
-  console.log("ID: ", id);
-
   /* ---------------------------------
      Fetch service (ADMIN)
   --------------------------------- */
-  const service = await serviceServer.getById(id);
+  const service = await getServiceByIdAction(id);
   if (!service) return notFound();
 
-  /* ---------------------------------
-     Fetch categories (ADMIN)
-  --------------------------------- */
-  const categories = await serviceCategoryServer.getActive();
 
-  /* =====================================================
-     Server Action: Update Service
-  ===================================================== */
-  async function updateServiceAction(data: any) {
-    "use server";
+/* Fetch category (ADMIN) Normalize to array --------------------------------- */ 
+const categoryRecord = await getServiceCategoryByIdAction(service.categoryId); 
+const categories: CategoryOption[] = categoryRecord ? [{ id: categoryRecord.id, name: categoryRecord.name }] : [];
 
-    await serviceServer.update(id, data);
-  }
 
   return (
     <ServiceForm
       mode="update"
       categories={categories}
       initialData={service}
-      onSubmit={updateServiceAction}
     />
   );
 }

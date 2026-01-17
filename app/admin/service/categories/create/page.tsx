@@ -15,23 +15,11 @@
  * - Must NOT contain business logic
  ***************************************************/
 
+import { getAllServiceCategoriesAction } from "@/app/admin/actions/admin.service-categories.actions";
 import ServiceCategoryForm from "@/components/clientPage/services/ServiceCategoryForm";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 
-/* =====================================================
-   Server Action
-===================================================== */
-async function createServiceCategory(data: {
-  name: string;
-  slug: string;
-  parentId: string | null;
-  displayOrder: number;
-  status: "active" | "inactive";
-}) {
-  "use server";
 
-  await serviceCategoryServer.create(data);
-}
 
 /* =====================================================
    Page
@@ -40,13 +28,12 @@ export default async function CreateServiceCategoryPage() {
   /* ---------------------------------
      Fetch categories from DB (ADMIN)
   --------------------------------- */
-  const categories = await serviceCategoryServer.getAll();
+  const categories = await getAllServiceCategoriesAction();
 
   return (
     <ServiceCategoryForm
       mode="create"
       categories={categories}
-      onSubmit={createServiceCategory}
     />
   );
 }

@@ -7,6 +7,7 @@ import {
   PageTitle,
 } from "@/components/common/PageHeader";
 import Alert from "@/components/common/Alert";
+import { createServiceCategoryAction, updateServiceCategoryAction } from "@/app/admin/actions/admin.service-categories.actions";
 
 /* =====================================================
    Types
@@ -18,20 +19,14 @@ interface ServiceCategoryFormProps {
     name: string;
     parentId: string | null;
   }[];
-  initialData?: {
-    name: string;
-    slug: string;
-    parentId: string | null;
-    displayOrder: number;
-    status: "active" | "inactive";
+  initialData?:{
+    id:string
+    name: string,
+    slug: string,
+    parentId: string | null,
+    displayOrder: number,
+    status: "active" | "inactive",
   };
-  onSubmit: (data: {
-    name: string;
-    slug: string;
-    parentId: string | null;
-    displayOrder: number;
-    status: "active" | "inactive";
-  }) => Promise<void>;
 }
 
 
@@ -47,7 +42,6 @@ export default function ServiceCategoryForm({
   mode,
   categories,
   initialData,
-  onSubmit,
 }: ServiceCategoryFormProps) {
   const router = useRouter();
 
@@ -71,6 +65,8 @@ export default function ServiceCategoryForm({
   const [status, setStatus] = useState<
     "active" | "inactive"
   >(initialData?.status ?? "active");
+
+  const id=initialData?.id || "";
 
   // const [categories, setCategories] = useState<
   //   CategoryOption[]
@@ -98,40 +94,64 @@ export default function ServiceCategoryForm({
   }, [name, mode]);
 
 
-  /* =====================================================
-     Submit Handler
-  ===================================================== */
+/* =====================================================
+   Submit Handler
+===================================================== */
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
 
     try {
-      await onSubmit({
-        name,
-        slug,
-        parentId,
-        displayOrder,
-        status,
-      });
+      if (mode === "create") {
+        /* -------------------------
+          Create Category
+        ------------------------- */
+        await createServiceCategoryAction({
+          name,
+          slug,
+          parentId,
+          displayOrder,
+          status,
+        });
 
-      setAlert({
-        type: "success",
-        title: "Category created",
-        message: "Service category has been created successfully.",
-      });
+        setAlert({
+          type: "success",
+          title: "Category created",
+          message: "Service category has been created successfully.",
+        });
+      } else if (mode === "update") {
+        /* -------------------------
+          Update Category
+        ------------------------- */
+        await updateServiceCategoryAction(id, {
+          name,
+          slug,
+          parentId,
+          displayOrder,
+          status,
+        });
 
-      // router.back();
-    }catch(err:any){
+        setAlert({
+          type: "success",
+          title: "Category updated",
+          message: "Service category has been updated successfully.",
+        });
+      }
+
+      // router.back(); // optional navigation
+    } catch (err: any) {
       setAlert({
         type: "error",
-        title: "Creation failed",
-        message: err?.message || "You are not authorized to perform this action.",
+        title: mode === "create" ? "Creation failed" : "Update failed",
+        message:
+          err?.message ||
+          "You are not authorized to perform this action.",
       });
-
     } finally {
       setLoading(false);
     }
   }
+
 
   /* =====================================================
      UI

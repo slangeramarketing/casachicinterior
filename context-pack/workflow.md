@@ -19,3 +19,29 @@ Before merging backend code:
 - [ ] Server Facade uses object + method structure
 - [ ] No class-based exports in these layers
 
+
+
+# Workflow – How Data Moves
+
+## Public Pages
+page.tsx
+ → calls public actions
+ → server facade
+ → service
+ → repository
+ → db
+
+## Admin Pages
+page.tsx
+ → admin actions
+ → server facade (auth enforced)
+ → service
+ → repository
+ → db
+
+## APIs
+Used ONLY for:
+- authentication (login/logout)
+- external consumers (mobile apps, webhooks)
+
+UI pages must NOT use API routes for internal data fetching.

@@ -1,9 +1,9 @@
 import MessageCardClient from "@/components/clientPage/message/MessageCardClient";
-import { messageServer } from "@/modules/messages/message.server";
+import { getAllMessagesAction } from "../actions/admin.messages.actions";
 
 export default async function MessageServerPage() {
   // 🔐 auth + DB happens inside messageServer
-  const messages = await messageServer.getAll();
+  const messages = await getAllMessagesAction();
 
   return <MessageCardClient messages={messages} />;
 }

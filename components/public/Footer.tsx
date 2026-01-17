@@ -55,7 +55,7 @@ export default function Footer({featuredServiceList}:HeaderProps) {
             </h3>
             <ul className="space-y-3 text-sm">
               {featuredServiceList?.map((service) => (
-                <li>
+                <li key={service.id}>
                 <Link key={service.id} href={`/services/${service.slug}`} >
                 {service.title}
               </Link>

@@ -42,6 +42,50 @@ Data Access & Flow Rules:
 - Repositories must never be accessed directly by UI layers
 
 
+# Rules – Server & DB Access
+
+## 1. page.tsx
+- UI composition only
+- Must NOT:
+  - call db()
+  - call *.service.ts
+  - call *.server.ts
+- May:
+  - import and call Server Actions only
+
+## 2. Server Actions (app/**/actions/*.ts)
+- Single ENTRY POINT for DB access
+- Must:
+  - be marked with `"use server"`
+  - call server facade only
+- Must NOT:
+  - contain business logic
+  - access repositories directly
+
+## 3. Server Facade (*.server.ts)
+- Acts as controller / adapter
+- Responsibilities:
+  - auth & role checks
+  - call service layer
+  - map DB records to DTOs
+- Must NOT:
+  - access db()
+  - contain UI logic
+
+## 4. Service Layer (*.service.ts)
+- Contains business rules
+- Must:
+  - call db() before DB operations
+- Must NOT:
+  - know about Next.js
+  - format responses
+
+## 5. Repository Layer
+- Pure DB access
+- No logic, no auth, no Next.js imports
+
+
+
 Auth Rules:
 - Login, logout, token generation must live in auth module
 - Users module must not handle authentication logic

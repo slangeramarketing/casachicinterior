@@ -82,3 +82,24 @@ Class-based patterns are intentionally avoided to:
 - Reduce abstraction overhead
 - Enforce stateless design
 - Maintain functional composition
+
+
+# Architecture – Data Flow Rules
+
+This project follows a strict unidirectional server-side data flow.
+
+## ❗ Core Rule
+No database access is allowed directly from `page.tsx`, `layout.tsx`,
+or any React component (client or server).
+
+All database interactions must flow through Server Actions.
+
+## Allowed Flow
+page.tsx → actions/*.ts → *.server.ts → *.service.ts → *.repository.ts → db
+
+## Disallowed
+- page.tsx → service
+- page.tsx → server facade
+- layout.tsx → db / service / server
+- component → repository
+

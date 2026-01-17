@@ -1,7 +1,7 @@
-import { userServer } from "@/modules/users/user.server";
 
 import UserForm from "@/components/clientPage/users/UserForm";
 import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
+import { getUserByIdAction } from "@/app/admin/actions/admin.users.action";
 
 export default async function UpdateUserPage({
   params,
@@ -10,20 +10,11 @@ export default async function UpdateUserPage({
 }) {
 
   const {id}= await params;
-  console.log("ID: ",id);
 
-  const users = await userServer.list({ page: 1, limit: 1 }); // example
-  const user = users.find((u) => u.id === id);
+  const user = await getUserByIdAction(id); // example
 
   if (!user) throw new Error("User not found");
 
-  async function handleUpdate(data: {
-    name: string;
-    role: "super_admin" | "admin";
-  }) {
-    "use server";
-    await userServer.update(id, data);
-  }
 
   return (
      <div className="w-full flex flex-col">
@@ -35,12 +26,7 @@ export default async function UpdateUserPage({
           <UserForm
             mode="update"
             
-            initialData={{
-              name: user.name,
-              email: user.email,
-              role: user.role,
-            }}
-            onSubmit={handleUpdate}
+            initialData={user}
           />
        </div>
      </div>

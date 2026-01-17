@@ -1,5 +1,6 @@
 "use client";
 
+import ConfirmActionDialog from "@/components/admin/ConfirmActionDialogProps";
 /************** How to Use **************
    <ServiceCard
         id={service.id}
@@ -32,6 +33,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
+import { RiDeleteBin6Line } from "react-icons/ri";
 import { SlCalender } from "react-icons/sl";
 
 /* =====================================================
@@ -56,7 +58,7 @@ interface ServiceCardProps {
    Component
 ===================================================== */
 export function ServiceCard({
- service,
+  service,
   isAdmin = false,
   onDelete,
 }: ServiceCardProps) {
@@ -138,13 +140,21 @@ export function ServiceCard({
                 </button>
 
               {onDelete && (
-                <button
-                  onClick={() => onDelete(id)}
-                  className="rounded-md p-2 text-red-500 hover:bg-red-50"
-                  aria-label="Delete Service"
-                >
-                  <FiTrash2 size={16} />
-                </button>
+                <ConfirmActionDialog
+                  title="Delete Service"
+                  description="This service will be permanently deleted. This action cannot be undone."
+                  confirmText="Delete"
+                  danger
+                  action={async  () => onDelete(id)}
+                  trigger={
+                      <button
+                      title="Delete"
+                      className="p-2 rounded-md text-red-600 hover:bg-red-100 transition"
+                      >
+                      <RiDeleteBin6Line size={20} />
+                      </button>
+                  }
+                />
               )}
             </div>
           )}

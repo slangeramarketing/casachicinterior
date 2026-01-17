@@ -2,6 +2,25 @@
 
 import { ReactNode, useState } from "react";
 
+/*===========================================
+  How to Used 
+  <ConfirmActionDialog
+      title="Delete User"
+      description="This User will be permanently deletThis action cannot be undone."
+      confirmText="Delete"
+      danger
+      action={() => handleDelete(row.id)}
+      trigger={
+          <button
+          title="Delete"
+          className="p-2 rounded-md text-red-hover:bg-red-100 transition"
+          >
+          <RiDeleteBin6Line size={20} />
+          </button>
+      }
+  />
+============================================= */
+
 interface ConfirmActionDialogProps {
   /** Button / icon that opens dialog */
   trigger: ReactNode;
