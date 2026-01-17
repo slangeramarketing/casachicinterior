@@ -4,6 +4,7 @@ import "../globals.css";
 import Header from "@/components/public/Header";
 import Footer from "@/components/public/Footer";
 import { serviceServer } from "@/modules/services/service.server";
+import db from "@/lib/db";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,6 +27,7 @@ export default async function PublicLayout({
   children: React.ReactNode;
 }>) {
 
+   await db();
    const featuredServiceList=await serviceServer.getFeatured(5);
   return (
     <html lang="en">

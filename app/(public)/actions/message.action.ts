@@ -1,5 +1,6 @@
 "use server";
 
+import db from "@/lib/db";
 /***************************************************
  * File: app/(public)/actions/contact.action.ts
  * Layer: Server Action
@@ -24,5 +25,6 @@ export async function submitContactAction(data: {
   city: string;
   message: string;
 }) {
+  await db();
   return messageServer.submitMessage(data);
 }
