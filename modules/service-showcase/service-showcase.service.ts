@@ -13,6 +13,7 @@
 
 import { ServiceShowcaseRecord } from "./service-showcase.types";
 import { serviceShowcaseRepository } from "./service-showcase.repository";
+import db from "@/lib/db";
 
 /* =============================
    CREATE
@@ -20,6 +21,7 @@ import { serviceShowcaseRepository } from "./service-showcase.repository";
 export async function createServiceShowcase(
   data: Partial<ServiceShowcaseRecord>
 ): Promise<ServiceShowcaseRecord> {
+  db();
   return serviceShowcaseRepository.create(data);
 }
 
@@ -30,6 +32,7 @@ export async function updateServiceShowcase(
   id: string,
   data: Partial<ServiceShowcaseRecord>
 ): Promise<ServiceShowcaseRecord | null> {
+  db();
   return serviceShowcaseRepository.updateById(id, data);
 }
 
@@ -39,16 +42,19 @@ export async function updateServiceShowcase(
 export async function getServiceShowcaseById(
   id: string
 ): Promise<ServiceShowcaseRecord | null> {
+  db();
   return serviceShowcaseRepository.findById(id);
 }
 
 export async function listServiceShowcases(): Promise<ServiceShowcaseRecord[]> {
+  db();
   return serviceShowcaseRepository.findAll();
 }
 
 export async function getServiceShowcasesByService(
   serviceId: string
 ): Promise<ServiceShowcaseRecord[]> {
+  db();
   return serviceShowcaseRepository.findByServiceId(serviceId);
 }
 
@@ -58,5 +64,6 @@ export async function getServiceShowcasesByService(
 export async function removeServiceShowcase(
   id: string
 ): Promise<boolean> {
+  db();
   return serviceShowcaseRepository.deleteById(id);
 }
