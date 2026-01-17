@@ -18,7 +18,6 @@
 import bcrypt from "bcrypt";
 import { signJwt } from "@/lib/jwt";
 import { authRepository } from "./auth.repository";
-import { mapAuthUser } from "./auth.mapper";
 import type { LoginDTO, AuthUserDTO } from "./auth.dto";
 import type { JwtPayload } from "./auth.types";
 import db from "@/lib/db";
@@ -26,7 +25,7 @@ import db from "@/lib/db";
 export async function loginService(
   dto: LoginDTO
 ): Promise<{ token: string; user: AuthUserDTO }> {
-  db();
+  await db();   // before mongoose queries;
   const user = await authRepository.findByEmailWithPassword(dto.email);
 
   if (!user) {

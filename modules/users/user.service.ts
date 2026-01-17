@@ -41,8 +41,7 @@ export async function createUser(
   actorRole: UserRole,
   data: UserCreateDTO
 ): Promise<UserRecord> {
-  db();
-
+  await db();   // before mongoose queries;   // before mongoose queries
   assertAdminRole(actorRole);
   assertRoleChangeAllowed(actorRole, data.role);
 
@@ -69,7 +68,7 @@ export async function updateUser(
   userId: string,
   data: UserUpdateDTO
 ): Promise<UserRecord> {
-  db();
+  await db();   // before mongoose queries;   // before mongoose queries
 
   assertAdminRole(actorRole);
   assertRoleChangeAllowed(actorRole, data.role);
@@ -88,7 +87,8 @@ export async function updateUserStatus(
   userId: string,
   status: UserStatus
 ): Promise<UserRecord> {
-  db();
+  await db();   // before mongoose queries;   // before mongoose queries
+
 
   assertAdminRole(actorRole);
 
@@ -105,7 +105,7 @@ export async function deleteUser(
   actorRole: UserRole,
   userId: string
 ): Promise<void> {
-  db();
+  await db();   // before mongoose queries;
 
   if (actorRole !== "super_admin") {
     throw new Error("Only super_admin can delete users");
@@ -122,7 +122,7 @@ export async function listUsers(
   actorRole: UserRole,
   filters: UserFilterDTO
 ): Promise<UserRecord[]> {
-  db();
+  await db();   // before mongoose queries;
 
   assertAdminRole(actorRole);
 
@@ -140,7 +140,7 @@ export async function countUsers(
   actorRole: UserRole,
   filters: UserFilterDTO
 ): Promise<number> {
-  db();
+  await db();   // before mongoose queries;
 
   assertAdminRole(actorRole);
   return userRepository.count(filters);
@@ -153,7 +153,7 @@ export async function getUserById(
   actorRole: UserRole,
   userId: string
 ): Promise<UserRecord> {
-  db();
+  await db();   // before mongoose queries;
 
   assertAdminRole(actorRole);
 

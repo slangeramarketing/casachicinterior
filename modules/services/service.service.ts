@@ -27,7 +27,7 @@ import db from "@/lib/db";
 export async function createService(
   data: Partial<ServiceRecord>
 ): Promise<ServiceRecord> {
-  db();
+  await db();   // before mongoose queries;
   const existing = await serviceRepository.findBySlug(
     data.slug!
   );
@@ -44,7 +44,7 @@ export async function createService(
 export async function getServiceById(
   id: string
 ): Promise<ServiceRecord | null> {
-  db();
+  await db();   // before mongoose queries;
   return serviceRepository.findById(id);
 }
 
@@ -54,7 +54,7 @@ export async function getServiceById(
 export async function getServiceBySlug(
   slug: string
 ): Promise<ServiceRecord | null> {
-  db();
+  await db();   // before mongoose queries;
   const service =
     await serviceRepository.findBySlug(slug);
 
@@ -77,7 +77,7 @@ export async function listServices(options?: {
   featured?: boolean;
   limit?: number;
 }): Promise<ServiceRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   const filter: {
     status?: "draft" | "published";
     categoryId?: Types.ObjectId;
@@ -109,7 +109,7 @@ export async function updateService(
   id: string,
   data: Partial<ServiceRecord>
 ): Promise<ServiceRecord | null> {
-  db();
+  await db();   // before mongoose queries;
   return serviceRepository.updateById(id, data);
 }
 
@@ -119,6 +119,6 @@ export async function updateService(
 export async function deleteService(
   id: string
 ): Promise<boolean> {
-  db();
+  await db();   // before mongoose queries;
   return serviceRepository.deleteById(id);
 }

@@ -26,7 +26,7 @@ import db from "@/lib/db";
 export async function createServiceCategory(
   data: Partial<ServiceCategoryRecord>
 ): Promise<ServiceCategoryRecord> {
-  db();
+  await db();   // before mongoose queries;
   const exists =
     await serviceCategoryRepository.findBySlug(data.slug!);
   if (exists) {
@@ -52,7 +52,7 @@ export async function createServiceCategory(
 export async function getServiceCategoryById(
   id: string
 ): Promise<ServiceCategoryRecord | null> {
-  db();
+  await db();   // before mongoose queries;
   return serviceCategoryRepository.findById(id);
 }
 
@@ -63,7 +63,7 @@ export async function listServiceCategories(options?: {
   parentId?: string | null;
   publicOnly?: boolean;
 }): Promise<ServiceCategoryRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   const filter: {
     parentId?: Types.ObjectId | null;
     status?: "active" | "inactive";
@@ -89,7 +89,7 @@ export async function updateServiceCategory(
   id: string,
   data: Partial<ServiceCategoryRecord>
 ): Promise<ServiceCategoryRecord | null> {
-  db();
+  await db();   // before mongoose queries;
 
   if (data.parentId && data.parentId.toString() === id) {
     throw new Error("Category cannot be its own parent");
@@ -103,6 +103,6 @@ export async function updateServiceCategory(
 export async function deleteServiceCategory(
   id: string
 ): Promise<boolean> {
-  db();
+  await db();   // before mongoose queries;
   return serviceCategoryRepository.deleteById(id);
 }

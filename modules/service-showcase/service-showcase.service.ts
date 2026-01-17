@@ -21,7 +21,7 @@ import db from "@/lib/db";
 export async function createServiceShowcase(
   data: Partial<ServiceShowcaseRecord>
 ): Promise<ServiceShowcaseRecord> {
-  db();
+  await db();   // before mongoose queries;
   return serviceShowcaseRepository.create(data);
 }
 
@@ -32,7 +32,7 @@ export async function updateServiceShowcase(
   id: string,
   data: Partial<ServiceShowcaseRecord>
 ): Promise<ServiceShowcaseRecord | null> {
-  db();
+  await db();   // before mongoose queries;
   return serviceShowcaseRepository.updateById(id, data);
 }
 
@@ -42,19 +42,19 @@ export async function updateServiceShowcase(
 export async function getServiceShowcaseById(
   id: string
 ): Promise<ServiceShowcaseRecord | null> {
-  db();
+  await db();   // before mongoose queries;
   return serviceShowcaseRepository.findById(id);
 }
 
 export async function listServiceShowcases(): Promise<ServiceShowcaseRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   return serviceShowcaseRepository.findAll();
 }
 
 export async function getServiceShowcasesByService(
   serviceId: string
 ): Promise<ServiceShowcaseRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   return serviceShowcaseRepository.findByServiceId(serviceId);
 }
 
@@ -64,6 +64,6 @@ export async function getServiceShowcasesByService(
 export async function removeServiceShowcase(
   id: string
 ): Promise<boolean> {
-  db();
+  await db();   // before mongoose queries;
   return serviceShowcaseRepository.deleteById(id);
 }

@@ -18,6 +18,7 @@
 import { Types } from "mongoose";
 import { designProcessRepository } from "./design-process.repository";
 import { DesignProcessRecord } from "./design-process.types";
+import db from "@/lib/db";
 
 /* =====================================================
    CREATE
@@ -31,6 +32,8 @@ export async function createDesignProcessService(
     stepOrder: number;
   }
 ): Promise<DesignProcessRecord> {
+  await db();   // before mongoose queries;
+
   return designProcessRepository.create({
     serviceId: new Types.ObjectId(data.serviceId),
     title: data.title,
@@ -48,6 +51,7 @@ export async function updateDesignProcessService(
   id: string,
   data: Partial<DesignProcessRecord>
 ): Promise<DesignProcessRecord | null> {
+  await db();   // before mongoose queries;
   return designProcessRepository.updateById(id, data);
 }
 
@@ -57,6 +61,7 @@ export async function updateDesignProcessService(
 export async function getDesignProcessByIdService(
   id: string
 ): Promise<DesignProcessRecord | null> {
+  await db();   // before mongoose queries;
   return designProcessRepository.findById(id);
 }
 
@@ -69,6 +74,7 @@ export async function listDesignProcessesService(
     activeOnly?: boolean;
   }
 ): Promise<DesignProcessRecord[]> {
+  await db();   // before mongoose queries;
   if (options?.serviceId) {
     return designProcessRepository.findByServiceId(
       options.serviceId,
@@ -89,5 +95,6 @@ export async function listDesignProcessesService(
 export async function removeDesignProcessService(
   id: string
 ): Promise<boolean> {
+  await db();   // before mongoose queries;
   return designProcessRepository.deleteById(id);
 }

@@ -32,7 +32,7 @@ import db from "@/lib/db";
 export async function createSubCategory(
   data: CreateSubCategoryDTO
 ): Promise<SubCategoryRecord> {
-  db();
+  await db();   // before mongoose queries;
   if (!data.name || !data.slug || !data.categoryId) {
     throw new Error("Name, slug and categoryId are required");
   }
@@ -71,7 +71,7 @@ export async function updateSubCategory(
   id: string,
   data: UpdateSubCategoryDTO
 ): Promise<SubCategoryRecord> {
-  db();
+  await db();   // before mongoose queries;
   const existing = await getSubCategoryById(id);
 
   // validate category change
@@ -123,7 +123,7 @@ export async function updateSubCategory(
 export async function deleteSubCategory(
   id: string
 ): Promise<SubCategoryRecord> {
-  db();
+  await db();   // before mongoose queries;
   const deleted = await subCategoryRepository.deleteById(id);
   if (!deleted) {
     throw new Error("Subcategory not found");
@@ -137,7 +137,7 @@ export async function deleteSubCategory(
 export async function getSubCategoryById(
   id: string
 ): Promise<SubCategoryRecord> {
-  db();
+  await db();   // before mongoose queries;
   const subcategory = await subCategoryRepository.getById(id);
   if (!subcategory) {
     throw new Error("Subcategory not found");
@@ -151,7 +151,7 @@ export async function getSubCategoryById(
 export async function getAllSubCategories(): Promise<
   SubCategoryRecord[]
 > {
-  db();
+  await db();   // before mongoose queries;
   return subCategoryRepository.getAll();
 }
 
@@ -161,7 +161,7 @@ export async function getAllSubCategories(): Promise<
 export async function getSubCategoriesByCategory(
   categoryId: string
 ): Promise<SubCategoryRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   return subCategoryRepository.getByCategory(categoryId);
 }
 
@@ -173,6 +173,6 @@ export async function filterSubCategories(filter: {
   slug?: string;
   isActive?: boolean;
 }): Promise<SubCategoryRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   return subCategoryRepository.filter(filter);
 }

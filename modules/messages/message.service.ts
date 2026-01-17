@@ -39,6 +39,8 @@ export async function createMessage(
     message: string;
   }
 ): Promise<MessageRecord> {
+  await db();   // before mongoose queries;
+
   if (
     !data.name ||
     !data.email ||
@@ -80,6 +82,8 @@ export async function replyToMessage(
   messageId: string,
   replyMessage: string
 ): Promise<MessageRecord> {
+  await db();   // before mongoose queries;
+
   if (!replyMessage.trim()) {
     throw new Error("Reply message cannot be empty");
   }
@@ -115,7 +119,7 @@ export async function replyToMessage(
  * - Fetch all messages (admin inbox)
  */
 export async function getAllMessages(): Promise<MessageRecord[]> {
-  db();
+  await db();   // before mongoose queries;
   return messageRepository.findAll();
 }
 
@@ -126,7 +130,7 @@ export async function getAllMessages(): Promise<MessageRecord[]> {
 export async function getMessageById(
   messageId: string
 ): Promise<MessageRecord> {
-  db();
+  await db();   // before mongoose queries;
   const record = await messageRepository.findById(messageId);
 
   if (!record) {
@@ -143,7 +147,7 @@ export async function getMessageById(
 export async function markMessageAsRead(
   messageId: string
 ): Promise<MessageRecord> {
-  db();
+  await db();   // before mongoose queries;
   const updated =
     await messageRepository.markAsRead(messageId);
 
