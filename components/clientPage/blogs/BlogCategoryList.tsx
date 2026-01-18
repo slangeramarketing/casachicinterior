@@ -2,25 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  PageRouteHeader,
-  PageTitle,
-} from "@/components/common/PageHeader";
+import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
 import SearchInput from "@/components/common/SearchInput";
-import FilterDropdown, {
-  FilterOption,
-} from "@/components/common/FilterDropdown";
+import FilterDropdown, { FilterOption } from "@/components/common/FilterDropdown";
 import CreateButton from "@/components/common/CreateButton";
-import {
-  FiChevronDown,
-  FiChevronRight,
-  FiEdit2,
-  FiTrash2,
-} from "react-icons/fi";
+import { FiChevronDown, FiEdit2, FiTrash2 } from "react-icons/fi";
+import { MdCategory } from "react-icons/md";
 
 import { ResponseCategoryDTO } from "@/modules/blog-category/category.dto";
 import { SubCategoryResponseDTO } from "@/modules/blog-subcategory/subcategory.dto";
-import { MdCategory } from "react-icons/md";
+import ConfirmActionDialog from "@/components/admin/ConfirmActionDialogProps";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 interface BlogCategoryListProps {
   categories: ResponseCategoryDTO[];
@@ -52,237 +44,184 @@ export default function BlogCategoryList({
   const router = useRouter();
 
   const [search, setSearch] = useState("");
-  const [filter, setFilter] =
-    useState<StatusFilter>("all");
-  const [expanded, setExpanded] = useState<
-    Record<string, boolean>
-  >({});
+  const [filter, setFilter] = useState<StatusFilter>("all");
+  
+  // Multiple expansion handle karne ke liye array state
+  const [expandedIds, setExpandedIds] = useState<string[]>([]);
 
-  /* =====================================================
-     Helpers
-  ===================================================== */
-  const matchesCategory = (c: ResponseCategoryDTO) => {
-    const s =
-      c.name.toLowerCase().includes(search.toLowerCase()) ||
-      c.slug.toLowerCase().includes(search.toLowerCase());
-
-    const f =
-      filter === "all"
-        ? true
-        : filter === "active"
-        ? c.isActive
-        : !c.isActive;
-
-    return s && f;
-  };
-
-  const matchesSubCategory = (s: SubCategoryResponseDTO) => {
-    const t =
-      s.name.toLowerCase().includes(search.toLowerCase()) ||
-      s.slug.toLowerCase().includes(search.toLowerCase());
-
-    const f =
-      filter === "all"
-        ? true
-        : filter === "active"
-        ? s.isActive
-        : !s.isActive;
-
-    return t && f;
+  const toggleExpand = (id: string) => {
+    setExpandedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
   };
 
   /* =====================================================
-     Build Tree (Category → SubCategory)
+      Filtering Logic (Fixed for isActive boolean)
   ===================================================== */
-  const tree = useMemo(() => {
-    const map: Record<string, SubCategoryResponseDTO[]> =
-      {};
+  const filteredData = useMemo(() => {
+    return categories
+      .filter((cat) => {
+        const matchesSearch = cat.name.toLowerCase().includes(search.toLowerCase());
+        
+        // Filter logic for boolean isActive
+        const matchesStatus = 
+          filter === "all" || 
+          (filter === "active" && cat.isActive) || 
+          (filter === "inactive" && !cat.isActive);
 
-    subCategories.forEach((s) => {
-      map[s.categoryId] = map[s.categoryId] || [];
-      map[s.categoryId].push(s);
-    });
+        return matchesSearch && matchesStatus;
+      })
+      .map((cat) => ({
+        ...cat,
+        // Category ke andar related subcategories filter karna
+        subs: subCategories.filter(
+          (sub) => 
+            sub.categoryId === cat.id && 
+            sub.name.toLowerCase().includes(search.toLowerCase()) &&
+            (filter === "all" || 
+             (filter === "active" && sub.isActive) || 
+             (filter === "inactive" && !sub.isActive))
+        ),
+      }));
+  }, [categories, subCategories, search, filter]);
 
-    return map;
-  }, [subCategories]);
-
-  /* =====================================================
-     UI
-  ===================================================== */
   return (
     <div className="space-y-6">
-     <div className="flex justify-between">
-         <PageRouteHeader />
-         <div className="flex gap-4">
-            <CreateButton
-                label="Add-Category"
-                onClick={() =>
-                router.push("/admin/blogs/categories/create")
-                }
-                className="py-4 text-white"
-                icon={<MdCategory size={16} />}
-            />
-            <CreateButton
-                label="Add-SubCategory"
-                onClick={() =>
-                router.push("/admin/blogs/subcategories/create")
-                }
-                className="py-4 text-white"
-                icon={<MdCategory size={16} />}
-            />
-            <FilterDropdown
-                value={filter}
-                options={FILTER_OPTIONS}
-                onChange={setFilter}
-            />
-
-         </div>
-     </div>
-      {/* Search + Filter */}
-      <div className="grid grid-cols-2 items-center">
-        <PageTitle
-         title="Blog Categories"
-         description="Manage blog categories and sub-categories"
-        />
-        <SearchInput
-            value={search}
-            placeholder="Search..."
-            onChange={setSearch}
+      <div className="flex justify-between">
+        <PageRouteHeader />
+        <div className="flex gap-4">
+          <CreateButton
+            label="Add-Category"
+            onClick={() => router.push("/admin/blogs/categories/create")}
+            className="py-4 text-white"
+            icon={<MdCategory size={16} />}
           />
+          <CreateButton
+            label="Add-SubCategory"
+            onClick={() => router.push("/admin/blogs/subcategories/create")}
+            className="py-4 text-white"
+            icon={<MdCategory size={16} />}
+          />
+          <FilterDropdown
+            value={filter}
+            options={FILTER_OPTIONS}
+            onChange={setFilter}
+          />
+        </div>
       </div>
 
-      {/* Tree */}
+      <div className="grid grid-cols-2 items-center">
+        <PageTitle
+          title="Blog Categories"
+          description="Manage blog categories and sub-categories"
+        />
+        <SearchInput
+          value={search}
+          placeholder="Search..."
+          onChange={setSearch}
+        />
+      </div>
+
       <div className="bg-white flex flex-col gap-3 pb-4">
-        {categories.length === 0 && (
+        {filteredData.length === 0 ? (
           <div className="flex justify-center items-center text-sm text-gray-300 border min-h-75 border-dashed border-gray-200">
             Data Not Found
           </div>
-        )}
+        ) : (
+          <div className="w-full flex flex-col gap-2">
+            {filteredData.map((category) => (
+              <div key={category.id} className="flex flex-col">
+                {/* Category Row */}
+                <div className="flex justify-between p-4 border border-gray-300">
+                  <div className="flex gap-4 items-center">
+                    <FiChevronDown
+                      size={20}
+                      onClick={() => toggleExpand(category.id)}
+                      className={`transition-transform duration-300 cursor-pointer ${
+                        expandedIds.includes(category.id) ? "rotate-0" : "-rotate-90"
+                      }`}
+                    />
+                    <h3 className="font-semibold">{category.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <span className={`h-2 w-2 rounded-full ${category.isActive ? "bg-green-600" : "bg-gray-400"}`}></span> 
+                      <p className="text-xs">({category.isActive ? "Active" : "Inactive"})</p>
+                    </div>
+                  </div>
 
-        {categories.map((cat) => {
-          const subs = tree[cat.id] || [];
-          const isOpen = expanded[cat.id];
+                  <div className="flex gap-4">
+                    <span 
+                      onClick={() => router.push(`/admin/blogs/categories/update/${category.id}`)}
+                      className="hover:bg-gray-200 p-1 rounded hover:text-black cursor-pointer text-gray-400"
+                    >
+                      <FiEdit2 size={16} />
+                    </span>
 
-          if (
-            !matchesCategory(cat) &&
-            !subs.some(matchesSubCategory)
-          ) {
-            return null;
-          }
-
-          return (
-            <div
-              key={cat.id}
-              className="border border-gray-300"
-            >
-              {/* Category */}
-              <div className="flex items-center justify-between px-4 py-3">
-                <button
-                  onClick={() =>
-                    setExpanded((p) => ({
-                      ...p,
-                      [cat.id]: !p[cat.id],
-                    }))
-                  }
-                  className="flex items-center gap-2"
-                >
-                  {subs.length > 0 ? (
-                    isOpen ? (
-                      <FiChevronDown />
-                    ) : (
-                      <FiChevronRight />
-                    )
-                  ) : (
-                    <span className="w-4" />
-                  )}
-                  <span className="font-medium">
-                    {cat.name}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    ({cat.slug})
-                  </span>
-                  <span
-                    className={`h-2 w-2 rounded-full ${
-                      cat.isActive
-                        ? "bg-green-500"
-                        : "bg-red-500"
-                    }`}
-                  />
-                </button>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() =>
-                      router.push(
-                        `/admin/blogs/categories/${cat.id}`
-                      )
-                    }
-                    className="p-2 hover:bg-gray-100 rounded"
-                  >
-                    <FiEdit2 size={14} />
-                  </button>
-                  <button
-                    onClick={() => onDeleteCategory(cat.id)}
-                    className="p-2 hover:bg-red-50 text-red-600 rounded"
-                  >
-                    <FiTrash2 size={14} />
-                  </button>
+                    <ConfirmActionDialog
+                      title="Delete Category"
+                      description="This Category will be permanently deleted. This action cannot be undone."
+                      confirmText="Delete"
+                      danger
+                      action={() => onDeleteCategory(category.id)}
+                      trigger={
+                          <button
+                          title="Delete"
+                          className="hover:bg-red-600 p-1 rounded hover:text-white cursor-pointer text-red-500"
+                          >
+                          <RiDeleteBin6Line size={15} />
+                          </button>
+                      }
+                    />
+                  </div>
                 </div>
-              </div>
 
-              {/* SubCategories */}
-              {isOpen && subs.length > 0 && (
-                <div className="bg-gray-50">
-                  {subs.map(
-                    (s) =>
-                      matchesSubCategory(s) && (
-                        <div
-                          key={s.id}
-                          className="flex items-center justify-between px-10 py-2 text-sm hover:bg-white"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="h-1.5 w-1.5 rounded-full bg-gray-400" />
-                            <span>{s.name}</span>
-                            <span className="text-xs text-gray-400">
-                              ({s.slug})
+                {/* Sub-Category List Wrapper */}
+                {expandedIds.includes(category.id) && (
+                  <div className="border border-gray-300 flex flex-col ml-10 px-4 bg-gray-50 transition-all">
+                    {category.subs.length > 0 ? (
+                      category.subs.map((sub) => (
+                        <div key={sub.id} className="flex gap-4 p-2 justify-between border-b border-gray-200 text-sm">
+                          <div className="flex gap-4 items-center">
+                            <h3>{sub.name}</h3>
+                            <div className="flex items-center gap-2">
+                              <span className={`h-2 w-2 rounded-full ${sub.isActive ? "bg-green-600" : "bg-gray-400"}`}></span> 
+                              <p className="text-xs">({sub.isActive ? "Active" : "Inactive"})</p>
+                            </div>
+                          </div>
+                          <div className="flex gap-4">
+                            <span 
+                              onClick={() => router.push(`/admin/blogs/subcategories/update/${sub.id}`)}
+                              className="hover:bg-gray-200 p-1 rounded hover:text-black cursor-pointer text-gray-400"
+                            >
+                              <FiEdit2 size={16} />
                             </span>
-                            <span
-                              className={`h-2 w-2 rounded-full ${
-                                s.isActive
-                                  ? "bg-green-500"
-                                  : "bg-red-500"
-                              }`}
+
+                            <ConfirmActionDialog
+                              title="Delete Sub-Category"
+                              description="This Sub-Category will be permanently deleted. This action cannot be undone."
+                              confirmText="Delete"
+                              danger
+                              action={() => onDeleteSubCategory(sub.id)}
+                              trigger={
+                                  <button
+                                  title="Delete"
+                                  className="hover:bg-red-600 p-1 rounded hover:text-white cursor-pointer text-red-500"
+                                  >
+                                  <RiDeleteBin6Line size={15} />
+                                  </button>
+                              }
                             />
                           </div>
-
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() =>
-                                router.push(
-                                  `/admin/blogs/subcategories/${s.id}`
-                                )
-                              }
-                              className="p-1 hover:bg-gray-100 rounded"
-                            >
-                              <FiEdit2 size={13} />
-                            </button>
-                            <button
-                              onClick={() =>
-                                onDeleteSubCategory(s.id)
-                              }
-                              className="p-1 hover:bg-red-50 text-red-600 rounded"
-                            >
-                              <FiTrash2 size={13} />
-                            </button>
-                          </div>
                         </div>
-                      )
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
+                      ))
+                    ) : (
+                      <div className="p-3 text-xs text-gray-400 italic">No sub-categories found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

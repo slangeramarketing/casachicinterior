@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import defaultImg from "@/public/assets/default.jpg";
 
 interface ImageUploadProps {
   label?: string;
   onChange?: (file: File | null) => void;
-
-  /* Styling hooks */
+  defaultValue?: string; // 👈 Add this for Edit mode (purani image dikhane ke liye)
+  // ... baaki props same rahenge
   wrapperClassName?: string;
   labelClassName?: string;
   inputWrapperClassName?: string;
@@ -16,15 +16,13 @@ interface ImageUploadProps {
   fileNameClassName?: string;
   previewWrapperClassName?: string;
   previewImageClassName?: string;
-  emptyPreviewClassName?: string;
-  id?:string;
+  id?: string;
 }
 
 export default function ImageUpload({
-
   label = "Thumbnail Image",
   onChange,
-
+  defaultValue = "", // 👈
   wrapperClassName = "",
   labelClassName = "",
   inputWrapperClassName = "",
@@ -32,17 +30,26 @@ export default function ImageUpload({
   fileNameClassName = "",
   previewWrapperClassName = "",
   previewImageClassName = "",
-  emptyPreviewClassName = "",
   id = "image-upload",
 }: ImageUploadProps) {
-  const [preview, setPreview] = useState<string | null>(null);
+  // Preview state ko defaultValue se initialize karein
+  const [preview, setPreview] = useState<string | null>(defaultValue || null);
   const [fileName, setFileName] = useState<string>("");
+
+  // Memory Leak se bachne ke liye clean-up logic
+  useEffect(() => {
+    return () => {
+      if (preview && preview.startsWith("blob:")) {
+        URL.revokeObjectURL(preview);
+      }
+    };
+  }, [preview]);
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
 
     if (!file) {
-      setPreview(null);
+      setPreview(defaultValue || null);
       setFileName("");
       onChange?.(null);
       return;
@@ -54,14 +61,14 @@ export default function ImageUpload({
     }
 
     setFileName(file.name);
-    setPreview(URL.createObjectURL(file));
+    const objectUrl = URL.createObjectURL(file);
+    setPreview(objectUrl);
     onChange?.(file);
   }
 
   return (
     <div className={`border border-gray-300 ${wrapperClassName}`}>
-
-      <div className="flex gap-4 p-2 bg-bg-secondary">
+      <div className="flex gap-4 p-2 bg-bg-secondary items-center">
         <input
           type="file"
           accept="image/*"
@@ -71,36 +78,27 @@ export default function ImageUpload({
         />
         <label
           htmlFor={id}
-          className={`inline-flex items-center gap-2 px-3 py-1
-                      border border-gray-300 rounded cursor-pointer bg-bg-secondary
+          className={`inline-flex items-center gap-2 px-3 py-1 
+                      border border-gray-300 rounded cursor-pointer bg-bg-secondary 
                       hover:bg-bg-primary hover:text-white text-xs ${inputClassName}`}
         >
           Choose-File
         </label>
-        {/* Label */}
-        <label className={labelClassName}>
-          {label}
-        </label>
-        
+        <label className={labelClassName}>{label}</label>
       </div>
 
-      {/* Input Box */}
       <div className={`flex flex-col ${inputWrapperClassName}`}>
-        {/* File Name */}
         {fileName && (
-          <p className={`px-2 ${fileNameClassName}`}>
-            {fileName}
-          </p>
+          <p className={`px-2 ${fileNameClassName}`}>{fileName}</p>
         )}
 
-        {/* Preview */}
         <div className={`flex justify-center p-4 ${previewWrapperClassName}`}>
           <Image
-            src={preview || defaultImg}   // 👈 fallback to default image
+            src={preview || defaultImg}
             alt="Preview"
             width={110}
             height={120}
-            className={`rounded border ${previewImageClassName}`}
+            className={`rounded border object-cover ${previewImageClassName}`}
           />
         </div>
       </div>

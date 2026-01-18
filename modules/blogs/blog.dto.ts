@@ -64,19 +64,30 @@ export interface UpdateBlogDTO {
 ========================= */
 export interface BlogResponseDTO {
   id: string;
-
   title: string;
   slug: string;
   description?: string;
   richText?: string;
   thumbnailImage?: string;
 
+  // IDs (Optional but good to keep)
   categoryId: string;
   subCategoryId?: string;
 
+  // Populated Data (Frontend display ke liye)
+  category?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+  subCategory?: {
+    id: string;
+    name: string;
+    slug: string;
+  };
+
   status: BlogStatus;
   featured: boolean;
-
   authorId: string;
 
   seo?: {

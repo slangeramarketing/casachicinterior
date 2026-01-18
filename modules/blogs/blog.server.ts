@@ -24,6 +24,7 @@ import {
   getBlogById,
   getAllBlogs,
   filterBlogs,
+  getBlogBySlug,
 } from "./blog.service";
 import { blogMapper } from "./blog.mapper";
 import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
@@ -76,6 +77,14 @@ export const blogServer = {
    */
   async getById(id: string) {
     const record = await getBlogById(id);
+    return blogMapper.toResponse(record);
+  },
+
+  /**
+   * Get blog by Slug (Public / Server Components)
+   */
+  async getBySlug(slug: string) {
+    const record = await getBlogBySlug(slug);
     return blogMapper.toResponse(record);
   },
 

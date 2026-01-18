@@ -28,7 +28,7 @@ export default async function UpdateCategoryPage({
         <PageRouteHeader />
       </div>
 
-      <div className="pt-6 w-1/2">
+      <div className="pt-6 w-full lg:w-1/2">
         <h1 className="text-2xl font-semibold mb-4">
           Update Category
         </h1>

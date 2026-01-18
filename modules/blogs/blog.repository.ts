@@ -13,9 +13,8 @@
  * - Must NOT format data
  ***************************************************/
 
-import { Types } from "mongoose";
 import BlogModel from "./blog.model";
-import { BlogRecord } from "./blog.types";
+import { BlogPopulatedRecord, BlogRecord } from "./blog.types";
 
 export const blogRepository = {
   async create(data: Partial<BlogRecord>): Promise<BlogRecord> {
@@ -42,17 +41,33 @@ export const blogRepository = {
     return (await BlogModel.findById(id).lean()) as BlogRecord | null;
   },
 
-  async getAll(): Promise<BlogRecord[]> {
-    return (await BlogModel.find().lean()) as BlogRecord[];
+  async getByIdPopulated(id: string): Promise<BlogPopulatedRecord | null> {
+      return (await BlogModel.findById(id)
+        .populate("categoryId", "name slug") // Sirf name aur slug mangwayein
+        .populate("subCategoryId", "name slug")
+        .lean()) as BlogPopulatedRecord | null;
+    },
+  
+  async getBySlugPopulated(slug: string): Promise<BlogPopulatedRecord | null> {
+    return (await BlogModel.findOne({ slug })
+      .populate("categoryId", "name slug")
+      .populate("subCategoryId", "name slug")
+      .lean()) as BlogPopulatedRecord | null;
   },
 
-  async filter(filter: {
-    status?: "draft" | "published";
-    featured?: boolean;
-    categoryId?: Types.ObjectId | string;
-    subCategoryId?: Types.ObjectId | string;
-    slug?: string;
-  }): Promise<BlogRecord[]> {
-    return (await BlogModel.find(filter).lean()) as BlogRecord[];
+  async getAllPopulated(): Promise<BlogPopulatedRecord[]> {
+    return (await BlogModel.find()
+      .sort({ createdAt: -1 }) // Latest blogs upar
+      .populate("categoryId", "name slug")
+      .populate("subCategoryId", "name slug")
+      .lean()) as BlogPopulatedRecord[];
   },
+
+  // Filtered populated data
+  async filterPopulated(query: any): Promise<BlogPopulatedRecord[]> {
+    return (await BlogModel.find(query)
+      .populate("categoryId", "name slug")
+      .populate("subCategoryId", "name slug")
+      .lean()) as BlogPopulatedRecord[];
+  }
 };

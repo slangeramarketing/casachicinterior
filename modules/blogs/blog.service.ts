@@ -15,7 +15,7 @@
  ***************************************************/
 
 import { blogRepository } from "./blog.repository";
-import { BlogRecord } from "./blog.types";
+import { BlogPopulatedRecord, BlogRecord } from "./blog.types";
 import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
 import { subCategoryRepository } from "../blog-subcategory/subcategory.repository";
 import { categoryRepository } from "../blog-category/category.repository";
@@ -173,11 +173,25 @@ export async function getBlogById(id: string): Promise<BlogRecord> {
 }
 
 /**
+ * Get blog by Slug
+ */
+export async function getBlogBySlug(slug: string): Promise<BlogPopulatedRecord> {
+  await db(); 
+  const blog = await blogRepository.getBySlugPopulated(slug);
+  
+  if (!blog) {
+    throw new Error("Blog not found with this slug");
+  }
+  
+  return blog;
+}
+
+/**
  * Get all blogs
  */
-export async function getAllBlogs(): Promise<BlogRecord[]> {
+export async function getAllBlogs(): Promise<BlogPopulatedRecord[]> {
   await db();   // before mongoose queries;
-  return blogRepository.getAll();
+  return blogRepository.getAllPopulated();
 }
 
 /**
@@ -189,7 +203,7 @@ export async function filterBlogs(filter: {
   categoryId?: string;
   subCategoryId?: string;
   slug?: string;
-}): Promise<BlogRecord[]> {
+}): Promise<BlogPopulatedRecord[]> {
   await db();   // before mongoose queries;
-  return blogRepository.filter(filter);
+  return blogRepository.filterPopulated(filter);
 }

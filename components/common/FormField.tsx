@@ -8,7 +8,7 @@ import { ChangeEvent } from "react";
 
 interface BaseFieldProps {
   label: string;
-  name: string;
+  name?: string;
   value: string;
   placeholder?: string;
   disabled?: boolean;
@@ -28,7 +28,7 @@ interface TextFieldProps extends BaseFieldProps {
 
 export function TextField({
   label,
-  name,
+  name="",
   value,
   placeholder='',
   type = "text",
@@ -163,12 +163,12 @@ export function TextAreaField({
 
       {/* Character Counter */}
       <div
-        className={`text-xs mt-1 ${
+        className={`text-xs px-2 text-gray-300 ${
           isOverLimit ? "text-red-600" : "text-gray-500"
         }`}
       >
         {value.length} / {maxLength} characters
       </div>
-    </div>
+    </div>  
   );
 }

@@ -1,5 +1,4 @@
 import { notFound } from "next/navigation";
-import { serviceServer } from "@/modules/services/service.server";
 import ServiceDetail from "@/components/clientPage/services/ServiceDetail";
 import { getServiceByIdAction } from "@/app/admin/actions/admin.service.action";
 

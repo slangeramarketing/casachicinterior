@@ -54,3 +54,23 @@ export interface BlogRecord {
   createdAt: Date;
   updatedAt: Date;
 }
+
+
+// Category aur SubCategory ke basic shapes define karein
+export interface PopulatedCategory {
+  _id: Types.ObjectId;
+  name: string;
+  slug: string;
+}
+
+export interface PopulatedSubCategory {
+  _id: Types.ObjectId;
+  name: string;
+  slug: string;
+}
+
+// Ye record tab use hoga jab hum populate() chalayenge
+export interface BlogPopulatedRecord extends Omit<BlogRecord, 'categoryId' | 'subCategoryId'> {
+  categoryId: PopulatedCategory;
+  subCategoryId?: PopulatedSubCategory;
+}

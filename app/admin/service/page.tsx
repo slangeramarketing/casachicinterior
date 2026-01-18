@@ -9,8 +9,6 @@
  ***************************************************/
 
 import ServiceList from "@/components/clientPage/services/ServiceList";
-import { serviceServer } from "@/modules/services/service.server";
-import { revalidatePath } from "next/cache";
 import { getAllServicesAction } from "../actions/admin.service.action";
 
 /* =====================================================

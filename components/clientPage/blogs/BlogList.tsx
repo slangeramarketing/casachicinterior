@@ -2,10 +2,9 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { BiCategory } from "react-icons/bi";
 
 
-import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
+import { PageTitle } from "@/components/common/PageHeader";
 import SearchInput from "@/components/common/SearchInput";
 import FilterDropdown from "@/components/common/FilterDropdown";
 import CreateButton from "@/components/common/CreateButton";
@@ -72,11 +71,11 @@ export default function BlogList({ blogs }: BlogListProps) {
      UI
   ========================= */
   return (
-    <div className="space-y-6 px-8">
+    <div className="space-y-6 lg:px-8">
       {/* ================= Header ================= */}
       <div className="flex flex-col gap-2">
-        <div className="flex justify-between pt-2">
-          <PageRouteHeader />
+        <div className="flex justify-end pt-2">
+          {/* <PageRouteHeader /> */}
 
           <div className="flex gap-2">
             <CreateButton
@@ -104,7 +103,7 @@ export default function BlogList({ blogs }: BlogListProps) {
           </div>
         </div>
 
-        <div className="w-full flex justify-between">
+        <div className="w-full flex justify-between items-center">
           <PageTitle
             title="Blogs"
             description="Manage all blogs from here"
@@ -116,14 +115,15 @@ export default function BlogList({ blogs }: BlogListProps) {
 
       {/* ================= Blog Cards ================= */}
       {filteredBlogs.length === 0 ? (
-        <div className="text-gray-500">No blogs found.</div>
+        <div className="border flex justify-center items-center min-h-74 border-dashed border-gray-300 text-gray-300">No blogs found.</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredBlogs.map((blog) => (
             <BlogCard
               key={blog.id}
               thumbnail={blog.thumbnailImage || ""}
-              category={blog.categoryId}
+              category={blog.category?.name || ""}
+              featured={blog.featured}
               title={blog.title}
               description={blog.description || ""}
               createdAt={timeAgo(blog.createdAt)}

@@ -27,7 +27,7 @@ const slideVariant = {
 
 export default function FeaturedProjectsSection() {
   return (
-    <section className="w-full py-20 bg-white">
+    <section className="w-full py-20 bg-white overflow-x-hidden">
       <div className="max-w-7xl mx-auto px-6">
 
         {/* HEADER */}

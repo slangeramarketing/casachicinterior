@@ -1,10 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import RichTextEditor from "@/components/admin/RichTextEditor";
-import ImageUpload from "@/components/common/ImageUpload";
 import { uploadImage } from "@/lib/uploadImage";
 
 import { CiEdit } from "react-icons/ci";
@@ -18,7 +17,11 @@ import {
   CreateBlogDTO,
   UpdateBlogDTO,
 } from "@/modules/blogs/blog.dto";
-import { blogServer } from "@/modules/blogs/blog.server";
+import { SelectField, TextAreaField, TextField } from "@/components/common/FormField";
+import { ToggleSwitch } from "@/components/common/ToggleSwitch";
+import ImageUpload from "@/components/common/ImageUpload";
+import Alert, { AlertType } from "@/components/common/Alert";
+
 
 export type BlogFormMode = "create" | "view" | "edit";
 
@@ -57,7 +60,7 @@ export default function BlogForm({
   const isEdit = currentMode === "edit";
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [alert, setAlert] = useState<AlertType | null>(null);
   const [thumbnail, setThumbnail] = useState<File | null>(null);
 
   const [form, setForm] = useState<CreateBlogDTO>(() =>
@@ -97,12 +100,12 @@ export default function BlogForm({
   /* -------------------------------------
      Derived SubCategories (by category)
   ------------------------------------- */
-  const filteredSubCategories = useMemo(() => {
-    if (!form.categoryId) return [];
-    return subcategories.filter(
-      (s) => s.categoryId === form.categoryId
-    );
-  }, [form.categoryId, subcategories]);
+  // const filteredSubCategories = useMemo(() => {
+  //   if (!form.categoryId) return [];
+  //   return subcategories.filter(
+  //     (s) => s.categoryId === form.categoryId
+  //   );
+  // }, [form.categoryId, subcategories]);
 
   const generateSlug = (text: string) =>
     text
@@ -115,12 +118,17 @@ export default function BlogForm({
      Submit
   ------------------------------------- */
 const handleSubmit = async (status: "draft" | "published") => {
+  console.log("status:", status);
+  
   try {
-    setError("");
-
     const validationError = validateForm();
     if (validationError) {
-      setError(validationError);
+      setAlert({
+        type: "error",
+        title: "Validation Error",
+        message: validationError,
+      });
+      
       return;
     }
 
@@ -148,7 +156,12 @@ const handleSubmit = async (status: "draft" | "published") => {
 
     router.push("/admin/blogs");
   } catch (err: any) {
-    setError(err.message || "Something went wrong");
+     setAlert({
+        type: "error",
+        title: "Validation Error",
+        message: err?.message,
+      });
+    
   } finally {
     setLoading(false);
   }
@@ -166,7 +179,6 @@ const handleSubmit = async (status: "draft" | "published") => {
       return "Description limit exceeded";
 
     if (!form.categoryId) return "Category is required";
-    if (!form.subCategoryId) return "Sub-category is required";
 
     if (!form.richText || form.richText === "<p></p>")
       return "Blog content is required";
@@ -191,7 +203,7 @@ const handleSubmit = async (status: "draft" | "published") => {
         <label className="text-sm text-gray-500">Title</label>
         <input
           disabled={isView}
-          className="w-full border rounded px-3 py-1 mb-4"
+          className="w-full border border-gray-300 rounded px-3 py-1 mb-4"
           value={form.title}
           onChange={(e) =>
             setForm({
@@ -212,7 +224,7 @@ const handleSubmit = async (status: "draft" | "published") => {
       </div>
 
       {/* SIDEBAR */}
-      <div className="w-full lg:w-[20%] border rounded p-2">
+      <div className="w-full lg:w-[20%] border border-gray-300 rounded p-2 flex flex-col gap-4">
         {mode !== "create" && (
           <div className="flex justify-end mb-3">
             {isView ? (
@@ -235,80 +247,135 @@ const handleSubmit = async (status: "draft" | "published") => {
           </div>
         )}
 
+        <TextField 
+            label="Slug" 
+            placeholder="auto-generated-by-title"
+            value={form.slug} 
+            type="text" 
+            onChange={()=> setForm({
+              ...form, slug: generateSlug(form.title)
+            })}
+            labelClassName="text-xs !text-gray-500 px-2"
+         />
+
+         <TextAreaField
+            label="Description"
+            placeholder="Short description"
+            value={form.description || ""}
+            onChange={(e) =>
+              setForm({ ...form, description: e.target.value })
+            }
+            labelClassName="text-xs !text-gray-500 px-2"
+         />
+
         {/* CATEGORY */}
-        <label className="text-xs">Category</label>
-        <select
+        <SelectField
+          label="Category"
+          value={form.categoryId || ""}
+          options={categories.map((s) => ({ label: s.name, value: s.id }))}
           disabled={isView}
-          value={form.categoryId}
           onChange={(e) =>
             setForm({
               ...form,
               categoryId: e.target.value,
-              subCategoryId: "",
             })
           }
-          className="w-full border rounded px-2 py-1 mb-3"
-        >
-          <option value="">Select</option>
-          {categories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
+          labelClassName="text-xs !text-gray-500 px-2"
+        />
 
-        {/* SUBCATEGORY */}
-        <label className="text-xs">Sub-Category</label>
-        <select
-          disabled={isView || !form.categoryId}
-          value={form.subCategoryId}
+        <SelectField
+          label="Subcategory"
+          value={form.subCategoryId || ""}
+          options={subcategories.map((s) => ({ label: s.name, value: s.id }))}
+          disabled={isView}
           onChange={(e) =>
             setForm({
               ...form,
               subCategoryId: e.target.value,
             })
           }
-          className="w-full border rounded px-2 py-1 mb-3"
-        >
-          <option value="">Select</option>
-          {filteredSubCategories.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
-          ))}
-        </select>
-
-        <SwitchToggle
-          label="Featured"
-          checked={form.featured || false}
-          onChange={(v) =>
-            setForm({ ...form, featured: v })
-          }
+          labelClassName="text-xs !text-gray-500 px-2"
         />
 
+        <ToggleSwitch
+          label="Featured"
+          checked={form.featured || false}
+          disabled={loading} // 👈 Form submit hote waqt toggle disable ho jayega
+          showDescription
+          description="This is used to set this Blogs as Featured Blogs"
+          onChange={(v) => setForm({ ...form, featured: v })}
+        />
+
+        <ImageUpload
+            label="Thumnail-Upload"
+            defaultValue={form.thumbnailImage} // 👈 Isse Edit mode mein image dikhegi
+            onChange={(file) => setThumbnail(file)}
+            labelClassName="text-xs"
+            fileNameClassName="text-xs text-gray-400 bold"
+        />
+
+        {/* ====== meta ======== */}
+
+        <TextField 
+            label="meta-title" 
+            value={form.seo?.metaTitle || ""} 
+            type="text" 
+            onChange={()=> setForm({
+              ...form, seo: { ...form.seo, metaTitle: generateSlug(form.title) }
+            })}
+            labelClassName="text-xs !text-gray-500 px-2"
+         />
+
+         <TextAreaField
+            label="meta-description"
+            value={form.seo?.metaDescription || ""}
+            onChange={(e) =>
+              setForm({ ...form, seo: { ...form.seo, metaDescription: e.target.value } })
+            }
+            labelClassName="text-xs !text-gray-500 px-2"
+         />
+
+        {alert && (
+        <Alert
+            type={alert.type}
+            title={alert.title}
+            message={alert.message}
+            onClose={() => setAlert(null)}
+        />
+        )}
+
         {!isView && (
-          <>
+          <div className="flex flex-col gap-2 mt-4">
+            {/* Publish Button */}
             <button
               onClick={() => handleSubmit("published")}
-              className="w-full bg-green-600 text-white py-2 text-xs mt-4"
+              disabled={loading} // Disable button while loading
+              className={`w-full py-2 text-xs text-white transition-all flex items-center justify-center gap-2
+                ${loading ? "bg-green-400 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
             >
-              Publish
+              {loading ? (
+                <>
+                  <span className="animate-spin h-3 w-3 border-2 border-white border-t-transparent rounded-full"></span>
+                  Processing...
+                </>
+              ) : (
+                "Publish"
+              )}
             </button>
 
+            {/* Save Draft Button */}
             <button
               onClick={() => handleSubmit("draft")}
-              className="w-full bg-gray-500 text-white py-2 text-xs mt-2"
+              disabled={loading} // Disable button while loading
+              className={`w-full py-2 text-xs text-white transition-all flex items-center justify-center gap-2
+                ${loading ? "bg-gray-300 cursor-not-allowed" : "bg-gray-500 hover:bg-gray-600"}`}
             >
-              Save Draft
+              {loading ? "Saving..." : "Save Draft"}
             </button>
-          </>
+          </div>
         )}
 
-        {error && (
-          <p className="text-red-500 text-xs mt-2">
-            {error}
-          </p>
-        )}
+
       </div>
     </div>
   );

@@ -43,6 +43,18 @@ export async function getBlogByIdAction(
 }
 
 /**
+ * Fetch blog by SLUG (Public/Admin)
+ */
+export async function getBlogBySlugAction(slug: string) {
+  try {
+    return await blogServer.getBySlug(slug);
+  } catch (error: any) {
+    console.error("Error fetching blog by slug:", error.message);
+    return null; // Ya aap custom error handle kar sakte hain
+  }
+}
+
+/**
  * Filter blogs (admin)
  */
 export async function filterBlogsAction(filter: {

@@ -1,18 +1,18 @@
 
 
-import CategoryForm from "@/components/admin/CategoryForm";
 import { PageRouteHeader } from "@/components/common/PageHeader";
 import { categoryServer } from "@/modules/blog-category/category.server";
-import { CreateCategoryDTO } from "@/modules/blog-category/category.dto";
 import SubCategoryForm from "@/components/admin/SubCategoryForm";
+import { subCategoryServer } from "@/modules/blog-subcategory/subcategory.server";
+import { CreateSubCategoryDTO } from "@/modules/blog-subcategory/subcategory.dto";
 
 export default async function CreateSubCategoryPage() {
   
   const categoryData= await categoryServer.getAll();
 
-  async function handleCreate(data: CreateCategoryDTO) {
+  async function handleCreate(data: CreateSubCategoryDTO) {
     "use server";
-    await categoryServer.create(data);
+    await subCategoryServer.create(data);
   }
 
   return (
@@ -21,9 +21,9 @@ export default async function CreateSubCategoryPage() {
         <PageRouteHeader />
       </div>
 
-      <div className="pt-6 w-1/2">
+      <div className="pt-6 w-full lg:w-1/2">
         <h1 className="text-2xl font-semibold mb-4">
-          Create Category
+          Create Subcategory
         </h1>
 
         <SubCategoryForm categoryData={categoryData} onCreate={handleCreate} />

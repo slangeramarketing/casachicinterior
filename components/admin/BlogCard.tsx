@@ -11,8 +11,9 @@ interface BlogCardProps {
   createdAt: string;
   updatedAt: string;
   href: string;
+  featured?: boolean; // ✅ Added featured prop
 
-  /* ✅ Author (optional) */
+  /* Author (optional) */
   showAuthor?: boolean;
   authorName?: string;
   authorAvatar?: string;
@@ -27,6 +28,7 @@ interface BlogCardProps {
   metaClassName?: string;
   descriptionClassName?: string;
   readMoreClassName?: string;
+  featuredBadgeClassName?: string; // ✅ Optional styling hook for badge
 
   authorWrapperClassName?: string;
   authorImageClassName?: string;
@@ -41,13 +43,14 @@ export default function BlogCard({
   createdAt,
   updatedAt,
   href,
+  featured = false, // ✅ Default value
 
   showAuthor = false,
   authorName,
   authorAvatar,
 
   wrapperClassName = "",
-  imageWrapperClassName = "",
+  imageWrapperClassName = "relative overflow-hidden", // Added relative for badge positioning
   imageClassName = "",
   contentClassName = "",
   categoryClassName = "",
@@ -55,6 +58,7 @@ export default function BlogCard({
   metaClassName = "",
   descriptionClassName = "",
   readMoreClassName = "",
+  featuredBadgeClassName = "", // ✅
 
   authorWrapperClassName = "",
   authorImageClassName = "",
@@ -62,8 +66,8 @@ export default function BlogCard({
 }: BlogCardProps) {
   return (
     <div className={wrapperClassName}>
-      {/* Thumbnail */}
-      <div className={imageWrapperClassName}>
+      {/* Thumbnail Section */}
+      <div className={`relative ${imageWrapperClassName}`}>
         <Image
           src={thumbnail}
           alt={title}
@@ -71,6 +75,15 @@ export default function BlogCard({
           height={350}
           className={imageClassName}
         />
+
+        {/* ✅ Featured Badge (Same as ServiceCard logic) */}
+        {featured && (
+          <span 
+            className={`absolute left-3 top-3 rounded-full bg-bg-primary px-3 py-1 text-[8px] font-semibold text-white flex items-center uppercase tracking-wider shadow-sm z-10 ${featuredBadgeClassName}`}
+          >
+            Featured
+          </span>
+        )}
       </div>
 
       {/* Content */}
@@ -87,7 +100,6 @@ export default function BlogCard({
 
         {/* Footer */}
         <div className="flex justify-between items-center mt-4">
-          {/* ✅ Author */}
           {showAuthor && authorName && (
             <div className={`flex items-center gap-2 ${authorWrapperClassName}`}>
               {authorAvatar ? (
@@ -115,8 +127,6 @@ export default function BlogCard({
           <Link href={href} className={readMoreClassName}>
             Read more →
           </Link>
-
-          
         </div>
       </div>
     </div>
