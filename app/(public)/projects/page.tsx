@@ -59,13 +59,6 @@ export default function ProjectsPage() {
         <SearchInput />
       </section>
 
-      {/* ================= CATEGORY SLIDER ================= */}
-      <section className="max-w-7xl mx-auto px-6">
-        <CategorySlider
-          categories={categories}
-          onChange={setSelectedCategory}
-        />
-      </section>
 
       {/* ================= PROJECT GRID ================= */}
       <section className="max-w-7xl mx-auto px-6 py-20">

@@ -1,41 +1,21 @@
-import BlogCategoryList from "@/components/clientPage/blogs/BlogCategoryList";
-import { categoryServer } from "@/modules/blog-category/category.server";
-import { subCategoryServer } from "@/modules/blog-subcategory/subcategory.server";
-import { revalidatePath } from "next/cache";
 
-/* -------------------------------------
-   Page (SERVER)
-------------------------------------- */
-export default async function CategoriesPage() {
-  const categories = await categoryServer.getAll();
-  const subCategories = await subCategoryServer.getAll();
+import BlogCategoryList from "@/components/admin/clientComponent/blogs/BlogCategoryList";
+import { BlogCategoryResponseDTO } from "@/modules/blog-category/blog-category.dto";
+import { blogCategoryServer } from "@/modules/blog-category/blog-category.server";
 
-  /* -------------------------------
-     Server Actions
-  ------------------------------- */
-  async function handleDeleteCategory(id: string) {
-    "use server";
-    await categoryServer.delete(id);
-    // 2. Batayein ki kis path ka data refresh karna hai
-    revalidatePath("/admin/blogs/categories");
-  }
+export default async function ListBlogCategoriesServerPage() {
+  // Sirf data fetch ho raha hai
+  const categoriesRes = await blogCategoryServer.getTree();
 
-  async function handleDeleteSubCategory(id: string) {
-    "use server";
-    await subCategoryServer.delete(id);
-
-    // Sub-category delete hone par bhi list refresh honi chahiye
-    revalidatePath("/admin/blogs/categories");
-  }
+  // Is tareeke se 'any' error khatam ho jayegi
+  const categories: BlogCategoryResponseDTO[] = categoriesRes.success && categoriesRes.data 
+    ? categoriesRes.data 
+    : [];
 
   return (
     <div className="lg:px-8 py-6">
-      <BlogCategoryList
-        categories={categories}
-        subCategories={subCategories}
-        onDeleteCategory={handleDeleteCategory}
-        onDeleteSubCategory={handleDeleteSubCategory}
-      />
+      {/* Ab humein onDelete prop pass karne ki zaroorat nahi kyunki client khud handle karega */}
+      <BlogCategoryList categories={categories} />
     </div>
   );
 }

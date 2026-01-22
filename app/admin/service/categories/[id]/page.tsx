@@ -1,57 +1,44 @@
 /***************************************************
  * File: app/admin/service/categories/[id]/page.tsx
  * Type: Server Page
- *
- * Purpose:
- * - Update existing service category
- *
- * Responsibilities:
- * - Fetch category to edit from DB
- * - Fetch all categories for parent dropdown
- * - Define server action for update
- * - Pass data + action to client form
- *
- * Restrictions:
- * - Must NOT contain UI logic
- * - Must NOT contain business logic
  ***************************************************/
 
-import { getAllServiceCategoriesAction, getServiceCategoryByIdAction } from "@/app/admin/actions/admin.service-categories.actions";
-import ServiceCategoryForm from "@/components/clientPage/services/ServiceCategoryForm";
+import ServiceCategoryForm from "@/components/admin/clientComponent/service/ServiceCategoryForm";
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 
-/* =====================================================
-   Page
-===================================================== */
+export const metadata: Metadata = {
+  title: "Update Category | Admin",
+  robots: { index: false, follow: false },
+};
+
 export default async function UpdateServiceCategoryPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>; // Next.js 15+ compatible
 }) {
-  const { id } =await params;
+  const { id } = await params;
 
   /* ---------------------------------
-     Fetch category being edited
+      Fetch Data in Parallel
   --------------------------------- */
-  const category = await getServiceCategoryByIdAction(id);
+  const [category, allCategories] = await Promise.all([
+    serviceCategoryServer.getById(id),
+    serviceCategoryServer.getAll()
+  ]);
 
-    if (!category) {
-        notFound();
-    }
-
-  /* ---------------------------------
-     Fetch all categories (for dropdown)
-  --------------------------------- */
-  const categories = await getAllServiceCategoriesAction();
-
+  if (!category) {
+    notFound();
+  }
 
   /* ---------------------------------
-     Render
+      Render with SEO Mapping
   --------------------------------- */
   return (
     <ServiceCategoryForm
       mode="update"
-      categories={categories}
+      categories={allCategories}
       initialData={{
         id: category.id,
         name: category.name,
@@ -59,6 +46,12 @@ export default async function UpdateServiceCategoryPage({
         parentId: category.parentId,
         displayOrder: category.displayOrder,
         status: category.status,
+        icon: category.icon, // Icon pass karna mat bhulna
+        thumbnail: category.thumbnail, // Purani image edit mode mein dikhane ke liye
+        // SEO data ko extract karke flat format mein bhej rahe hain 
+        // kyunki humare Client Form ki state flat hai
+        metaTitle: category.seo?.title || "", 
+        metaDescription: category.seo?.description || "",
       }}
     />
   );

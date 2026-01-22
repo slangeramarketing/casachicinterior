@@ -1,39 +1,24 @@
-/***************************************************
- * File: app/admin/service/categories/create/page.tsx
- * Type: Server Page
- *
- * Purpose:
- * - Server boundary for creating service categories
- *
- * Responsibilities:
- * - Fetch categories from DB (server side)
- * - Define server action
- * - Pass data + handler to client form
- *
- * Restrictions:
- * - Must NOT contain UI logic
- * - Must NOT contain business logic
- ***************************************************/
-
-import { getAllServiceCategoriesAction } from "@/app/admin/actions/admin.service-categories.actions";
-import ServiceCategoryForm from "@/components/clientPage/services/ServiceCategoryForm";
+import { Metadata } from "next";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
+import ServiceCategoryForm from "@/components/admin/clientComponent/service/ServiceCategoryForm";
 
+export const metadata: Metadata = {
+  title: "Create Category | Admin",
+  robots: { index: false, follow: false },
+};
 
-
-/* =====================================================
-   Page
-===================================================== */
 export default async function CreateServiceCategoryPage() {
-  /* ---------------------------------
-     Fetch categories from DB (ADMIN)
-  --------------------------------- */
-  const categories = await getAllServiceCategoriesAction();
+  /** * Hum direct Server Facade use kar rahe hain 
+   * Taki humein categories ki list mile (Parent select karne ke liye)
+   */
+  const categories = await serviceCategoryServer.getAll();
 
   return (
-    <ServiceCategoryForm
-      mode="create"
-      categories={categories}
-    />
+    <main>
+      <ServiceCategoryForm
+        mode="create"
+        categories={categories} // Direct DTO array pass ho raha hai
+      />
+    </main>
   );
 }

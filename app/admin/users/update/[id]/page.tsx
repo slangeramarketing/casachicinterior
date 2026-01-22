@@ -1,9 +1,9 @@
 
-import UserForm from "@/components/clientPage/users/UserForm";
+import UserForm from "@/components/admin/clientComponent/users/UserForm";
 import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
-import { getUserByIdAction } from "@/app/admin/actions/admin.users.action";
+import { userServer } from "@/modules/users/user.server";
 
-export default async function UpdateUserPage({
+export default async function UpdateUserServerPage({
   params,
 }: {
   params: { id: string };
@@ -11,7 +11,7 @@ export default async function UpdateUserPage({
 
   const {id}= await params;
 
-  const user = await getUserByIdAction(id); // example
+  const user = await userServer.getById(id); // example
 
   if (!user) throw new Error("User not found");
 
@@ -25,7 +25,6 @@ export default async function UpdateUserPage({
        <div>
           <UserForm
             mode="update"
-            
             initialData={user}
           />
        </div>

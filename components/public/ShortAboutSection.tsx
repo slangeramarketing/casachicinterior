@@ -1,12 +1,23 @@
+"use client";
+
 import Image from "next/image";
+import { motion } from "framer-motion";
 
 export default function ShortAboutSection() {
   return (
-    <section className="w-full py-20 bg-white">
+    <section className="w-full py-20 bg-white overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
         {/* LEFT CONTENT */}
-        <div>
+        <motion.div
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            duration: 0.4,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
           <h2 className="text-3xl md:text-5xl font-bold text-gray-900 leading-snug">
             Designing Spaces
             <br />
@@ -20,24 +31,33 @@ export default function ShortAboutSection() {
             With a passion for modern aesthetics and comfort, we craft
             living spaces that reflect your personality and lifestyle.
           </p>
-        </div>
+        </motion.div>
 
         {/* RIGHT IMAGES */}
-        <div className="relative grid grid-cols-2 gap-6">
-
+        <motion.div
+          className="relative grid grid-cols-2 gap-6"
+          initial={{ opacity: 0, y: 80 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{
+            duration: 0.3,
+            delay: 0.1,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
           {/* Large Image */}
           <div>
             <Image
               src="/media/static/short-about-img1.png"
               alt="Luxury living room interior"
-              width={200}
-              height={200}
+              width={400}
+              height={400}
               className="rounded-xl object-cover w-full"
             />
           </div>
 
           {/* Small Image 1 */}
-          <div className="flex justify-items-end items-end">
+          <div className="flex items-end">
             <Image
               src="/media/static/short-about-img2.png"
               alt="Modern sofa interior"
@@ -48,16 +68,17 @@ export default function ShortAboutSection() {
           </div>
 
           {/* Small Image 2 */}
-          <div className="col-span-2 lg:w-100">
+          <div className="col-span-2">
             <Image
               src="/media/static/short-about-img3.png"
               alt="Minimal home interior"
-              width={300}
-              height={220}
+              width={600}
+              height={300}
               className="rounded-xl object-cover w-full"
             />
           </div>
-        </div>
+        </motion.div>
+
       </div>
     </section>
   );

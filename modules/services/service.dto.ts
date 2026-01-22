@@ -12,55 +12,96 @@
  * - Must NOT use ObjectId or Date
  ***************************************************/
 
+
 /* -------------------------------------
-   Create Service DTO
+    Shared Sub-Interfaces
 ------------------------------------- */
-export interface CreateServiceDTO {
-  slug: string;
+export interface ServiceVideoReelDTO {
+  url: string;
+  thumbnail?: string;
+  title?: string;
+}
+
+export interface ServiceVideoYoutubeDTO {
+  embedId: string;
+  title?: string;
+  description?: string;
+}
+
+export interface ServiceVideoShowcaseDTO {
+  reels: ServiceVideoReelDTO[];
+  youtube: ServiceVideoYoutubeDTO[];
+}
+
+
+/* -------------------------------------
+   Shared Sub-Interfaces
+------------------------------------- */
+export interface ServiceHighlightDTO {
+  icon: string;
   title: string;
+}
 
-  shortDescription: string;
-  description: string;
-  categoryId: string;
+export interface ServiceCategorySummaryDTO {
+  id: string;
+  name: string;   // Schema ke according 'name'
+  slug: string;   //
+  icon?: string;  // Category ka icon dikhane ke liye
+}
 
-  coverImage: string;
-  gallery?: string[];
+export interface ServiceGalleryDTO {
+  url: string;
+  alt?: string;
+  caption?: string;
+}
 
-  highlights: string[];
+export interface ServiceFaqDTO {
+  question: string;
+  answer: string;
+}
 
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords?: string[];
-
-  featured?: boolean;
-  status?: "draft" | "published";
-  displayOrder?: number;
-
-  ctaText?: string;
-  ctaLink?: string;
+export interface ServiceSeoDTO {
+  title?: string;
+  description?: string;
+  keywords: string[];
+  ogImage?: string;
+  metaRobots: string;
 }
 
 /* -------------------------------------
-   Update Service DTO
+   Create Service DTO (Minimal for Start)
+------------------------------------- */
+export interface CreateServiceDTO {
+  title: string;
+  slug: string;
+  categoryId: string;
+  shortDescription: string;
+  coverImage: string; // Initially ek image zaroori hai grid ke liye
+}
+
+/* -------------------------------------
+   Update Service DTO (Full Update)
 ------------------------------------- */
 export interface UpdateServiceDTO {
   title?: string;
-
+  slug?: string;
   shortDescription?: string;
-  description?: string;
+  description?: any; // Rich Text support
   categoryId?: string;
-
+  
   coverImage?: string;
-  gallery?: string[];
+  gallery?: ServiceGalleryDTO[];
+  videoShowcase?: Partial<ServiceVideoShowcaseDTO>; // Optional field
+  highlights?: ServiceHighlightDTO[];
+  faqs?: ServiceFaqDTO[];
 
-  highlights?: string[];
+  startingPrice?: number;
+  priceUnit?: string;
 
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords?: string[];
+  seo?: Partial<ServiceSeoDTO>;
 
   featured?: boolean;
-  status?: "draft" | "published";
+  status?: "draft" | "published" | "archived";
   displayOrder?: number;
 
   ctaText?: string;
@@ -68,33 +109,34 @@ export interface UpdateServiceDTO {
 }
 
 /* -------------------------------------
-   Service Response DTO
+   Service Response DTO (For UI)
 ------------------------------------- */
 export interface ServiceResponseDTO {
   id: string;
-
   slug: string;
   title: string;
-
   shortDescription: string;
-  description: string;
-  categoryId: string;
+  description: any;
 
   coverImage: string;
-  gallery: string[];
+  gallery: ServiceGalleryDTO[];
+  videoShowcase: ServiceVideoShowcaseDTO; // UI hamesha empty array expect karega undefined nahi
+  highlights: ServiceHighlightDTO[];
+  category: ServiceCategorySummaryDTO; 
+  categoryId: string;
+  faqs: ServiceFaqDTO[];
 
-  highlights: string[];
+  startingPrice?: number;
+  priceUnit: string;
 
-  seoTitle?: string;
-  seoDescription?: string;
-  seoKeywords: string[];
+  seo: ServiceSeoDTO;
 
   featured: boolean;
-  status: "draft" | "published";
+  status: "draft" | "published" | "archived";
   displayOrder: number;
 
-  ctaText?: string;
-  ctaLink?: string;
+  ctaText: string;
+  ctaLink: string;
 
   createdAt: string;
   updatedAt: string;

@@ -152,7 +152,7 @@ export default function Header({featuredServiceList}:HeaderProps) {
 
           {/* CTA */}
           <Link
-            href="#contact"
+            href="/contact"
             className="
               border border-white px-5 py-2 rounded-full
               transition hover:bg-white hover:text-black
@@ -238,7 +238,7 @@ export default function Header({featuredServiceList}:HeaderProps) {
         </button> */}
 
           <Link
-            href="#contact"
+            href="/contact"
             className="
               w-full border border-white py-2 rounded-full mt-4 text-center
             "

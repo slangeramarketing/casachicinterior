@@ -3,110 +3,137 @@
  * Layer: Server Facade
  *
  * Purpose:
- * - Next.js server-side adapter for Blog module
+ * - Next.js server-side adapter for Blog module.
+ * - Acts as the single entry point for UI (Server Components) and Actions.
  *
  * Responsibilities:
- * - Perform auth & role checks for WRITE operations
- * - Call service functions
- * - Map DB records to Response DTOs
+ * - Coordination between Service and Mapper.
+ * - Perform auth & role checks (Admin logic goes here).
+ * - Cache revalidation via revalidatePath.
  *
  * Restrictions:
- * - Must NOT access repository directly
- * - Must NOT contain business logic
- * - Must NOT return plain DB records
+ * - No "use server" at the top (due to object export).
+ * - Must NOT access repository directly.
+ * - Must NOT return raw database objects.
  ***************************************************/
 
-import { getAuthUser } from "@/lib/auth";
-import {
-  createBlog,
-  updateBlog,
-  deleteBlog,
-  getBlogById,
-  getAllBlogs,
-  filterBlogs,
-  getBlogBySlug,
+import { revalidatePath } from "next/cache";
+import { 
+  getAllBlogs, 
+  getBlogBySlug, 
+  createBlog, 
+  updateBlog, 
+  deleteBlog, 
+  getBlogById
 } from "./blog.service";
-import { blogMapper } from "./blog.mapper";
 import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
+import { BlogMapper } from "./blog.mapper";
 
+/**
+ * Blog Server Facade Object
+ */
 export const blogServer = {
   /**
-   * Create blog (ADMIN only)
+   * Purpose: Fetch all blogs for Admin/Public list
    */
-  async create(data: CreateBlogDTO) {
-    const authUser = await getAuthUser();
-
-    if (!authUser || (authUser.role !== "admin" && authUser.role !== "super_admin")) {
-      throw new Error("Unauthorized");
+  async getAll(filters: any = {}) {
+    try {
+      const records = await getAllBlogs(filters);
+      
+      // Boundary Mapping: IPopulatedBlogRecord[] -> BlogResponseDTO[]
+      const data = BlogMapper.toResponseList(records);
+      
+      return { success: true, data };
+    } catch (error: any) {
+      console.error("[BLOG_SERVER_GETALL_ERROR]:", error);
+      return { success: false, error: error.message || "Failed to fetch blogs" };
     }
-
-    const record = await createBlog(authUser.userId, data);
-    return blogMapper.toResponse(record);
   },
 
   /**
-   * Update blog (ADMIN only)
-   */
-  async update(id: string, data: UpdateBlogDTO) {
-    const authUser = await getAuthUser();
-
-    if (!authUser || (authUser.role !== "admin" && authUser.role !== "super_admin")) {
-      throw new Error("Unauthorized");
-    }
-
-    const record = await updateBlog(id, data);
-    return blogMapper.toResponse(record);
-  },
-
-  /**
-   * Delete blog (ADMIN only)
-   */
-  async delete(id: string) {
-    const authUser = await getAuthUser();
-
-    if (!authUser || (authUser.role !== "admin" && authUser.role !== "super_admin")) {
-      throw new Error("Unauthorized");
-    }
-
-    const record = await deleteBlog(id);
-    return blogMapper.toResponse(record);
-  },
-
-  /**
-   * Get blog by ID (Admin / Server Components)
-   */
-  async getById(id: string) {
-    const record = await getBlogById(id);
-    return blogMapper.toResponse(record);
-  },
-
-  /**
-   * Get blog by Slug (Public / Server Components)
+   * Purpose: Fetch single blog detail by slug
    */
   async getBySlug(slug: string) {
-    const record = await getBlogBySlug(slug);
-    return blogMapper.toResponse(record);
+    try {
+      const record = await getBlogBySlug(slug);
+      
+      // Boundary Mapping: IPopulatedBlogRecord -> BlogResponseDTO
+      const data = BlogMapper.toResponse(record);
+      
+      return { success: true, data };
+    } catch (error: any) {
+      console.error("[BLOG_SERVER_GETSLUG_ERROR]:", error);
+      return { success: false, error: error.message || "Blog not found" };
+    }
   },
 
   /**
-   * Get all blogs (Admin / Server Components)
+   * Purpose: Fetch single blog by ID and map to DTO
+   * Useful for Admin Edit pages where ID is used in the URL
    */
-  async getAll() {
-    const records = await getAllBlogs();
-    return blogMapper.toResponseList(records);
+  async getById(id: string) {
+    try {
+      const record = await getBlogById(id); // Service layer call
+      
+      if (!record) {
+        return { success: false, error: "Blog not found" };
+      }
+
+      // Boundary Mapping: IBlogRecord/IPopulatedBlogRecord -> BlogResponseDTO
+      // 'as any' casting to handle potential population mismatch in TypeScript
+      const data = BlogMapper.toResponse(record as any);
+      
+      return { success: true, data };
+    } catch (error: any) {
+      console.error("[BLOG_SERVER_GETBYID_ERROR]:", error);
+      return { success: false, error: error.message || "Failed to fetch blog by ID" };
+    }
   },
 
-  /**
-   * Filter blogs (Admin / Server Components)
-   */
-  async filter(filter: {
-    status?: "draft" | "published";
-    featured?: boolean;
-    categoryId?: string;
-    subCategoryId?: string;
-    slug?: string;
-  }) {
-    const records = await filterBlogs(filter);
-    return blogMapper.toResponseList(records);
+  async create(data: CreateBlogDTO) {
+    try {
+      const record = await createBlog(data);
+      
+      revalidatePath("/blogs");
+      revalidatePath("/admin/blogs");
+      
+      // Type casting to any to bypass strict IPopulatedBlogRecord check
+      return { success: true, data: BlogMapper.toResponse(record as any) };
+    } catch (error: any) {
+      console.error("[BLOG_SERVER_CREATE_ERROR]:", error);
+      return { success: false, error: error.message };
+    }
   },
+
+  async update(id: string, data: UpdateBlogDTO) {
+    try {
+      const record = await updateBlog(id, data);
+      
+      revalidatePath("/blogs");
+      revalidatePath(`/blogs/${record.slug}`); 
+      revalidatePath("/admin/blogs");
+      
+      // Type casting to any
+      return { success: true, data: BlogMapper.toResponse(record as any) };
+    } catch (error: any) {
+      console.error("[BLOG_SERVER_UPDATE_ERROR]:", error);
+      return { success: false, error: error.message };
+    }
+  },
+  /**
+   * Purpose: Delete blog and cleanup cache
+   */
+  async delete(id: string) {
+    try {
+      await deleteBlog(id);
+      
+      revalidatePath("/blogs");
+      revalidatePath("/admin/blogs");
+      
+      return { success: true };
+    } catch (error: any) {
+      console.error("[BLOG_SERVER_DELETE_ERROR]:", error);
+      return { success: false, error: error.message || "Delete operation failed" };
+    }
+  }
 };

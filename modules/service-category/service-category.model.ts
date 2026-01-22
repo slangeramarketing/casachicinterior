@@ -22,42 +22,30 @@ import { Schema, model, models, Types } from "mongoose";
 ------------------------------------- */
 const ServiceCategorySchema = new Schema(
   {
-    /* ---------------------------
-       Core Identity
-    --------------------------- */
-    name: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    name: { type: String, required: true, trim: true },
+    slug: { type: String, required: true, unique: true, index: true, trim: true },
+    
+    // UI/Visuals
+    description: { type: String, trim: true }, // Category ka short intro
+    icon: { type: String }, // Icon Picker ID (Jaise Service module mein hai)
+    thumbnail: { type: String }, // Category image for the list grid
 
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-      trim: true,
-    },
-
-    /* ---------------------------
-       Hierarchy
-    --------------------------- */
+    // Hierarchy
     parentId: {
       type: Types.ObjectId,
       ref: "ServiceCategory",
-      default: null, // null = top-level category
+      default: null,
       index: true,
     },
 
-    /* ---------------------------
-       Admin Controls
-    --------------------------- */
-    displayOrder: {
-      type: Number,
-      default: 0,
-      index: true,
+    // SEO
+    seo: {
+      title: { type: String, trim: true },
+      description: { type: String, trim: true },
     },
 
+    // Admin Controls
+    displayOrder: { type: Number, default: 0, index: true },
     status: {
       type: String,
       enum: ["active", "inactive"],
@@ -65,10 +53,7 @@ const ServiceCategorySchema = new Schema(
       index: true,
     },
   },
-  {
-    timestamps: true,
-    versionKey: false,
-  }
+  { timestamps: true, versionKey: false }
 );
 
 /* -------------------------------------

@@ -3,71 +3,92 @@
  * Layer: Repository
  *
  * Purpose:
- * - Handles MongoDB operations for Blog
+ * - Stateless object for pure MongoDB operations for Blogs.
  *
  * Responsibilities:
- * - CRUD operations only
+ * - CRUD operations returning lean objects.
+ * - Population of category and author references.
  *
  * Restrictions:
- * - Must NOT contain business logic
- * - Must NOT format data
+ * - Must NOT use DTOs (Uses IBlogRecord/IPopulatedBlogRecord).
+ * - Must NOT contain business logic or formatting.
+ * - Must NOT return Mongoose Documents (Use .lean()).
  ***************************************************/
-
-import BlogModel from "./blog.model";
-import { BlogPopulatedRecord, BlogRecord } from "./blog.types";
+import { BlogModel } from "./blog.model";
+import "@/modules/blog-category/blog-category.model"; // Ensure model registration
+import "@/modules/users/user.model"; // Ensure model registration
+import db from "@/lib/db";
+import { IBlogRecord, IPopulatedBlogRecord } from "./blog.types";
 
 export const blogRepository = {
-  async create(data: Partial<BlogRecord>): Promise<BlogRecord> {
+  /**
+   * Purpose: Fetch all blogs with populated references
+   */
+  async findAll(query: any = {}): Promise<IPopulatedBlogRecord[]> {
+    await db();
+    return await BlogModel.find(query)
+      .populate("categoryId", "name slug")
+      .populate("authorId", "name image")
+      .sort({ createdAt: -1 })
+      .lean() as unknown as IPopulatedBlogRecord[];
+  },
+
+  /**
+   * Purpose: Get single blog by ID with full population
+   */
+  async findById(id: string): Promise<IPopulatedBlogRecord | null> {
+    await db();
+    return await BlogModel.findById(id)
+      .populate("categoryId")
+      .populate("authorId")
+      .lean() as unknown as IPopulatedBlogRecord;
+  },
+
+  /**
+   * Purpose: Get single blog by Slug
+   */
+  async findBySlug(slug: string): Promise<IPopulatedBlogRecord | null> {
+    await db();
+    return await BlogModel.findOne({ slug })
+      .populate("categoryId")
+      .populate("authorId")
+      .lean() as unknown as IPopulatedBlogRecord;
+  },
+
+  /**
+   * Purpose: Create a new blog record
+   */
+  async create(data: Partial<IBlogRecord>): Promise<IBlogRecord> {
+    await db();
     const doc = await BlogModel.create(data);
-    return doc.toObject() as BlogRecord;
+    return doc.toObject();
   },
 
-  async updateById(
-    id: string,
-    data: Partial<BlogRecord>
-  ): Promise<BlogRecord | null> {
-    const doc = await BlogModel.findByIdAndUpdate(id, data, {
-      new: true,
-    });
-    return doc ? (doc.toObject() as BlogRecord) : null;
+  /**
+   * Purpose: Update blog record
+   */
+  async update(id: string, data: Partial<IBlogRecord>): Promise<IBlogRecord | null> {
+    await db();
+    return await BlogModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, runValidators: true }
+    ).lean() as IBlogRecord;
   },
 
-  async deleteById(id: string): Promise<BlogRecord | null> {
-    const doc = await BlogModel.findByIdAndDelete(id);
-    return doc ? (doc.toObject() as BlogRecord) : null;
+  /**
+   * Purpose: Delete blog record
+   */
+  async delete(id: string): Promise<IBlogRecord | null> {
+    await db();
+    return await BlogModel.findByIdAndDelete(id).lean() as IBlogRecord;
   },
 
-  async getById(id: string): Promise<BlogRecord | null> {
-    return (await BlogModel.findById(id).lean()) as BlogRecord | null;
-  },
-
-  async getByIdPopulated(id: string): Promise<BlogPopulatedRecord | null> {
-      return (await BlogModel.findById(id)
-        .populate("categoryId", "name slug") // Sirf name aur slug mangwayein
-        .populate("subCategoryId", "name slug")
-        .lean()) as BlogPopulatedRecord | null;
-    },
-  
-  async getBySlugPopulated(slug: string): Promise<BlogPopulatedRecord | null> {
-    return (await BlogModel.findOne({ slug })
-      .populate("categoryId", "name slug")
-      .populate("subCategoryId", "name slug")
-      .lean()) as BlogPopulatedRecord | null;
-  },
-
-  async getAllPopulated(): Promise<BlogPopulatedRecord[]> {
-    return (await BlogModel.find()
-      .sort({ createdAt: -1 }) // Latest blogs upar
-      .populate("categoryId", "name slug")
-      .populate("subCategoryId", "name slug")
-      .lean()) as BlogPopulatedRecord[];
-  },
-
-  // Filtered populated data
-  async filterPopulated(query: any): Promise<BlogPopulatedRecord[]> {
-    return (await BlogModel.find(query)
-      .populate("categoryId", "name slug")
-      .populate("subCategoryId", "name slug")
-      .lean()) as BlogPopulatedRecord[];
+  /**
+   * Purpose: Increment blog view count
+   */
+  async incrementViews(id: string): Promise<void> {
+    await db();
+    await BlogModel.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
   }
 };

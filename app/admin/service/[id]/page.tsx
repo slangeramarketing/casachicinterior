@@ -1,58 +1,38 @@
-/***************************************************
- * File: app/admin/service/[id]/page.tsx
- * Type: Server Page
- *
- * Purpose:
- * - Update existing Service
- *
- * Responsibilities:
- * - Fetch service by id (admin)
- * - Fetch service categories (admin)
- * - Define server action for update
- * - Pass data + handler to client ServiceForm
- *
- * Restrictions:
- * - Must NOT contain UI logic
- * - Must NOT contain business logic
- ***************************************************/
-
 import { notFound } from "next/navigation";
-import ServiceForm from "@/components/clientPage/services/ServiceForm";
-import { getServiceByIdAction } from "../../actions/admin.service.action";
-import { getServiceCategoryByIdAction } from "../../actions/admin.service-categories.actions";
+import ServiceForm from "@/components/admin/clientComponent/service/ServiceForm";
+import { serviceServer } from "@/modules/services/service.server";
+import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
+// Direct Server Functions (Not Actions)
 
-interface CategoryOption {
-  id: string;
-  name: string;
-}
-
-/* =====================================================
-   Page
-===================================================== */
 export default async function UpdateServiceServerPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
+  // 1. Resolve params (Next.js 15 Requirement)
   const { id } = await params;
 
-  /* ---------------------------------
-     Fetch service (ADMIN)
-  --------------------------------- */
-  const service = await getServiceByIdAction(id);
+  // 2. Fetch Data Parallelly for performance
+  const [service, allCategories] = await Promise.all([
+    serviceServer.getById(id),
+    serviceCategoryServer.getAll() // Sabhi categories chahiye dropdown ke liye
+  ]);
+
+  // 3. 404 Check
   if (!service) return notFound();
 
-
-/* Fetch category (ADMIN) Normalize to array --------------------------------- */ 
-const categoryRecord = await getServiceCategoryByIdAction(service.categoryId); 
-const categories: CategoryOption[] = categoryRecord ? [{ id: categoryRecord.id, name: categoryRecord.name }] : [];
-
+  /* -----------------------------------------------------
+     Normalizing Categories for the Dropdown
+     Client component expects: { id: string; name: string }[]
+  ----------------------------------------------------- */
 
   return (
-    <ServiceForm
-      mode="update"
-      categories={categories}
-      initialData={service}
-    />
+    <div>
+      <ServiceForm
+        mode="update"
+        categories={allCategories}
+        initialData={service} // ServiceResponseDTO (id included)
+      />
+    </div>
   );
 }

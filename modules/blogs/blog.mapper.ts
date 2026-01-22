@@ -1,72 +1,73 @@
-import { BlogRecord, BlogPopulatedRecord } from "./blog.types";
+/***************************************************
+ * File: modules/blogs/blog.mapper.ts
+ * Layer: Mapper
+ *
+ * Purpose:
+ * - Converts raw/populated DB records into clean BlogResponseDTOs.
+ * - Handles Date-to-String serialization and ID stringification.
+ *
+ * Responsibilities:
+ * - Mapping raw DB fields to UI-friendly structures.
+ * - Providing fallbacks for optional or missing fields.
+ *
+ * Restrictions:
+ * - Must NOT contain business logic.
+ * - Must NOT perform database operations.
+ ***************************************************/
+// modules/blogs/blog.mapper.ts
+
 import { BlogResponseDTO } from "./blog.dto";
-import { Types } from "mongoose";
 
-export const blogMapper = {
-  /**
-   * Helper: Check if a field is populated
-   */
-  isPopulated(obj: any): obj is { _id: Types.ObjectId; name: string; slug: string } {
-    return obj && typeof obj === "object" && "name" in obj;
-  },
-
-  /**
-   * Convert Blog DB record to response DTO
-   */
-  toResponse(record: BlogRecord | BlogPopulatedRecord): BlogResponseDTO {
-    // Determine category data
-    const isCatPopulated = this.isPopulated(record.categoryId);
-    const isSubPopulated = record.subCategoryId ? this.isPopulated(record.subCategoryId) : false;
+export const BlogMapper = {
+  toResponse(doc: any): BlogResponseDTO {
+    if (!doc) throw new Error("Mapper received null document");
 
     return {
-      id: record._id.toString(),
-      title: record.title,
-      slug: record.slug,
-      description: record.description,
-      richText: record.richText,
-      thumbnailImage: record.thumbnailImage,
-
-      // IDs (Always strings in DTO)
-      categoryId: isCatPopulated 
-        ? (record.categoryId as any)._id.toString() 
-        : record.categoryId.toString(),
+      id: doc._id?.toString() || "",
+      title: doc.title || "",
+      slug: doc.slug || "",
+      summary: doc.summary || "",
+      content: doc.content || "",
+      thumbnail: doc.thumbnail || "",
+      bannerImage: doc.bannerImage || "",
       
-      subCategoryId: record.subCategoryId 
-        ? (isSubPopulated ? (record.subCategoryId as any)._id.toString() : record.subCategoryId.toString())
-        : undefined,
+      // Category: Agar populated hai to object use karega, nahi to sirf ID string
+      category: {
+        id: doc.categoryId?._id?.toString() || doc.categoryId?.toString() || "",
+        name: doc.categoryId?.name || "Uncategorized",
+        slug: doc.categoryId?.slug || "",
+      },
 
-      // Populated Fields (Agar data populated hai toh object bhejenge, warna undefined)
-      category: isCatPopulated ? {
-        id: (record.categoryId as any)._id.toString(),
-        name: (record.categoryId as any).name,
-        slug: (record.categoryId as any).slug,
-      } : undefined,
+      // Author: Same logic
+      author: {
+        id: doc.authorId?._id?.toString() || doc.authorId?.toString() || "",
+        name: doc.authorId?.name || "Admin",
+        image: doc.authorId?.image || "",
+      },
 
-      subCategory: (record.subCategoryId && isSubPopulated) ? {
-        id: (record.subCategoryId as any)._id.toString(),
-        name: (record.subCategoryId as any).name,
-        slug: (record.subCategoryId as any).slug,
-      } : undefined,
+      tags: Array.isArray(doc.tags) ? doc.tags : [],
+      readingTime: doc.readingTime || 0,
+      viewCount: doc.viewCount || 0,
+      
+      seo: {
+        metaTitle: doc.seo?.metaTitle || doc.title || "",
+        metaDescription: doc.seo?.metaDescription || doc.summary || "",
+        keywords: doc.seo?.keywords || [],
+        ogImage: doc.seo?.ogImage || doc.thumbnail || "",
+        canonicalUrl: doc.seo?.canonicalUrl || "",
+        metaRobots: doc.seo?.metaRobots || "index, follow",
+      },
 
-      status: record.status,
-      featured: record.featured,
-      authorId: record.author.toString(),
-
-      seo: record.seo,
-
-      publishedAt: record.publishedAt
-        ? record.publishedAt.toISOString()
-        : undefined,
-
-      createdAt: record.createdAt.toISOString(),
-      updatedAt: record.updatedAt.toISOString(),
+      status: doc.status || "draft",
+      featured: Boolean(doc.featured),
+      publishedAt: doc.publishedAt instanceof Date ? doc.publishedAt.toISOString() : undefined,
+      createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : new Date().toISOString(),
+      updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : new Date().toISOString(),
     };
   },
 
-  /**
-   * Convert multiple Blog records
-   */
-  toResponseList(records: (BlogRecord | BlogPopulatedRecord)[]): BlogResponseDTO[] {
-    return records.map((record) => this.toResponse(record));
-  },
+  toResponseList(docs: any[]): BlogResponseDTO[] {
+    if (!Array.isArray(docs)) return [];
+    return docs.map((doc) => this.toResponse(doc));
+  }
 };

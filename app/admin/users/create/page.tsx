@@ -1,7 +1,7 @@
-import UserForm from "@/components/clientPage/users/UserForm";
+import UserForm from "@/components/admin/clientComponent/users/UserForm";
 import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
 
-export default function CreateUserPage() {
+export default function CreateUserServerPage() {
   return (
     <div className="w-full flex flex-col">
       <div className="px-4">

@@ -1,26 +1,26 @@
 import { notFound } from "next/navigation";
-import CategoryForm from "@/components/admin/CategoryForm";
+import BlogCategoryForm from "@/components/admin/clientComponent/blogs/BlogCategoryForm";
 import { PageRouteHeader } from "@/components/common/PageHeader";
-import { categoryServer } from "@/modules/blog-category/category.server";
-import { CreateCategoryDTO } from "@/modules/blog-category/category.dto";
+import { blogCategoryServer } from "@/modules/blog-category/blog-category.server";
 
-export default async function UpdateCategoryPage({
+export default async function UpdateBlogCategoryServerPage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
 
-  const category = await categoryServer.getById(id);
-  if (!category) notFound();
+  // 1. Data Fetching
+  const [categoryRes, allCategoriesRes] = await Promise.all([
+    blogCategoryServer.getById(id),
+    blogCategoryServer.getList() // Parent selection ke liye flat list
+  ]);
 
-  async function handleUpdate(
-    categoryId: string,
-    data: CreateCategoryDTO
-  ) {
-    "use server";
-    await categoryServer.update(categoryId, data);
-  }
+  if (!categoryRes.success || !categoryRes.data) notFound();
+
+  const category = categoryRes.data;
+  const allCategories = allCategoriesRes.success ? allCategoriesRes.data : [];
+
 
   return (
     <div className="w-full flex flex-col items-center">
@@ -28,15 +28,11 @@ export default async function UpdateCategoryPage({
         <PageRouteHeader />
       </div>
 
-      <div className="pt-6 w-full lg:w-1/2">
-        <h1 className="text-2xl font-semibold mb-4">
-          Update Category
-        </h1>
-
-        <CategoryForm
+      <div className="pt-6 w-full max-w-5xl"> 
+        <BlogCategoryForm
+          mode="update"
           initialData={category}
-          categoryId={id}
-          onUpdate={handleUpdate}
+          allCategories={allCategories}
         />
       </div>
     </div>

@@ -89,16 +89,17 @@ export const userRepository = {
   /**
    * Update user by ID
    */
-  async updateById(
-    id: string,
-    data: Partial<UserRecord>
-  ): Promise<UserRecord | null> {
-    return UserModel.findByIdAndUpdate(
-      new Types.ObjectId(id),
-      data,
-      { new: true }
-    ).lean();
-  },
+async updateById(id: string, data: Partial<UserRecord>): Promise<UserRecord | null> {
+  // 1. Security check: Password ko yahan se delete kar dein 
+  // taaki general update se password kabhi change na ho
+  delete data.password; 
+
+  return UserModel.findByIdAndUpdate(
+    new Types.ObjectId(id),
+    { $set: data }, // $set sirf unhi fields ko update karega jo data mein hain
+    { new: true }
+  ).lean();
+},
 
   /**
    * Update user status

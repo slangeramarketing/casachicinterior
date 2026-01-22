@@ -1,26 +1,24 @@
-import CategoryForm from "@/components/admin/CategoryForm";
+import BlogCategoryForm from "@/components/admin/clientComponent/blogs/BlogCategoryForm";
 import { PageRouteHeader } from "@/components/common/PageHeader";
-import { categoryServer } from "@/modules/blog-category/category.server";
-import { CreateCategoryDTO } from "@/modules/blog-category/category.dto";
+import { blogCategoryServer } from "@/modules/blog-category/blog-category.server";
 
-export default function CreateCategoryPage() {
-  async function handleCreate(data: CreateCategoryDTO) {
-    "use server";
-    await categoryServer.create(data);
-  }
+export default async function CreateBlogCategoryServerPage() {
+  // 1. Parent category select karne ke liye list fetch karo
+  const categoriesRes = await blogCategoryServer.getList();
+  const allCategories = categoriesRes.success ? categoriesRes.data : [];
 
   return (
     <div className="w-full flex flex-col items-center">
+      {/* Breadcrumbs aur Header */}
       <div className="w-full px-4">
         <PageRouteHeader />
       </div>
 
-      <div className="pt-6 w-full lg:w-1/2">
-        <h1 className="text-2xl font-semibold mb-4">
-          Create Category
-        </h1>
-
-        <CategoryForm onCreate={handleCreate} />
+      <div className="pt-6 w-full max-w-5xl">
+        <BlogCategoryForm 
+          mode="create" 
+          allCategories={allCategories} 
+        />
       </div>
     </div>
   );

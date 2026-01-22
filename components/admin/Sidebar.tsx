@@ -59,7 +59,7 @@ export default function Sidebar() {
     { name: "User", href: "/admin/users", icon: <FaUser size={18} /> },
     { name: "Message", href: "/admin/message", icon: <IoChatboxEllipsesOutline size={18} /> },
     { name: "Review", href: "/admin/review", icon: <MdOutlineReviews size={18} /> },
-    { name: "Performance", href: "/admin/performance", icon: <CgPerformance size={18} /> },
+    // { name: "Performance", href: "/admin/performance", icon: <CgPerformance size={18} /> },
   ];
 
   return (

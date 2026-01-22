@@ -11,6 +11,18 @@
  * Restrictions:
  * - Must NOT use ObjectId or Date
  ***************************************************/
+/***************************************************
+ * File: modules/service-categories/service-category.dto.ts
+ * Layer: DTO
+ ***************************************************/
+
+/* -------------------------------------
+   Shared Sub-Interfaces
+------------------------------------- */
+export interface CategorySeoDTO {
+  title?: string;
+  description?: string;
+}
 
 /* -------------------------------------
    Create DTO
@@ -18,11 +30,17 @@
 export interface CreateServiceCategoryDTO {
   name: string;
   slug: string;
-
+  
+  description?: string;
+  icon?: string;         // Icon ID from our icon constants
+  thumbnail?: string;    // URL from UploadThing/Cloudinary
+  
   parentId?: string | null;
 
   displayOrder?: number;
   status?: "active" | "inactive";
+  
+  seo?: CategorySeoDTO;
 }
 
 /* -------------------------------------
@@ -31,11 +49,17 @@ export interface CreateServiceCategoryDTO {
 export interface UpdateServiceCategoryDTO {
   name?: string;
   slug?: string;
-
+  
+  description?: string;
+  icon?: string;
+  thumbnail?: string;
+  
   parentId?: string | null;
 
   displayOrder?: number;
   status?: "active" | "inactive";
+  
+  seo?: CategorySeoDTO;
 }
 
 /* -------------------------------------
@@ -46,11 +70,21 @@ export interface ServiceCategoryResponseDTO {
 
   name: string;
   slug: string;
+  
+  description?: string;
+  icon?: string;
+  thumbnail?: string;
 
   parentId: string | null;
 
+  // Optional: Hierarchy support in frontend
+  // Use this if you want to return nested sub-categories
+  children?: ServiceCategoryResponseDTO[]; 
+
   displayOrder: number;
   status: "active" | "inactive";
+
+  seo?: CategorySeoDTO;
 
   createdAt: string;
   updatedAt: string;

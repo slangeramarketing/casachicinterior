@@ -15,8 +15,9 @@
  * - Must NOT contain business logic
  ***************************************************/
 
-import ServiceForm from "@/components/clientPage/services/ServiceForm";
-import { getAllServiceCategoriesAction} from "../../actions/admin.service-categories.actions";
+import ServiceForm from "@/components/admin/clientComponent/service/ServiceForm";
+import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
+import { userServer } from "@/modules/users/user.server";
 
 
 /* =====================================================
@@ -26,11 +27,11 @@ export default async function CreateServiceServerPage() {
   /* ---------------------------------
      Fetch categories (ADMIN)
   --------------------------------- */
-  const categories = await getAllServiceCategoriesAction();
+  const categories = await serviceCategoryServer.getAll();
 
   return (
     <div className="pb-24">
-        <ServiceForm
+      <ServiceForm
         mode="create"
         categories={categories}
       />

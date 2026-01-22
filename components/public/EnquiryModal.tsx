@@ -23,7 +23,7 @@ export default function EnquiryModal({
       />
 
       {/* Modal */}
-      <div className="relative bg-white w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto rounded-2xl shadow-xl">
+      <div className="md:px-12 md:py-12 relative bg-white w-full max-w-6xl mx-4 max-h-[95vh] overflow-y-auto rounded-2xl shadow-xl">
         
         {/* Close button */}
         <button

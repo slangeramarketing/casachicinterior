@@ -7,6 +7,7 @@ import { requireRole } from "@/lib/auth";
 
 import AdminSidebar from "@/components/admin/Sidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
+import { getAuthenticatedUser } from "../actions/users.action";
 
 export default async function AdminLayout({
   children,
@@ -15,6 +16,8 @@ export default async function AdminLayout({
 }) {
   // 🔐 SERVER-SIDE AUTH CHECK
   await requireRole(["admin", "super_admin"]);
+
+  const authUser=await getAuthenticatedUser();
 
   return (
     <div className="flex h-screen w-full overflow-hidden">
@@ -28,10 +31,10 @@ export default async function AdminLayout({
       <div className="flex-1 flex flex-col">
 
         {/* HEADER */}
-        <AdminHeader />
+        <AdminHeader authUser={authUser} />
 
         {/* CONTENT */}
-        <div className="flex-1 overflow-y-auto p-6 ">
+        <div className="flex-1 overflow-y-auto p-4 lg:p-6 ">
           {children}
         </div>
       </div>

@@ -3,147 +3,116 @@
  * Layer: Service
  *
  * Purpose:
- * - Business logic for Blog
+ * - Business logic and orchestration for the Blog module.
  *
  * Responsibilities:
- * - Validate category & subcategory relationship
- * - Handle publishedAt rule
+ * - Validate slug uniqueness.
+ * - Calculate reading time based on content.
+ * - Manage publishedAt timestamps based on status changes.
  *
  * Restrictions:
- * - Must NOT format response
- * - Must NOT return DTOs
+ * - Must NOT call Mappers (Mapping happens in Server Facade).
+ * - Must NOT return DTOs (Returns IBlogRecord or IPopulatedBlogRecord).
  ***************************************************/
-
 import { blogRepository } from "./blog.repository";
-import { BlogPopulatedRecord, BlogRecord } from "./blog.types";
+import { IBlogRecord, IPopulatedBlogRecord } from "./blog.types";
 import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
-import { subCategoryRepository } from "../blog-subcategory/subcategory.repository";
-import { categoryRepository } from "../blog-category/category.repository";
-import db from "@/lib/db";
 
 /**
- * Create blog
+ * Helper: Logic to calculate reading time
  */
-export async function createBlog(
-  authorId: string,
-  data: CreateBlogDTO
-): Promise<BlogRecord> {
-  await db();   // before mongoose queries;
-  if (!data.title || !data.slug || !data.categoryId) {
-    throw new Error("Title, slug and categoryId are required");
-  }
-
-  // validate category
-  const category = await categoryRepository.getById(data.categoryId);
-  if (!category) {
-    throw new Error("Category not found");
-  }
-
-  // validate subcategory (if provided)
-  if (data.subCategoryId) {
-    const subCategory = await subCategoryRepository.getById(
-      data.subCategoryId
-    );
-
-    if (!subCategory) {
-      throw new Error("SubCategory not found");
-    }
-
-    if (subCategory.categoryId.toString() !== data.categoryId) {
-      throw new Error(
-        "SubCategory does not belong to selected Category"
-      );
-    }
-  }
-
-  const status = data.status ?? "draft";
-
-  return blogRepository.create({
-    title: data.title,
-    slug: data.slug,
-    description: data.description,
-    richText: data.richText,
-    thumbnailImage: data.thumbnailImage,
-
-    categoryId: data.categoryId as any,
-    subCategoryId: data.subCategoryId as any,
-
-    status,
-    featured: data.featured ?? false,
-
-    author: authorId as any,
-
-    seo: data.seo,
-    publishedAt: status === "published" ? new Date() : undefined,
-  });
+function calculateReadingTime(content: string): number {
+  const wordsPerMinute = 200;
+  const words = content.trim().split(/\s+/).length;
+  return Math.ceil(words / wordsPerMinute);
 }
 
 /**
- * Update blog
+ * Fetch all blogs from repository
  */
-export async function updateBlog(
-  id: string,
-  data: UpdateBlogDTO
-): Promise<BlogRecord> {
-  await db();   // before mongoose queries;
-  const existing = await getBlogById(id);
+export async function getAllBlogs(query: any = {}): Promise<IPopulatedBlogRecord[]> {
+  return await blogRepository.findAll(query);
+}
 
-  // validate category change
-  if (data.categoryId) {
-    const category = await categoryRepository.getById(data.categoryId);
-    if (!category) {
-      throw new Error("Category not found");
+/**
+ * Fetch a single blog and increment views
+ */
+export async function getBlogBySlug(slug: string): Promise<IPopulatedBlogRecord> {
+  const record = await blogRepository.findBySlug(slug);
+  if (!record) throw new Error("Blog not found");
+  
+  // Background task: increment views
+  await blogRepository.incrementViews(record._id.toString());
+  
+  return record;
+}
+
+/**
+ * Purpose: Fetch a single blog by its MongoDB ID
+ * Used by: Admin Edit/View pages
+ */
+export async function getBlogById(id: string): Promise<IPopulatedBlogRecord> {
+  // 1. Repository se data fetch karein (Populated version)
+  const record = await blogRepository.findById(id);
+  
+  // 2. Error handling agar record na mile
+  if (!record) {
+    throw new Error("Blog post not found with the provided ID");
+  }
+  
+  // Note: Admin view mein hum usually views increment nahi karte, 
+  // par agar aap chahte hain toh yahan bhi incrementViews call kar sakte hain.
+  
+  return record;
+}
+
+/**
+ * Create a new blog with business rules
+ */
+export async function createBlog(data: CreateBlogDTO): Promise<IBlogRecord> {
+  // 1. Business Rule: Slug must be unique
+  const existing = await blogRepository.findBySlug(data.slug);
+  if (existing) throw new Error("Blog slug already exists");
+
+  // 2. Business Rule: Calculate reading time
+  const readingTime = calculateReadingTime(data.content);
+
+  // 3. Business Rule: Set publishedAt if status is published
+  const finalData: any = {
+    ...data,
+    readingTime,
+    publishedAt: data.status === "published" ? new Date() : undefined
+  };
+
+  return await blogRepository.create(finalData);
+}
+
+/**
+ * Update blog with business rules
+ */
+export async function updateBlog(id: string, data: UpdateBlogDTO): Promise<IBlogRecord> {
+  // 1. Slug uniqueness check if slug is being updated
+  if (data.slug) {
+    const existing = await blogRepository.findBySlug(data.slug);
+    if (existing && existing._id.toString() !== id) {
+      throw new Error("Slug is already taken by another blog");
     }
   }
 
-  // validate subcategory change
-  if (data.subCategoryId) {
-    const categoryId =
-      data.categoryId ?? existing.categoryId.toString();
+  const updatePayload: any = { ...data };
 
-    const subCategory = await subCategoryRepository.getById(
-      data.subCategoryId
-    );
-
-    if (!subCategory) {
-      throw new Error("SubCategory not found");
-    }
-
-    if (subCategory.categoryId.toString() !== categoryId) {
-      throw new Error(
-        "SubCategory does not belong to selected Category"
-      );
-    }
+  // 2. Recalculate reading time if content changes
+  if (data.content) {
+    updatePayload.readingTime = calculateReadingTime(data.content);
   }
 
-  // handle publish logic
-  let publishedAt = existing.publishedAt;
-
-  if (data.status && data.status !== existing.status) {
-    publishedAt =
-      data.status === "published" ? new Date() : undefined;
+  // 3. Update publishedAt if status changes to published
+  if (data.status === "published") {
+    updatePayload.publishedAt = new Date();
   }
 
-  const updated = await blogRepository.updateById(id, {
-    title: data.title,
-    slug: data.slug,
-    description: data.description,
-    richText: data.richText,
-    thumbnailImage: data.thumbnailImage,
-
-    categoryId: data.categoryId as any,
-    subCategoryId: data.subCategoryId as any,
-
-    status: data.status,
-    featured: data.featured,
-
-    seo: data.seo,
-    publishedAt,
-  });
-
-  if (!updated) {
-    throw new Error("Failed to update blog");
-  }
+  const updated = await blogRepository.update(id, updatePayload);
+  if (!updated) throw new Error("Blog not found for update");
 
   return updated;
 }
@@ -151,59 +120,7 @@ export async function updateBlog(
 /**
  * Delete blog
  */
-export async function deleteBlog(id: string): Promise<BlogRecord> {
-  await db();   // before mongoose queries;
-  const deleted = await blogRepository.deleteById(id);
-  if (!deleted) {
-    throw new Error("Blog not found");
-  }
-  return deleted;
-}
-
-/**
- * Get blog by ID
- */
-export async function getBlogById(id: string): Promise<BlogRecord> {
-  await db();   // before mongoose queries;
-  const blog = await blogRepository.getById(id);
-  if (!blog) {
-    throw new Error("Blog not found");
-  }
-  return blog;
-}
-
-/**
- * Get blog by Slug
- */
-export async function getBlogBySlug(slug: string): Promise<BlogPopulatedRecord> {
-  await db(); 
-  const blog = await blogRepository.getBySlugPopulated(slug);
-  
-  if (!blog) {
-    throw new Error("Blog not found with this slug");
-  }
-  
-  return blog;
-}
-
-/**
- * Get all blogs
- */
-export async function getAllBlogs(): Promise<BlogPopulatedRecord[]> {
-  await db();   // before mongoose queries;
-  return blogRepository.getAllPopulated();
-}
-
-/**
- * Filter blogs
- */
-export async function filterBlogs(filter: {
-  status?: "draft" | "published";
-  featured?: boolean;
-  categoryId?: string;
-  subCategoryId?: string;
-  slug?: string;
-}): Promise<BlogPopulatedRecord[]> {
-  await db();   // before mongoose queries;
-  return blogRepository.filterPopulated(filter);
+export async function deleteBlog(id: string): Promise<boolean> {
+  const result = await blogRepository.delete(id);
+  return !!result;
 }

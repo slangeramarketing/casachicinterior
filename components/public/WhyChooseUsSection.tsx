@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { motion } from "framer-motion";
 import {
   whyChooseUsData,
   positionClasses,
 } from "@/lib/data/whyChooseUs";
-import { motion } from "framer-motion";
 
+/* -----------------------------
+   Animation constants (TS-safe)
+-------------------------------- */
 const EASE_IN_OUT: [number, number, number, number] = [0.4, 0, 0.2, 1];
 
 const floatAnimation = (delay: number) => ({
@@ -21,15 +24,14 @@ const floatAnimation = (delay: number) => ({
   },
 });
 
-
-
-
 export default function WhyChooseUsSection() {
   return (
-    <section className="w-full py-32 bg-[#f8f8f8]">
+    <section className="w-full py-32 bg-[#f8f8f8] overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 flex justify-center">
 
-        {/* DESKTOP RADIAL */}
+        {/* =========================
+            DESKTOP VIEW (UNCHANGED)
+        ========================== */}
         <div className="relative hidden lg:flex items-center justify-center min-h-[600px] w-[85%]">
 
           {/* CENTER */}
@@ -75,8 +77,10 @@ export default function WhyChooseUsSection() {
           })}
         </div>
 
-        {/* MOBILE */}
-        <div className="lg:hidden">
+        {/* =========================
+            MOBILE VIEW (ANIMATED)
+        ========================== */}
+        <div className="lg:hidden w-full">
           <div className="text-center mb-12">
             <Image
               src="/media/static/why-choose-men.png"
@@ -96,21 +100,30 @@ export default function WhyChooseUsSection() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {whyChooseUsData.map((item) => {
+            {whyChooseUsData.map((item, index) => {
               const Icon = item.icon;
 
               return (
-                <div
+                <motion.div
                   key={item.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-80px" }}
+                  transition={{
+                    duration: 0.6,
+                    delay: index * 0.12,
+                    ease: EASE_IN_OUT,
+                  }}
                   className="flex items-center gap-4 bg-white p-4 rounded-lg shadow"
                 >
                   <div className="bg-orange-500 text-white w-12 h-12 rounded-full flex items-center justify-center text-xl">
                     <Icon />
                   </div>
+
                   <p className="text-sm font-semibold text-gray-800">
                     {item.title}
                   </p>
-                </div>
+                </motion.div>
               );
             })}
           </div>

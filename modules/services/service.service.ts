@@ -15,110 +15,94 @@
  * - Must NOT return DTOs
  * - Must NOT access HTTP, cookies, or Next.js APIs
  ***************************************************/
+/***************************************************
+ * File: modules/services/service.service.ts
+ * Layer: Service
+ ***************************************************/
+// modules/services/service.service.ts
 
 import { Types } from "mongoose";
 import { serviceRepository } from "./service.repository";
-import { ServiceRecord } from "./service.types";
+import { ServiceRecord, ServiceWithPopulatedCategory } from "./service.types";
 import db from "@/lib/db";
 
-/* =====================================================
-   Create Service
-===================================================== */
-export async function createService(
-  data: Partial<ServiceRecord>
-): Promise<ServiceRecord> {
-  await db();   // before mongoose queries;
-  const existing = await serviceRepository.findBySlug(
-    data.slug!
-  );
-  if (existing) {
-    throw new Error("Service with this slug already exists");
-  }
+export async function createService(data: Partial<ServiceRecord>): Promise<ServiceRecord> {
+  await db();
+  if (!data.slug) throw new Error("Slug is required");
+  
+  const existing = await serviceRepository.findBySlug(data.slug);
+  if (existing) throw new Error("Service with this slug already exists");
 
-  return serviceRepository.create(data);
+  return serviceRepository.create({
+    ...data,
+    status: data.status || "draft",
+    highlights: data.highlights || [],
+    faqs: data.faqs || [],
+  });
 }
 
-/* =====================================================
-   Get Service by ID
-===================================================== */
-export async function getServiceById(
-  id: string
-): Promise<ServiceRecord | null> {
-  await db();   // before mongoose queries;
+/**
+ * Get Service by ID (Populated)
+ */
+export async function getServiceById(id: string): Promise<ServiceWithPopulatedCategory | null> {
+  await db();
   return serviceRepository.findById(id);
 }
 
-/* =====================================================
-   Get Service by Slug (Public)
-===================================================== */
-export async function getServiceBySlug(
-  slug: string
-): Promise<ServiceRecord | null> {
-  await db();   // before mongoose queries;
-  const service =
-    await serviceRepository.findBySlug(slug);
+/**
+ * Get Service by Slug (Populated)
+ */
+export async function getServiceBySlug(slug: string): Promise<ServiceWithPopulatedCategory | null> {
+  await db();
+  const service = await serviceRepository.findBySlug(slug);
 
-  if (!service || service.status !== "published") {
-    return null;
-  }
-
+  if (!service || service.status !== "published") return null;
   return service;
 }
 
-/* =====================================================
-   List Services
-===================================================== */
-/* =====================================================
-   List Services
-===================================================== */
+/**
+ * List Services (Populated for both Admin & Public)
+ */
 export async function listServices(options?: {
   publicOnly?: boolean;
   categoryId?: string;
   featured?: boolean;
   limit?: number;
-}): Promise<ServiceRecord[]> {
-  await db();   // before mongoose queries;
-  const filter: {
-    status?: "draft" | "published";
-    categoryId?: Types.ObjectId;
-    featured?: boolean;
-  } = {};
-
+}): Promise<ServiceWithPopulatedCategory[]> {
+  await db();
+  
+  const filter: any = {};
   if (options?.publicOnly) {
     filter.status = "published";
+  } else {
+    filter.status = { $in: ["draft", "published"] };
   }
 
   if (options?.categoryId) {
-    filter.categoryId = new Types.ObjectId(options.categoryId);
+    filter.categoryId =options.categoryId;
   }
 
   if (typeof options?.featured === "boolean") {
     filter.featured = options.featured;
   }
 
-  return serviceRepository.findAll(filter, {
-    limit: options?.limit,
-  });
+  return serviceRepository.findAll(filter, { limit: options?.limit });
 }
 
-
-/* =====================================================
-   Update Service
-===================================================== */
-export async function updateService(
-  id: string,
-  data: Partial<ServiceRecord>
-): Promise<ServiceRecord | null> {
-  await db();   // before mongoose queries;
+export async function updateService(id: string, data: Partial<ServiceRecord>): Promise<ServiceWithPopulatedCategory | null> {
+  await db();
+  if (data.slug) {
+    const existing = await serviceRepository.findBySlug(data.slug);
+    if (existing && existing._id.toString() !== id) {
+      throw new Error("New slug is already taken");
+    }
+  }
   return serviceRepository.updateById(id, data);
 }
 
-/* =====================================================
-   Delete Service
-===================================================== */
-export async function deleteService(
-  id: string
-): Promise<boolean> {
-  await db();   // before mongoose queries;
+export async function deleteService(id: string): Promise<boolean> {
+  await db();
+  const service = await serviceRepository.findById(id);
+  if (!service) throw new Error("Service not found");
   return serviceRepository.deleteById(id);
 }

@@ -3,98 +3,89 @@
  * Layer: DTO
  *
  * Purpose:
- * - Defines external contracts for Blog
+ * - Defines external contracts for the Blog module.
  *
  * Responsibilities:
- * - Client-facing input/output structures
+ * - Provides input shapes for creating and updating blogs.
+ * - Defines the standard response structure for the UI.
  *
  * Restrictions:
- * - Must NOT use ObjectId
- * - Must NOT use Date objects
+ * - Must NOT use Mongoose ObjectId (use string).
+ * - Must NOT use Date objects (use ISO string).
  ***************************************************/
 
-export type BlogStatus = "draft" | "published";
+/**
+ * SEO metadata structure for blog posts
+ */
+export interface BlogSeoDTO {
+  metaTitle: string;
+  metaDescription: string;
+  keywords: string[];
+  ogImage: string;
+  canonicalUrl: string;
+  metaRobots: string;
+}
 
-/* =========================
-   CREATE DTO
-========================= */
+/**
+ * Data required to create a new blog post
+ */
 export interface CreateBlogDTO {
   title: string;
   slug: string;
-  description?: string;
-  richText?: string;
-  thumbnailImage?: string;
-
-  categoryId: string;
-  subCategoryId?: string;
-
-  status?: BlogStatus;
+  summary?: string;
+  content: string;
+  thumbnail?: string;
+  bannerImage?: string;
+  categoryId: string; // UI sends this as a string ID
+  authorId: string;   // UI sends this as a string ID
+  tags?: string[];
+  status?: "draft" | "published";
   featured?: boolean;
-
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-  };
+  seo?: Partial<BlogSeoDTO>;
 }
 
-/* =========================
-   UPDATE DTO
-========================= */
-export interface UpdateBlogDTO {
-  title?: string;
-  slug?: string;
-  description?: string;
-  richText?: string;
-  thumbnailImage?: string;
-
-  categoryId?: string;
-  subCategoryId?: string;
-
-  status?: BlogStatus;
-  featured?: boolean;
-
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-  };
+/**
+ * Data allowed for updating an existing blog post
+ */
+export interface UpdateBlogDTO extends Partial<CreateBlogDTO> {
+  // All fields are optional during update
 }
 
-/* =========================
-   RESPONSE DTO
-========================= */
+/**
+ * Standard response structure for Blog data.
+ * This is what the UI receives after mapping.
+ */
 export interface BlogResponseDTO {
   id: string;
   title: string;
   slug: string;
-  description?: string;
-  richText?: string;
-  thumbnailImage?: string;
-
-  // IDs (Optional but good to keep)
-  categoryId: string;
-  subCategoryId?: string;
-
-  // Populated Data (Frontend display ke liye)
-  category?: {
-    id: string;
-    name: string;
-    slug: string;
-  };
-  subCategory?: {
+  summary: string;
+  content: string;
+  thumbnail: string;
+  bannerImage: string;
+  
+  // Populated Category Object
+  category: {
     id: string;
     name: string;
     slug: string;
   };
 
-  status: BlogStatus;
+  // Populated Author Object
+  author: {
+    id: string;
+    name: string;
+    image: string;
+  };
+
+  tags: string[];
+  readingTime: number;
+  viewCount: number;
+  seo: BlogSeoDTO;
+  status: "draft" | "published";
   featured: boolean;
-  authorId: string;
-
-  seo?: {
-    metaTitle?: string;
-    metaDescription?: string;
-  };
-
+  
+  // Serialized Dates as Strings
   publishedAt?: string;
   createdAt: string;
   updatedAt: string;

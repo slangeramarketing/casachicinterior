@@ -1,13 +1,35 @@
 "use client";
 
 import { useState } from "react";
-import { FiBell, FiMenu, FiSearch } from "react-icons/fi";
+import { FiBell, FiMenu, FiSearch, FiX } from "react-icons/fi";
 import { FaUserCircle } from "react-icons/fa";
 import Link from "next/link";
+import AdminSidebar from "./Sidebar"; // Sidebar import zaroori hai
+import { getGravatarUrl } from "@/lib/utils/gravatar";
+import Image from "next/image";
 
-export default function AdminHeader() {
+interface AdminHeaderProps {
+  authUser: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+  } | null;
+}
+
+function getFirstName(name?: string) {
+  if (!name) return "";
+  return name.trim().split(" ")[0];
+}
+
+
+
+export default function AdminHeader({authUser}: AdminHeaderProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
+
+  const avatarUrl = authUser?.email
+    ? getGravatarUrl(authUser.email, 80)
+    : "/media/static/default-avatar.png"; // optional fallback
 
   return (
     <>
@@ -15,57 +37,62 @@ export default function AdminHeader() {
       {sidebarOpen && (
         <div
           onClick={() => setSidebarOpen(false)}
-          className="fixed inset-0 z-20 md:hidden"
+          className="fixed inset-0 z-[40] bg-black/50 md:hidden transition-opacity"
         />
       )}
 
-      {/* HEADER */}
-      <div className="h-16 px-5 flex items-center justify-between border-b border-gray-200">
+      {/* MOBILE SIDEBAR (DRAWER) */}
+      <div className={`fixed inset-y-0 left-0 z-[50] w-[280px] bg-white transform transition-transform duration-300 ease-in-out md:hidden ${
+        sidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
+        <div className="h-16 flex items-center justify-between px-5 border-b">
+          <span className="font-bold text-xl text-orange-500">Welcome, {getFirstName(authUser?.name)}</span>
+          <button onClick={() => setSidebarOpen(false)}>
+            <FiX size={24} />
+          </button>
+        </div>
+        <div className="overflow-y-auto h-[calc(100vh-64px)]" onClick={() => setSidebarOpen(false)}>
+          <AdminSidebar />
+        </div>
+      </div>
 
+      {/* MAIN HEADER */}
+      <header className="h-16 px-8 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
         {/* LEFT */}
         <div className="flex items-center gap-4">
           <button
             onClick={() => setSidebarOpen(true)}
-            className="md:hidden text-2xl"
+            className="md:hidden text-2xl p-2 hover:bg-gray-100 rounded-lg transition-colors"
           >
             <FiMenu color="black" />
           </button>
+          <div className="hidden md:block font-bold text-gray-500">
+            Welcome, {getFirstName(authUser?.name)}
+          </div>
         </div>
 
         {/* RIGHT */}
-        <div className="flex items-center gap-6 text-xl">
-          <button
-            className="md:hidden"
-            onClick={() => setSearchOpen(!searchOpen)}
-          >
-            <FiSearch size={22} color="black" />
-          </button>
-
-          <div className="relative cursor-pointer">
+        <div className="flex items-center gap-6">
+          {/* <div className="relative cursor-pointer p-2 hover:bg-gray-100 rounded-full transition-colors">
             <FiBell size={22} color="black" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </div>
+            <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white" />
+          </div> */}
 
-          <Link href="/admin/users/profile">
-            <FaUserCircle size={30} color="gray" />
-          </Link>
+          {/* RIGHT */}
+        <Link
+          href="/admin/users/profile"
+          className="flex items-center gap-2 hover:opacity-80"
+        >
+          <Image
+            src={avatarUrl}
+            alt="User Avatar"
+            width={40}
+            height={40}
+            className="rounded-full border"
+          />
+        </Link>
         </div>
-      </div>
-
-      {/* MOBILE SEARCH */}
-      <div
-        className={`
-          md:hidden overflow-hidden transition-all duration-300
-           bg-bg-primary
-          ${searchOpen ? "max-h-20 py-3 px-4" : "max-h-0 py-0 px-4"}
-        `}
-      >
-        <input
-          type="text"
-          placeholder="Search..."
-          className="w-full px-3 py-2 rounded-md border border-gray-300"
-        />
-      </div>
+      </header>
     </>
   );
 }

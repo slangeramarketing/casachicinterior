@@ -1,151 +1,110 @@
-/***************************************************
- * File: modules/services/service.model.ts
- * Layer: Model
- *
- * Purpose:
- * - Defines MongoDB schema for Service module
- *
- * Responsibilities:
- * - Declare Mongoose schema structure
- * - Enforce data shape at database level
- *
- * Restrictions:
- * - Must NOT contain business logic
- * - Must NOT contain validation rules beyond schema-level
- * - Must NOT export anything except the Mongoose model
- ***************************************************/
-
 import { Schema, Types, model, models } from "mongoose";
 
-/* -------------------------------------
-   Service Schema
-------------------------------------- */
 const ServiceSchema = new Schema(
   {
     /* ---------------------------
-       Core Identity
+        Core Identity
     --------------------------- */
-    slug: {
-      type: String,
-      required: true,
-      unique: true,
-      index: true,
-      trim: true,
-    },
+    slug: { type: String, required: true, unique: true, index: true, trim: true },
+    title: { type: String, required: true, trim: true },
 
-    title: {
-      type: String,
-      required: true,
-      trim: true,
+    /* ---------------------------
+        Content & Structure
+    --------------------------- */
+    shortDescription: { type: String, required: true, trim: true },
+    description: { type: Schema.Types.Mixed, required: true }, 
+
+    // Updated: Now supports Icon ID + Title
+    highlights: [{
+      icon: { type: String, required: true }, // Stores ID like 'modular-kitchen'
+      title: { type: String, required: true, trim: true }
+    }],
+
+    /* ---------------------------
+        Category Reference
+    --------------------------- */
+    categoryId: { type: Types.ObjectId, ref: "ServiceCategory", required: true, index: true },
+
+    /* ---------------------------
+        Media (Optimized)
+    --------------------------- */
+    coverImage: { type: String, required: true },
+    gallery: [{
+      url: { type: String, required: true },
+      alt: { type: String, default: "" }, 
+      caption: { type: String }
+    }],
+
+  /* ---------------------------
+        Video Showcase (Flexible & Safe)
+    --------------------------- */
+    videoShowcase: {
+      reels: {
+        type: [{
+          url: { type: String, trim: true },
+          thumbnail: { type: String },
+          title: { type: String, trim: true }
+        }],
+        default: [] // Khali array default rakhein
+      },
+      youtube: {
+        type: [{
+          embedId: { type: String, trim: true },
+          title: { type: String, trim: true },
+          description: { type: String }
+        }],
+        default: [] // Khali array default rakhein
+      }
     },
 
     /* ---------------------------
-       Content
+        FAQ (SEO Goldmine) 
     --------------------------- */
-    shortDescription: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    faqs: [{
+      question: { type: String, required: true },
+      answer: { type: String, required: true }
+    }],
 
-    description: {
-      type: String,
-      required: true,
+    /* ---------------------------
+        Pricing & Estimation
+    --------------------------- */
+    startingPrice: { type: Number },
+    priceUnit: { type: String, default: "sq ft" }, 
+
+    /* ---------------------------
+        SEO & Marketing
+    --------------------------- */
+    seo: {
+      title: { type: String, trim: true },
+      description: { type: String, trim: true },
+      keywords: { type: [String], default: [] },
+      ogImage: { type: String }, 
+      metaRobots: { type: String, default: "index, follow" } 
     },
 
     /* ---------------------------
-       Category Reference (IMPORTANT)
+        Admin Controls
     --------------------------- */
-    categoryId: {
-      type: Types.ObjectId,
-      ref: "ServiceCategory",
-      required: true,
-      index: true,
+    featured: { type: Boolean, default: false, index: true },
+    status: { 
+      type: String, 
+      enum: ["draft", "published", "archived"], 
+      default: "draft", 
+      index: true 
     },
+    displayOrder: { type: Number, default: 0, index: true },
 
     /* ---------------------------
-       Media
+        CTA
     --------------------------- */
-    coverImage: {
-      type: String,
-      required: true,
-    },
-
-    gallery: {
-      type: [String],
-      default: [],
-    },
-
-    /* ---------------------------
-       Business Value
-    --------------------------- */
-    highlights: {
-      type: [String],
-      required: true,
-      default: [],
-    },
-
-    /* ---------------------------
-       SEO & Marketing
-    --------------------------- */
-    seoTitle: {
-      type: String,
-      trim: true,
-    },
-
-    seoDescription: {
-      type: String,
-      trim: true,
-    },
-
-    seoKeywords: {
-      type: [String],
-      default: [],
-    },
-
-    /* ---------------------------
-       Admin Controls
-    --------------------------- */
-    featured: {
-      type: Boolean,
-      default: false,
-      index: true,
-    },
-
-    status: {
-      type: String,
-      enum: ["draft", "published"],
-      default: "draft",
-      index: true,
-    },
-
-    displayOrder: {
-      type: Number,
-      default: 0,
-      index: true,
-    },
-
-    /* ---------------------------
-       CTA
-    --------------------------- */
-    ctaText: {
-      type: String,
-      trim: true,
-    },
-
-    ctaLink: {
-      type: String,
-      trim: true,
-    },
+    ctaText: { type: String, default: "Get Free Consultation" },
+    ctaLink: { type: String, default: "/contact" },
   },
   {
-    timestamps: true, // createdAt & updatedAt
+    timestamps: true,
     versionKey: false,
+    strict: false
   }
 );
 
-/* -------------------------------------
-   Model Export
-------------------------------------- */
-export const ServiceModel =
-  models.Service || model("Service", ServiceSchema);
+export const ServiceModel = models.Service || model("Service", ServiceSchema);

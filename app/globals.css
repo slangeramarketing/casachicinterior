@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+
+@import "swiper/css";
+@import "swiper/css/navigation";
+@import "swiper/css/pagination";
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -80,47 +85,85 @@ body {
    WhatsApp Floating Action Button
 ============================ */
 
-.whatsapp-fab {
+.whatsapp-fab,
+.phone-fab,
+.instagram-fab {
   position: fixed;
-  right: 20px;          /* 👈 RIGHT side */
-  bottom: 20px;         /* 👈 BOTTOM */
+  right: 24px;
+  bottom: 24px;
   width: 56px;
   height: 56px;
-  background-color: #25d366;
   border-radius: 50%;
+  background: #25d366; /* override per FAB */
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  z-index: 50;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
 }
 
-/* Pulse effect */
+/* Phone */
+.phone-fab {
+  bottom: 96px;
+  background: #0ea5e9;
+}
+
+/* Instagram */
+.instagram-fab {
+  bottom: 168px;
+  background: radial-gradient(
+    circle at 30% 30%,
+    #fdf497,
+    #fd5949,
+    #d6249f,
+    #285aeb
+  );
+}
+
 .pulse-ring {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: rgba(37, 211, 102, 0.45);
   border-radius: 50%;
-  animation: pulse 1.6s infinite;
-  z-index: 1;
+  animation: pulse 2s infinite;
 }
 
-.whatsapp-fab img {
-  position: relative;
-  z-index: 2;
+.fab-main {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
 }
+
+.fab-item {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+}
+
+
+
 
 @keyframes pulse {
   0% {
     transform: scale(1);
-    opacity: 0.8;
+    opacity: 1;
   }
   100% {
-    transform: scale(1.8);
+    transform: scale(1.6);
     opacity: 0;
   }
 }
+
 
 /* ============================
    Responsive

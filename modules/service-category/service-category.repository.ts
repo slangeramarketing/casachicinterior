@@ -16,6 +16,10 @@
  * Notes:
  * - Exports a stateless object with methods
  ***************************************************/
+/***************************************************
+ * File: modules/service-categories/service-category.repository.ts
+ * Layer: Repository
+ ***************************************************/
 
 import { ServiceCategoryModel } from "./service-category.model";
 import { ServiceCategoryRecord } from "./service-category.types";
@@ -23,7 +27,7 @@ import { Types } from "mongoose";
 
 export const serviceCategoryRepository = {
   /**
-   * Create category
+   * Create a new category
    */
   async create(
     data: Partial<ServiceCategoryRecord>
@@ -33,17 +37,18 @@ export const serviceCategoryRepository = {
   },
 
   /**
-   * Find by ID
+   * Find category by MongoDB ID
    */
   async findById(
     id: string
   ): Promise<ServiceCategoryRecord | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
     return ServiceCategoryModel.findById(id)
       .lean<ServiceCategoryRecord>();
   },
 
   /**
-   * Find by slug
+   * Find category by unique slug
    */
   async findBySlug(
     slug: string
@@ -53,29 +58,40 @@ export const serviceCategoryRepository = {
   },
 
   /**
-   * List categories
-   * (optionally by parentId / status)
+   * List categories with robust filtering
+   * - parentId: Use null for top-level categories
    */
   async findAll(filter: {
-    parentId?: Types.ObjectId | null;
+    parentId?: string | Types.ObjectId | null;
     status?: "active" | "inactive";
   } = {}): Promise<ServiceCategoryRecord[]> {
-    return ServiceCategoryModel.find(filter)
-      .sort({ displayOrder: 1, createdAt: 1 })
+    const queryFilter: any = { ...filter };
+
+    // Hierarchy filter handling
+    if (filter.parentId !== undefined) {
+      queryFilter.parentId = filter.parentId === null 
+        ? null 
+        : new Types.ObjectId(filter.parentId);
+    }
+
+    return ServiceCategoryModel.find(queryFilter)
+      .sort({ displayOrder: 1, name: 1 }) // Order wise then Alphabetical
       .lean<ServiceCategoryRecord[]>();
   },
 
   /**
-   * Update by ID
+   * Update category by ID
    */
   async updateById(
     id: string,
     data: Partial<ServiceCategoryRecord>
   ): Promise<ServiceCategoryRecord | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
     return ServiceCategoryModel.findByIdAndUpdate(
       id,
-      data,
-      { new: true }
+      { $set: data }, // Nested objects like SEO update safe rehta hai $set se
+      { new: true, runValidators: true }
     ).lean<ServiceCategoryRecord>();
   },
 
@@ -83,8 +99,19 @@ export const serviceCategoryRepository = {
    * Delete by ID
    */
   async deleteById(id: string): Promise<boolean> {
-    const res =
-      await ServiceCategoryModel.findByIdAndDelete(id);
+    if (!Types.ObjectId.isValid(id)) return false;
+    const res = await ServiceCategoryModel.findByIdAndDelete(id);
     return !!res;
   },
+
+  /**
+   * Extra: Check if category has children before deleting
+   * (Crucial for Business Logic)
+   */
+  async hasChildren(parentId: string): Promise<boolean> {
+    const count = await ServiceCategoryModel.countDocuments({ 
+      parentId: new Types.ObjectId(parentId) 
+    });
+    return count > 0;
+  }
 };

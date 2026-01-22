@@ -24,11 +24,11 @@ export function PageRouteHeader({ showBack = true }: PageRouteHeaderProps) {
       .toUpperCase();
 
   return (
-    <div className="flex items-center gap-2 mb-4">
+    <div className="flex items-center gap-2">
       {showBack && (
         <button
           onClick={() => router.back()}
-          className="p-1 rounded hover:bg-gray-100"
+          className="rounded hover:bg-gray-100"
           aria-label="Go Back"
         >
           <IoIosArrowRoundBack
@@ -38,7 +38,7 @@ export function PageRouteHeader({ showBack = true }: PageRouteHeaderProps) {
         </button>
       )}
 
-      <p className="text-gray-400 text-xs tracking-[2px] md:block hidden">
+      <p className="text-gray-400 text-[9px] tracking-[2px]">
         {routeLabel}
       </p>
     </div>

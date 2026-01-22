@@ -1,6 +1,7 @@
 
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 export default function PublicLayout({
   children,
@@ -22,6 +23,8 @@ export default function PublicLayout({
         />
        {children}
       </body>
+      {/* Aapka Measurement ID yahan aayega */}
+      <GoogleAnalytics gaId="G-NPBJ9H7JCR" />
     </html>
   );
 }

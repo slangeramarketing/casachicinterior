@@ -1,14 +1,18 @@
-import UserList from "@/components/clientPage/users/UserList";
-import { listUsersAction } from "../actions/admin.users.action";
+import UserList from "@/components/admin/clientComponent/users/UserList";
+import { userServer } from "@/modules/users/user.server";
 
 /* -------------------------------------
    Server Page (NO DB / NO SERVER FACADE)
 ------------------------------------- */
 export default async function UsersPage() {
-  const users = await listUsersAction({
+  const users = await userServer.list({
     page: 1,
     limit: 20,
   });
 
-  return <UserList users={users} />;
+  return (
+    <div className="w-full">
+     <UserList users={users} />
+  </div>
+  );
 }

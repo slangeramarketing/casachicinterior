@@ -212,48 +212,6 @@ export const projects: Project[] = [
     ],
   },
 
-  {
-    id: 5,
-    title: "Premium Home Interior – Kolkata",
-    shortDescription:
-      "Elegant residential interior combining luxury finishes with practicality.",
-
-    overview:
-      "This premium home interior project focused on blending luxury materials with functional layouts to create a refined yet comfortable living space.",
-
-    location: "Kolkata, India",
-    category: "Residential Interior",
-    duration: "Completed in 50 Days",
-    status: "Successfully Delivered",
-    executionModel: "Design & Build Model",
-    qualityAssurance: "Finish-Level Quality Control",
-
-    startDate: "15 Jan 2025",
-    endDate: "05 Mar 2025",
-
-    featured: false,
-
-    coverImage:
-      "https://images.unsplash.com/photo-1600607687644-aac76c74eab9?auto=format&fit=crop&w=1600&q=80",
-
-    galleryImages: [
-      "https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf",
-      "https://images.unsplash.com/photo-1616486338812-3dadae4b4ace",
-    ],
-
-    materials: [
-      { icon: "FiLayers", text: "High-grade plywood and veneer panels" },
-      { icon: "FiFeather", text: "Luxury laminate finishes" },
-      { icon: "FiTool", text: "Premium branded hardware" },
-    ],
-
-    workforce: [
-      { icon: "FiUsers", label: "Total Workforce", value: "11 Professionals" },
-      { icon: "FiScissors", label: "Carpenters", value: "4 Specialists" },
-      { icon: "FiZap", label: "Electricians", value: "2 Technicians" },
-      { icon: "FiEdit3", label: "Painters", value: "3 Finishers" },
-      { icon: "FiShield", label: "Site Supervisor", value: "1 Lead" },
-    ],
-  },
+ 
 ];
 

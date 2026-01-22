@@ -18,82 +18,106 @@
  * - This file exports a stateless object with methods
  ***************************************************/
 
+
 import { Types } from "mongoose";
 import { ServiceModel } from "./service.model";
-import { ServiceRecord } from "./service.types";
+import { ServiceRecord, ServiceWithPopulatedCategory } from "./service.types";
+import { ServiceCategoryModel } from "../service-category/service-category.model";
 
-/* -------------------------------------
-   Repository Object
-------------------------------------- */
 export const serviceRepository = {
   /**
-   * Purpose:
-   * - Create a new service record
+   * Create a new service record
    */
   async create(data: Partial<ServiceRecord>): Promise<ServiceRecord> {
     const doc = await ServiceModel.create(data);
+    console.log("DB SAVED DOC:", doc);
     return doc.toObject();
   },
 
   /**
-   * Purpose:
-   * - Find service by MongoDB ID
+   * Find service by MongoDB ID with Selective Populated Category
    */
-  async findById(id: string): Promise<ServiceRecord | null> {
-    return ServiceModel.findById(id).lean<ServiceRecord>();
+  async findById(id: string): Promise<ServiceWithPopulatedCategory | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
+    return await ServiceModel.findById(id)
+      .populate({
+        path: "categoryId",
+        model: "ServiceCategory",
+        select: "name slug icon", 
+      })
+      .lean<ServiceWithPopulatedCategory>()
+      .exec();
   },
 
   /**
-   * Purpose:
-   * - Find service by slug
+   * Find service by slug (Unique URL)
    */
-  async findBySlug(slug: string): Promise<ServiceRecord | null> {
-    return ServiceModel.findOne({ slug }).lean<ServiceRecord>();
+  async findBySlug(slug: string): Promise<ServiceWithPopulatedCategory | null> {
+    return ServiceModel.findOne({ slug })
+      .populate({
+        path: "categoryId",
+        select: "name slug icon",
+      })
+      .lean<ServiceWithPopulatedCategory>();
   },
 
-/**
- * List services with optional limit
- */
-async findAll(
-  filter: {
-    status?: "draft" | "published";
-    categoryId?: Types.ObjectId;
-    featured?: boolean;
-  } = {},
-  options?: {
-    limit?: number;
-  }
-): Promise<ServiceRecord[]> {
-  const query = ServiceModel.find(filter)
-    .sort({ displayOrder: 1, createdAt: -1 });
+  /**
+   * List services with robust filtering and Population
+   */
+  async findAll(
+    filter: any = {},
+    options?: { limit?: number; skip?: number }
+  ): Promise<ServiceWithPopulatedCategory[]> {
+    const query = ServiceModel.find(filter)
+      .populate({
+        path: "categoryId",
+        select: "name slug icon",
+        model: ServiceCategoryModel, // 👈 Ye line Mongoose ko batayegi ki exactly kaunsa model use karna hai
+      })
+      .sort({ displayOrder: 1, createdAt: -1 });
 
-  if (options?.limit) {
-    query.limit(options.limit);
-  }
+    if (options?.limit) query.limit(options.limit);
+    if (options?.skip) query.skip(options.skip);
 
-  return query.lean<ServiceRecord[]>();
-},
-
+    return query.lean<ServiceWithPopulatedCategory[]>();
+  },
 
   /**
-   * Purpose:
-   * - Update service by ID
+   * Update service by ID (Returns populated updated record)
    */
   async updateById(
     id: string,
     data: Partial<ServiceRecord>
-  ): Promise<ServiceRecord | null> {
-    return ServiceModel.findByIdAndUpdate(id, data, {
-      new: true,
-    }).lean<ServiceRecord>();
+  ): Promise<ServiceWithPopulatedCategory | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
+      console.log("Income Data", data);
+    
+  
+     const doc= await ServiceModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, runValidators: true }
+    )
+      .populate({
+        path: "categoryId",
+        select: "name slug icon",
+      })
+      .lean<ServiceWithPopulatedCategory>();
+
+      console.log("DB SAVED DOC:", doc);
+
+      return doc;
   },
 
-  /**
-   * Purpose:
-   * - Delete service by ID
-   */
   async deleteById(id: string): Promise<boolean> {
+    if (!Types.ObjectId.isValid(id)) return false;
     const res = await ServiceModel.findByIdAndDelete(id);
     return !!res;
   },
+
+  async count(filter: object = {}): Promise<number> {
+    return ServiceModel.countDocuments(filter);
+  }
 };

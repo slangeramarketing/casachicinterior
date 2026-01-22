@@ -23,7 +23,7 @@ interface BaseFieldProps {
 
 interface TextFieldProps extends BaseFieldProps {
   type?: "text" | "email" | "password" | "number";
-  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
 }
 
 export function TextField({
@@ -33,7 +33,7 @@ export function TextField({
   placeholder='',
   type = "text",
   disabled = false,
-  onChange,
+  onChange=()=>{},
   labelClassName,
   className = "",
 }: TextFieldProps) {

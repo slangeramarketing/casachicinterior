@@ -1,33 +1,45 @@
-import ServiceCategoryList, {
-  CategoryItem,
-} from "@/components/clientPage/services/ServiceCategoryList";
+/***************************************************
+ * File: app/admin/service-categories/page.tsx
+ * Type: Server Page (Admin)
+ ***************************************************/
+
+import { Metadata } from "next";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
-import { deleteServiceCategoryAction, getAllServiceCategoriesAction } from "../../actions/admin.service-categories.actions";
+import { PageRouteHeader } from "@/components/common/PageHeader";
+import ServiceCategoryList from "@/components/admin/clientComponent/service/ServiceCategoryList";
 
-/* =====================================================
-   Server Page
-===================================================== */
+/* -------------------------------------
+   SEO Metadata (Admin specific)
+------------------------------------- */
+export const metadata: Metadata = {
+  title: "Category Management | Admin Dashboard",
+  description: "Organize interior design categories and sub-categories.",
+  robots: { index: false, follow: false }, 
+};
+
+/* -------------------------------------
+   Page Component
+------------------------------------- */
 export default async function ServiceCategoryServerPage() {
-  /* =============================
-     Fetch from DB (REAL DATA)
-  ============================= */
-  const categories = await getAllServiceCategoriesAction();
-  console.log("Category Data: ", categories);
+  /**
+   * Data Fetching: Direct call to Server Facade.
+   * Kyunki hum server par hain, direct server layer call karna 
+   * speed aur reliability ke liye best hai.
+   */
+  const categories = await serviceCategoryServer.getAll();
 
-  /* =============================
-     Server Action: Delete
-  ============================= */
-  async function handleDelete(id: string) {
-    await deleteServiceCategoryAction(id);
-  }
+  // Logging for debugging during development
+  console.log(`Fetched ${categories?.length || 0} categories for Admin.`);
 
-  /* =============================
-     Render
-  ============================= */
+
   return (
-    <ServiceCategoryList
-      categories={categories as CategoryItem[]}
-      onDelete={handleDelete}
-    />
+    <main>
+      <div className="flex flex-col gap-2 pb-2">
+        <PageRouteHeader />
+      </div>
+      <ServiceCategoryList
+        categories={categories}
+      />
+    </main>
   );
 }

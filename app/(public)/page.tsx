@@ -15,6 +15,9 @@ import WhyChooseUsSection from '@/components/public/WhyChooseUsSection'
 import { ServiceResponseDTO } from '@/modules/services/service.dto'
 import { useEffect, useState } from 'react'
 import { getFeaturedServicesAction } from './actions/public.service.action'
+import PhoneFAB from '@/components/public/PhoneFAB'
+import InstagramFAB from '@/components/public/InstagramFAB'
+import ContactFAB from '@/components/public/ContactFAB'
 
 export default function LandingPage() {
   const [open, setOpen] = useState(false);
@@ -48,10 +51,14 @@ export default function LandingPage() {
      <ReviewSection/>
      <ContactSection/>
      <FAQSection/>
-      <WhatsAppFAB
+     <ContactFAB/>
+      {/* <WhatsAppFAB
           phoneNumber="919876543210"
           message="Hi, I saw your portfolio and want to connect"
         />
+        <PhoneFAB phoneNumber="+919876543210" />
+
+        <InstagramFAB profileUrl="https://instagram.com/casachicinterior" /> */}
 
         <EnquiryStickyTab onClick={() => setOpen(true)} />
         {/* Modal */}
