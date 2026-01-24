@@ -17,7 +17,6 @@
   export async function requireAuth(): Promise<JwtPayload> {
     const cookieStore = await cookies();
     const token = cookieStore.get("auth_token")?.value;
-    console.log("TOKEN: ",token);
 
     if (!token) {
       throw new Error("UNAUTHORIZED");

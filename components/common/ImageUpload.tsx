@@ -3,8 +3,9 @@
 import { useState, ChangeEvent, useEffect } from "react";
 import Image from "next/image";
 import defaultImg from "@/public/assets/default.jpg";
+import { OptimizedImage } from "./OptimizedImage";
 
-interface ImageUploadProps {
+export interface ImageUploadProps {
   label?: string;
   onChange?: (file: File | null) => void;
   defaultValue?: string;
@@ -107,12 +108,11 @@ export default function ImageUpload({
 
         <div className={`flex justify-center p-4 min-h-[150px] items-center bg-[#fcfcfc] ${previewWrapperClassName}`}>
           <div className="relative w-[150px] h-[100px]">
-             <Image
+             <OptimizedImage
               src={preview || defaultImg}
               alt="Preview"
               fill // 🔥 'fill' use karne se layout flexible rehta hai
               className={`rounded border object-cover shadow-sm ${previewImageClassName}`}
-              unoptimized={preview?.startsWith("blob:")} // Blob URLs ke liye optimization off rakhein
             />
           </div>
         </div>

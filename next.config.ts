@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
+import withPWA from "next-pwa";
 
 const nextConfig: NextConfig = {
   reactCompiler: true,
+  reactStrictMode: true,
 
   images: {
     remotePatterns: [
@@ -20,9 +22,19 @@ const nextConfig: NextConfig = {
 
   experimental: {
     serverActions: {
-      bodySizeLimit: "10mb", // or "5mb"
+      bodySizeLimit: "10mb",
     },
   },
+
+  // 🔥 VERY IMPORTANT — silence Turbopack
+  turbopack: {},
 };
 
-export default nextConfig;
+export default withPWA({
+  dest: "public",
+  register: true,
+  skipWaiting: true,
+
+  // dev mode me SW off (BEST PRACTICE)
+  disable: process.env.NODE_ENV === "development",
+})(nextConfig);

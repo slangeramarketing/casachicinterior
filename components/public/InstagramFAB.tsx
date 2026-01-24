@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import instagramIcon from "@/public/media/static/instagram.png";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 interface InstagramFABProps {
   profileUrl: string; // full URL
@@ -18,7 +19,7 @@ export default function InstagramFAB({ profileUrl }: InstagramFABProps) {
     >
       <span className="pulse-ring"></span>
 
-      <Image
+      <OptimizedImage
         src={instagramIcon}
         alt="Instagram"
         width={26}

@@ -5,6 +5,7 @@ import { blogCategoryServer } from "@/modules/blog-category/blog-category.server
 export default async function CreateBlogCategoryServerPage() {
   // 1. Parent category select karne ke liye list fetch karo
   const categoriesRes = await blogCategoryServer.getList();
+  console.log("categoryList Create : ",categoriesRes);
   const allCategories = categoriesRes.success ? categoriesRes.data : [];
 
   return (

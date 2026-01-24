@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import phoneIcon from "@/public/media/static/phone.png";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 interface PhoneFABProps {
   phoneNumber: string; // example: +919876543210
@@ -18,7 +19,7 @@ export default function PhoneFAB({ phoneNumber }: PhoneFABProps) {
     >
       <span className="pulse-ring"></span>
 
-      <Image
+      <OptimizedImage
         src={phoneIcon}
         alt="Call"
         width={26}

@@ -6,6 +6,7 @@ import before from "@/public/assets/HomeRenovationBefor.png"
 import after from "@/public/assets/HomeRenovationAfter.png"
 import React, { useState, useRef } from "react";
 import Image from "next/image";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 const PortfolioShowcase: React.FC = () => {
   const [dividerPosition, setDividerPosition] = useState(50); // percentage
@@ -55,7 +56,7 @@ const PortfolioShowcase: React.FC = () => {
           onTouchEnd={stopDrag}
         >
           {/* Before Image */}
-          <Image
+          <OptimizedImage
             src={before}
             alt="Before"
             fill
@@ -67,7 +68,7 @@ const PortfolioShowcase: React.FC = () => {
             className="absolute inset-0 overflow-hidden"
             style={{ width: `${dividerPosition}%` }}
           >
-            <Image
+            <OptimizedImage
               src={after}
               alt="After"
               fill

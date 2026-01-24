@@ -3,6 +3,7 @@
 import { useState, ChangeEvent } from "react";
 import Image from "next/image";
 import defaultImg from "@/public/media/static/default.jpg";
+import { OptimizedImage } from "./OptimizedImage";
 
 interface MultiImageUploadProps {
   label?: string;
@@ -105,7 +106,7 @@ export default function MultiImageUpload({
       >
         {previews.length === 0 && (
           <div className="col-span-full flex justify-center">
-            <Image
+            <OptimizedImage
               src={defaultImg}
               alt="Empty"
               width={100}
@@ -120,7 +121,7 @@ export default function MultiImageUpload({
             key={index}
             className="relative group border border-gray-300 rounded overflow-hidden"
           >
-            <Image
+            <OptimizedImage
               src={src}
               alt={`Preview ${index}`}
               width={150}

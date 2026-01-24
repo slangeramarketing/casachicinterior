@@ -3,8 +3,8 @@
 import reviewsData from "@/lib/data/reviews/reviews.json";
 import { Review } from "@/lib/data/review";
 import { FaStar } from "react-icons/fa";
-import Image from "next/image";
 import { getGravatarUrl } from "@/lib/utils/gravatar";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 export default function ReviewSection() {
   const reviews = (reviewsData as Review[]).filter(
@@ -44,7 +44,7 @@ export default function ReviewSection() {
               <div className="mt-6 flex items-center gap-4">
                 {/* AVATAR (Gravatar via MD5) */}
                 <div className="relative w-12 h-12 rounded-full overflow-hidden bg-gray-100">
-                  <Image
+                  <OptimizedImage
                     src={getGravatarUrl(review.clientEmail, 96)}
                     alt={review.clientName}
                     fill

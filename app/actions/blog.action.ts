@@ -27,7 +27,7 @@ export async function updateBlogPostAction(id: string, data: UpdateBlogDTO) {
 export async function deleteBlogPostAction(id: string) {
   try {
     await deleteBlog(id);
-    revalidatePath("/admin/blogs/posts");
+    revalidatePath("/admin/blogs");
     return { success: true, message: "Blog deleted!", error: null };
   } catch (error: any) {
     return { success: false, error: error.message, message: null };

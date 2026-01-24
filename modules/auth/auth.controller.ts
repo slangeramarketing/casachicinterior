@@ -41,6 +41,7 @@ export const authController = {
   async login(req: NextRequest) {
     try {
       const body = (await req.json()) as LoginDTO;
+      console.log("login Request: ",body.email);
 
       const { token, user } = await loginService(body);
 

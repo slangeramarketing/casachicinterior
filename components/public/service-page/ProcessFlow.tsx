@@ -54,7 +54,7 @@ const cardVariants: Variants = {
 
 const ProcessFlow: React.FC = () => {
   return (
-    <section className="w-full px-6 py-24">
+    <section className="w-full px-6">
       {/* Schema Injection */}
       <script
         type="application/ld+json"

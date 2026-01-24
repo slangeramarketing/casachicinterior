@@ -39,6 +39,7 @@
 , "app/api/analytics/google-ga4/route.tss"  ],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "typeRoots": ["./types", "./node_modules/@types"]
 }
 

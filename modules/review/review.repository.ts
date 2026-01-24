@@ -1,45 +1,179 @@
+/***************************************************
+ * File: modules/reviews/review.repository.ts
+ * Layer: Repository
+ *
+ * Purpose:
+ * - Handles all database operations for Review module
+ *
+ * Responsibilities:
+ * - Create review token records
+ * - Fetch reviews by token or filters
+ * - Update review submission and moderation state
+ *
+ * Restrictions:
+ * - Must NOT contain business logic
+ * - Must NOT import DTOs
+ * - Must NOT format or map data
+ ***************************************************/
+
+import { UpdateReviewModerationDTO } from "./review.dto";
 import { ReviewModel } from "./review.model";
-import { IReview } from "./review.types";
-import { CreateReviewTokenDTO, UpdateReviewStatusDTO } from "./review.dto";
+import { ReviewRecord } from "./review.types";
+import { Types } from "mongoose";
 
-export const ReviewRepository = {
-  // 1. Initial link/token create karne ke liye (Admin side)
-  createTokenRecord: async (data: CreateReviewTokenDTO, token: string) => {
-    return await ReviewModel.create({
-      clientEmail: data.clientEmail,
+export const reviewRepository = {
+  /**
+   * Purpose:
+   * - Create initial review record when admin generates link
+   *
+   * Used By:
+   * - Service layer
+   */
+  async createTokenRecord(data: {
+    clientName: string;
+    clientEmail?: string;
+    serviceId: Types.ObjectId;
+    submissionSource: "email" | "direct_link";
+    reviewToken: string;
+    expiresAt?: Date;
+    clientLocation?:String
+  }): Promise<ReviewRecord> {
+    const doc = await ReviewModel.create({
       clientName: data.clientName,
+      clientEmail: data.clientEmail,
       serviceId: data.serviceId,
-      reviewToken: token,
+      submissionSource: data.submissionSource,
+      reviewToken: data.reviewToken,
+      expiresAt: data.expiresAt,
       status: "pending",
+      clientLocation:data.clientLocation
     });
+
+    return doc.toObject();
   },
 
-  // 2. Token se review dhundne ke liye (Validation logic)
-  findByToken: async (token: string) => {
-    return await ReviewModel.findOne({ reviewToken: token });
+  /**
+   * Purpose:
+   * - Find review by unique token
+   *
+   * Used By:
+   * - Service (validation + submission)
+   */
+  async findByToken(token: string): Promise<ReviewRecord | null> {
+    return ReviewModel.findOne({
+      reviewToken: token,
+      isDeleted: false,
+    }).lean();
   },
 
-  // 3. Client ka review update karne ke liye (Submission)
-  updateReviewByToken: async (token: string, updateData: any) => {
-    return await ReviewModel.findOneAndUpdate(
-      { reviewToken: token },
-      { 
-        ...updateData, 
-        reviewToken: null // Token ek hi baar use ho sake isliye null kar dete hain
+  /**
+   * Purpose:
+   * - Update review when client submits feedback
+   *
+   * Used By:
+   * - Service layer
+   */
+  async submitReviewByToken(
+    token: string,
+    update: {
+      rating: number;
+      message: string;
+      clientLocation?: string;
+      submittedAt: Date;
+      clientAvatar?:string
+    }
+  ): Promise<ReviewRecord | null> {
+    return ReviewModel.findOneAndUpdate(
+      {
+        reviewToken: token,
+        isDeleted: false,
+      },
+      {
+        rating: update.rating,
+        message: update.message,
+        clientLocation: update.clientLocation,
+        submittedAt: update.submittedAt,
+        clientAvatar:update.clientAvatar,
       },
       { new: true }
+    ).lean();
+  },
+
+  /**
+   * Purpose:
+   * - Fetch all reviews for admin listing
+   *
+   * Used By:
+   * - Admin dashboard
+   */
+  async findAll(filter: {
+    status?: "pending" | "approved" | "rejected";
+    serviceId?: Types.ObjectId;
+    isFeatured?: boolean;
+  } = {}): Promise<ReviewRecord[]> {
+    return ReviewModel.find({
+      ...filter,
+      isDeleted: false,
+    })
+      .sort({ createdAt: -1 })
+      .lean();
+  },
+
+  /**
+   * Purpose:
+   * - Find review by ID
+   *
+   * Used By:
+   * - Service layer
+   */
+  async findById(id: Types.ObjectId): Promise<ReviewRecord | null> {
+    const reviewData= await ReviewModel.findOne({
+      _id: id,
+      isDeleted: false,
+    }).lean();
+    return reviewData;
+  },
+
+  /**
+   * Purpose:
+   * - Update moderation fields (approve / reject / feature)
+   *
+   * Used By:
+   * - Admin actions
+   */
+  async updateModeration(
+  id: Types.ObjectId,
+  update: UpdateReviewModerationDTO
+): Promise<ReviewRecord | null> {
+  return ReviewModel.findOneAndUpdate(
+    { _id: id, isDeleted: false },
+    {
+      ...(update.status && { status: update.status }),
+      ...(update.isFeatured !== undefined && { isFeatured: update.isFeatured }),
+      ...(update.adminResponse !== undefined && {
+        adminResponse: update.adminResponse,
+      }),
+      ...(update.clientLocation !== undefined && {
+        clientLocation: update.clientLocation,
+      }),
+    },
+    { new: true }
+  ).lean();
+},
+
+  /**
+   * Purpose:
+   * - Soft delete a review
+   *
+   * Used By:
+   * - Admin delete action
+   */
+  async softDelete(id: Types.ObjectId): Promise<boolean> {
+    const res = await ReviewModel.updateOne(
+      { _id: id },
+      { isDeleted: true }
     );
-  },
 
-  // 4. Admin ke liye saare reviews fetch karna (Listing)
-  getAllReviews: async (filter: any = {}) => {
-    return await ReviewModel.find(filter)
-      .populate("serviceId", "name")
-      .sort({ createdAt: -1 });
+    return res.modifiedCount > 0;
   },
-
-  // 5. Admin status update (Approve/Reject/Featured)
-  updateStatus: async (id: string, updateData: UpdateReviewStatusDTO) => {
-    return await ReviewModel.findByIdAndUpdate(id, updateData, { new: true });
-  }
 };

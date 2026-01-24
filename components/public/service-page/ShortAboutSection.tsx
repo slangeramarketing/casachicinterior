@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { motion } from "framer-motion";
 
 export default function ShortAboutSection() {
@@ -47,7 +48,7 @@ export default function ShortAboutSection() {
         >
           {/* Large Image */}
           <div>
-            <Image
+            <OptimizedImage
               src="/media/static/short-about-img1.png"
               alt="Luxury living room interior"
               width={400}
@@ -58,7 +59,7 @@ export default function ShortAboutSection() {
 
           {/* Small Image 1 */}
           <div className="flex items-end">
-            <Image
+            <OptimizedImage
               src="/media/static/short-about-img2.png"
               alt="Modern sofa interior"
               width={300}
@@ -69,7 +70,7 @@ export default function ShortAboutSection() {
 
           {/* Small Image 2 */}
           <div className="col-span-2">
-            <Image
+            <OptimizedImage
               src="/media/static/short-about-img3.png"
               alt="Minimal home interior"
               width={600}

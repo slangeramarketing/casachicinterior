@@ -32,9 +32,6 @@ interface MenuItem {
 export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const [blogOpen, setBlogOpen] = useState<boolean>(
-    pathname.startsWith("/admin/blogs")
-  );
 
   const handleLogout = async () => {
     await fetch("/api/admin/auth/logout", { method: "POST" });
@@ -44,14 +41,6 @@ export default function Sidebar() {
   const menu: MenuItem[] = [
     { name: "Dashboard", href: "/admin/home", icon: <FiHome size={18} /> },
 
-    // {
-    //   name: "Blog",
-    //   icon: <FaBlog size={18} />,
-    //   children: [
-    //     { name: "Blogs", href: "/admin/blogs" },
-    //     { name: "Categories", href: "/admin/blogs/categories" },
-    //   ],
-    // },
 
     { name: "Blogs", href: "/admin/blogs", icon: <FaBlog size={18} /> },
     { name: "Service", href: "/admin/service", icon: <LuBrainCircuit size={18} /> },
@@ -59,7 +48,6 @@ export default function Sidebar() {
     { name: "User", href: "/admin/users", icon: <FaUser size={18} /> },
     { name: "Message", href: "/admin/message", icon: <IoChatboxEllipsesOutline size={18} /> },
     { name: "Review", href: "/admin/review", icon: <MdOutlineReviews size={18} /> },
-    // { name: "Performance", href: "/admin/performance", icon: <CgPerformance size={18} /> },
   ];
 
   return (

@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Casachicinterior",
   description: "Interior Design and Decoration Services",
+  manifest: "/manifest.json",
 };
 
 export const dynamic = "force-dynamic";

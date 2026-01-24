@@ -8,9 +8,10 @@ import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import { getInteriorIconById } from "@/public/assets/constants-icons/interior-icons";
 import { useState } from "react";
 import MediaViewer from "@/components/common/MediaViewer";
-import ProcessFlow from "../ProcessFlow";
-import ContactSection from "../ContactSection";
-import VideoShowcase from "../VideoShowcase";
+import ProcessFlow from "./ProcessFlow";
+import ContactSection from "../landing-page/ContactSection";
+import { DiVisualstudio } from "react-icons/di";
+import VideoShowcase from "./VideoShowcase";
 
 interface PublicServiceDetailProps {
   service: ServiceResponseDTO;
@@ -225,16 +226,19 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
         )}
 
         {/* Gallery Section ke baad aur FAQ se pehle */}
-        <div className="h-screen">
+        <div className="py-12">
             <ProcessFlow />
         </div>
 
-        <div>
+        <div className="py-12">
             <VideoShowcase data={service.videoShowcase} />
         </div>
 
-        <ContactSection/>
+        <div className="py-12">
+          <ContactSection/>
+        </div>
 
+       <div className="py-12">
         {/* 5. FAQS - Clean Accordion */}
         <motion.section 
         variants={fadeInUp}
@@ -305,6 +309,7 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
             })}
         </div>
         </motion.section>
+       </div>
 
       </div>
 

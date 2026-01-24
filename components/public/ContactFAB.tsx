@@ -1,13 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 
 import { FaHeadset, FaChevronUp } from "react-icons/fa";
 
 import whatsapp from "@/public/media/static/whatsapp.svg";
 import phone from "@/public/media/static/phone.png";
 import instagram from "@/public/media/static/instagram.png";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 export default function ContactFAB() {
   const [open, setOpen] = useState(false);
@@ -25,31 +25,31 @@ export default function ContactFAB() {
       >
         {/* WhatsApp */}
         <a
-          href="https://wa.me/919876543210"
+          href="https://wa.me/918740990990"
           target="_blank"
           aria-label="Chat on WhatsApp"
           className="fab-item"
         >
-          <Image src={whatsapp} alt="WhatsApp" width={22} height={22} />
+          <OptimizedImage src={whatsapp} alt="WhatsApp" width={22} height={22} />
         </a>
 
         {/* Phone */}
         <a
-          href="tel:+919876543210"
+          href="tel:+918740990990"
           aria-label="Call Now"
           className="fab-item"
         >
-          <Image src={phone} alt="Call" width={20} height={20} />
+          <OptimizedImage src={phone} alt="Call" width={20} height={20} />
         </a>
 
         {/* Instagram */}
         <a
-          href="https://instagram.com/casachicinterior"
+          href="https://www.instagram.com/casa.chic_interior?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
           target="_blank"
           aria-label="Instagram"
           className="fab-item"
         >
-          <Image src={instagram} alt="Instagram" width={20} height={20} />
+          <OptimizedImage src={instagram} alt="Instagram" width={20} height={20} />
         </a>
       </div>
 
@@ -59,7 +59,7 @@ export default function ContactFAB() {
         aria-label="Contact Options"
         className="fab-main flex items-center gap-2 bg-bg-primary"
       >
-        <FaHeadset size={25} />
+        <FaHeadset size={20} />
 
         <FaChevronUp
           size={14}

@@ -1,6 +1,7 @@
 "use client";
 
 import ConfirmActionDialog from "@/components/admin/ConfirmActionDialogProps";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 /************** How to Use **************
    <ServiceCard
         id={service.id}
@@ -77,7 +78,7 @@ export function ServiceCard({
     <div className="group relative flex flex-col overflow-hidden rounded-xl border border-gray-300 bg-white transition hover:shadow-md">
       {/* ================= Image Section ================= */}
       <div className="relative aspect-[4/3] w-full overflow-hidden">
-        <Image
+        <OptimizedImage
           src={coverImage}
           alt={title}
           fill

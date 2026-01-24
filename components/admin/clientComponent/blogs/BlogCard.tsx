@@ -1,9 +1,11 @@
 "use client";
 
-import Image from "next/image";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import Link from "next/link";
 import { BsTrash2 } from "react-icons/bs";
 import { FiEdit2 } from "react-icons/fi";
+import { RiDeleteBin6Line, RiDeleteBinFill } from "react-icons/ri";
+import ConfirmActionDialog from "../../ConfirmActionDialogProps";
 
 interface BlogCardProps {
   thumbnail: string;
@@ -76,7 +78,7 @@ export default function BlogCard({
     <div className={wrapperClassName}>
       {/* Thumbnail Section */}
       <div className={`relative ${imageWrapperClassName}`}>
-        <Image
+        <OptimizedImage
           src={thumbnail}
           alt={title}
           width={600}
@@ -113,7 +115,7 @@ export default function BlogCard({
             {showAuthor && authorName && (
               <div className={`flex items-center gap-2 ${authorWrapperClassName}`}>
                 {authorAvatar && authorAvatar.trim() !== "" ? (
-                  <Image src={authorAvatar} alt={authorName} width={24} height={24} className={`rounded-full object-cover ${authorImageClassName}`} />
+                  <OptimizedImage src={authorAvatar} alt={authorName} width={24} height={24} className={`rounded-full object-cover ${authorImageClassName}`} />
                 ) : (
                   <div className={`w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center text-[10px] font-bold text-gray-500 ${authorImageClassName}`}>
                     {authorName.charAt(0).toUpperCase()}
@@ -135,13 +137,23 @@ export default function BlogCard({
                 >
                   <FiEdit2 size={16} />
                 </button>
-                <button 
-                  onClick={(e) => { e.preventDefault(); onDelete?.(); }}
-                  className="p-1.5 rounded-md hover:bg-red-50 text-red-600 transition-colors"
-                  title="Delete Blog"
-                >
-                  <BsTrash2 size={16} />
-                </button>
+                {onDelete && (
+                  <ConfirmActionDialog
+                    title="Delete Blog"
+                    description="This blog will be permanently deleted. This action cannot be undone."
+                    confirmText="Delete"
+                    danger
+                    action={async() => onDelete()}
+                      trigger={
+                        <button
+                        title="Delete"
+                        className="p-2 rounded-md text-red-600 hover:bg-red-100 transition"
+                        >
+                        <RiDeleteBin6Line size={20} />
+                        </button>
+                      }
+                    />
+                )}
               </div>
             ) : (
               ""

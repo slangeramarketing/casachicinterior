@@ -80,12 +80,13 @@ export default function Header({featuredServiceList}:HeaderProps) {
                 </div>
 
                 {/* Desktop view: show only image */}
-                <div className="hidden sm:block">
-                  <Image 
+                <div className="hidden sm:flex">
+                  <Image
                     src={logoTransparent} 
                     height={80} 
                     width={80} 
                     alt="Casa-Chic-Interior-LOGO"  
+                    className="object-cover"
                   />
                 </div>
               </>

@@ -2,8 +2,19 @@
 import { useState } from "react";
 import IconPickerDropDown from "@/components/admin/IconPickerDropDown"; // Path check kar lena
 import { getInteriorIconById } from '@/public/assets/constants-icons/interior-icons';
-import { FiInstagram, FiYoutube, FiPlus, FiTrash2, FiExternalLink } from "react-icons/fi";
-import Image from "next/image";
+
+import { ToggleSwitch } from "@/components/common/ToggleSwitch";
+import {  FiInstagram,
+  FiYoutube,
+  FiPlus,
+  FiTrash2,
+  FiExternalLink 
+} from "react-icons/fi";
+import { TextAreaField, TextField } from "@/components/common/FormField";
+import ImageUpload from "@/components/common/ImageUpload";
+import ImagePicker from "@/components/common/ImagePicker";
+
+
 // Agar aapne ServiceFormState ko kahin define kiya hai to use import karein
 // import { ServiceFormState } from "./types"; 
 
@@ -33,7 +44,7 @@ export function GalleryManager({
         
         {/* --- 1. EXISTING IMAGES --- */}
         {existingItems.map((item, idx) => (
-          <div key={item.url} className="w-80 h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-green-100">
+          <div key={item.url} className="md:w-80 h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-green-100">
             <div className="relative aspect-video bg-gray-100">
               <img src={item.url} className="object-cover w-full h-full" />
               <button onClick={() => onRemoveExisting(item.url)} className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full shadow-lg text-xs">✕</button>
@@ -58,7 +69,7 @@ export function GalleryManager({
 
         {/* --- 2. NEW SELECTED IMAGES (With Inputs) --- */}
         {newImages.map((item, idx) => (
-          <div key={idx} className="w-80 h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-orange-200 ring-1 ring-orange-100">
+          <div key={idx} className="md:w-80 h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-orange-200 ring-1 ring-orange-100">
             <div className="relative aspect-video bg-gray-100">
               <img src={URL.createObjectURL(item.file)} className="object-cover w-full h-full" />
               <button onClick={() => onRemoveNew(idx)} className="absolute top-2 right-2 bg-gray-800 text-white p-1 rounded-full shadow-lg text-xs">✕</button>
@@ -82,7 +93,7 @@ export function GalleryManager({
         ))}
 
         {/* --- 3. ADD BUTTON --- */}
-        <label className="w-80 h-80 aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-orange-50 hover:border-orange-400 transition-all group">
+        <label className="md:w-80 h-80 aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-orange-50 hover:border-orange-400 transition-all group">
           <span className="text-3xl text-gray-400 group-hover:text-orange-500 group-hover:scale-110 transition-transform">+</span>
           <span className="text-xs font-semibold text-gray-500 group-hover:text-orange-500">Upload Images</span>
           <input 
@@ -287,189 +298,267 @@ export const validateForm = (data: any, mode: "create" | "update") => {
 };
 
 
-
-// =================== Vide Mangar ========================
+// ==================== Video Manger ======================
 
 export default function VideoManager({ form, setForm }: any) {
-  
-  // Add New Item Logic
-  const addVideo = (type: "reels" | "youtube") => {
-    const newItem = type === "reels" 
-      ? { url: "", thumbnail: "", title: "" } 
-      : { embedId: "", title: "", description: "" };
-    
+  const updateShowcaseField = (field: string, value: any) => {
     setForm({
       ...form,
       videoShowcase: {
         ...form.videoShowcase,
-        [type]: [...form.videoShowcase[type], newItem]
-      }
+        [field]: value,
+      },
     });
   };
 
-  // Remove Item Logic
-  const removeVideo = (type: "reels" | "youtube", index: number) => {
-    const updatedList = [...form.videoShowcase[type]];
-    updatedList.splice(index, 1);
+  const addItem = (type: "reels" | "youtube") => {
+    const newItem =
+      type === "reels"
+        ? {
+            url: "",
+            thumbnail: null,
+            title: "",
+            featured: false,
+            order: 0,
+          }
+        : {
+            embedId: "",
+            title: "",
+            description: "",
+            featured: false,
+            order: 0,
+          };
+
     setForm({
       ...form,
-      videoShowcase: { ...form.videoShowcase, [type]: updatedList }
+      videoShowcase: {
+        ...form.videoShowcase,
+        [type]: [...form.videoShowcase[type], newItem],
+      },
     });
   };
 
-  // Update Field Logic
-  const updateVideo = (type: "reels" | "youtube", index: number, field: string, value: string) => {
-    const updatedList = [...form.videoShowcase[type]];
-    updatedList[index] = { ...updatedList[index], [field]: value };
+  const removeItem = (type: "reels" | "youtube", index: number) => {
+    const list = [...form.videoShowcase[type]];
+    list.splice(index, 1);
+
     setForm({
       ...form,
-      videoShowcase: { ...form.videoShowcase, [type]: updatedList }
+      videoShowcase: { ...form.videoShowcase, [type]: list },
+    });
+  };
+
+  const updateItem = (
+    type: "reels" | "youtube",
+    index: number,
+    field: string,
+    value: any
+  ) => {
+    const list = [...form.videoShowcase[type]];
+    list[index] = { ...list[index], [field]: value };
+
+    setForm({
+      ...form,
+      videoShowcase: { ...form.videoShowcase, [type]: list },
     });
   };
 
   return (
-    <div className="space-y-10">
-      
-      {/* --- INSTAGRAM REELS SECTION --- */}
+    <div className="space-y-12 border border-red-500">
+
+      {/* GLOBAL TOGGLE */}
+      <ToggleSwitch
+        label="Enable Video Showcase"
+        description="Show or hide video section on service page"
+        checked={form.videoShowcase.enabled}
+        onChange={(v) => updateShowcaseField("enabled", v)}
+      />
+
+      {/* =========================
+          INSTAGRAM REELS
+      ========================= */}
       <div className="space-y-4">
-        <div className="flex items-center justify-between border-b pb-2">
-          <div className="flex items-center gap-2 font-bold text-pink-600">
-            <FiInstagram size={20} /> <span>Instagram Reels</span>
-          </div>
-          <button type="button" onClick={() => addVideo("reels")} 
-            className="text-xs bg-pink-50 text-pink-600 px-3 py-1.5 rounded-lg font-bold hover:bg-pink-100 transition-all flex items-center gap-1">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h4 className="flex items-center gap-2 font-bold text-pink-600">
+            <FiInstagram /> Instagram Reels
+          </h4>
+          <button
+            type="button"
+            onClick={() => addItem("reels")}
+            className="text-xs bg-pink-50 text-pink-600 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1"
+          >
             <FiPlus /> Add Reel
           </button>
         </div>
 
-        {/* Horizontal Scroll for Reels */}
-        <div className="w-full flex flex-wrap gap-4 pb-6">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
           {form.videoShowcase.reels.map((reel: any, idx: number) => (
-            <div key={idx} className="w-full lg:w-40 bg-white rounded-2xl shadow-sm relative group">
-              <button onClick={() => removeVideo("reels", idx)} className="absolute -top-0 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg transition-all z-10">
-                <FiTrash2 size={14} />
+            <div key={idx} className="bg-white border border-gray-300 rounded-xl p-4 space-y-4 relative">
+              <button
+                onClick={() => removeItem("reels", idx)}
+                className="absolute top-2 right-2 text-red-500"
+              >
+                <FiTrash2 />
               </button>
-              
-              <div className="space-y-3">
-                <div className="relative w-40 mx-auto overflow-hidden rounded-2xl bg-gray-50 shadow-sm aspect-[9/16]">
-                  {reel.url ? (
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      {/* Iframe ko scale up (zoom) kar rahe hain aur position adjust kar rahe hain 
-                          taki Follow button aur footer cut jaye 
-                      */}
-                      <iframe
-                        src={`${getInstagramEmbedUrl(reel.url)}?utm_source=ig_web_copy_link`}
-                        className="absolute w-[120%] h-[150%] max-w-none border-none pointer-events-none"
-                        style={{
-                          top: "-25%", // Header/Follow button ko upar dhakelne ke liye
-                          left: "-10%",
-                        }}
-                        scrolling="no"
-                        allowTransparency={true}
-                        title="Instagram Reel Preview"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex flex-col items-center justify-center h-full gap-2">
-                      <FiInstagram className="text-gray-300" size={32} />
-                      <span className="text-[10px] text-gray-400 font-medium">No Preview</span>
-                    </div>
-                  )}
-                </div>
-                <div className="p-2">
-                  <input type="text" placeholder="Reel URL (e.g. https://...)" value={reel.url} onChange={(e) => updateVideo("reels", idx, "url", e.target.value)}
-                  className="w-full p-2 text-xs border-gray-200 rounded bg-gray-50 focus:ring-pink-500 focus:border-pink-500" />
-                  <input type="text" placeholder="Title (e.g. Modern Kitchen)" value={reel.title} onChange={(e) => updateVideo("reels", idx, "title", e.target.value)}
-                    className="w-full text-xs border-gray-200 focus:ring-pink-500 focus:border-pink-500 p-2 rounded bg-gray-50 " />
-                </div>
-              </div>
+
+              <ToggleSwitch
+                label="Featured Reel"
+                checked={reel.featured}
+                onChange={(v) => updateItem("reels", idx, "featured", v)}
+                className="mt-4"
+              />
+
+              <TextField
+                label="Order"
+                type="number"
+                value={String(reel.order)}
+                onChange={(e) =>
+                  updateItem("reels", idx, "order", Number(e.target.value))
+                }
+              />
+
+              <TextField
+                label="Instagram Reel URL"
+                value={reel.url}
+                onChange={(e) =>
+                  updateItem("reels", idx, "url", e.target.value)
+                }
+              />
+
+              {/* ✅ IMAGE UPLOAD FOR INSTAGRAM THUMBNAIL */}
+              <ImagePicker
+                value={reel.thumbnail || ""}
+                onChange={(file) =>
+                  updateItem("reels", idx, "thumbnail", file)
+                }
+              />
+
+              <TextField
+                label="Reel Title"
+                value={reel.title}
+                onChange={(e) =>
+                  updateItem("reels", idx, "title", e.target.value)
+                }
+              />
             </div>
           ))}
-          {form.videoShowcase.reels.length === 0 && <p className="text-xs text-gray-400 italic">No reels added yet.</p>}
         </div>
       </div>
 
-      {/* --- YOUTUBE VIDEOS SECTION --- */}
-      <div className="w-full space-y-4">
-        <div className="flex items-center justify-between border-b pb-2">
-          <div className="flex items-center gap-2 font-bold text-red-600">
-            <FiYoutube size={20} /> <span>YouTube Projects</span>
-          </div>
-          <button type="button" onClick={() => addVideo("youtube")}
-            className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold hover:bg-red-100 transition-all flex items-center gap-1">
+      {/* =========================
+          YOUTUBE VIDEOS
+      ========================= */}
+      <div className="space-y-4">
+        <div className="flex justify-between items-center border-b pb-2">
+          <h4 className="flex items-center gap-2 font-bold text-red-600">
+            <FiYoutube /> YouTube Videos
+          </h4>
+          <button
+            type="button"
+            onClick={() => addItem("youtube")}
+            className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded-lg font-bold flex items-center gap-1"
+          >
             <FiPlus /> Add Video
           </button>
         </div>
 
-        <div className="flex flex-wrap gap-4">
-          {form.videoShowcase.youtube.map((yt: any, idx: number) => (
-            <div key={idx} className="min-w-[320px] bg-white border border-gray-300 rounded-2xl p-4 shadow-sm relative group">
-              <button onClick={() => removeVideo("youtube", idx)} className="absolute -top-0 -right-2 bg-red-500 text-white p-1.5 rounded-full shadow-lg  transition-all z-10">
-                <FiTrash2 size={14} />
-              </button>
+      <div className="grid md:grid-cols-2 gap-6">
+        {form.videoShowcase.youtube.map((yt: any, idx: number) => (
+          <div
+            key={idx}
+            className="bg-white border border-gray-300 rounded-xl p-4 space-y-4 relative"
+          >
+            {/* REMOVE BUTTON */}
+            <button
+              onClick={() => removeItem("youtube", idx)}
+              className="absolute top-2 right-2 text-red-500"
+            >
+              <FiTrash2 />
+            </button>
 
-              <div className="space-y-3">
-                <div className="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center border">
-                  {yt.embedId ? (
-                    <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${yt.embedId}`} />
-                  ) : (
-                    <FiYoutube className="text-gray-700" size={40} />
-                  )}
+            {/* 🔥 YOUTUBE PREVIEW */}
+            <div className="w-full aspect-video rounded-lg overflow-hidden bg-black border mt-4 h-50">
+              {yt.embedId ? (
+                <iframe
+                  key={yt.embedId} // important: force refresh when id changes
+                  className="w-full h-full"
+                  src={`https://www.youtube.com/embed/${yt.embedId}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                  Paste YouTube URL to preview
                 </div>
-                <div className="flex gap-2">
-                  <input type="text" placeholder="YouTube Video ID (dQw4w9WgXcQ)" value={yt.embedId} onChange={(e) => updateVideo("youtube", idx, "embedId", e.target.value)}
-                    className="w-full text-xs border-gray-200 p-2 rounded bg-gray-50 focus:ring-red-500 focus:border-red-500" />
-                </div>
-                <input type="text" placeholder="Video Title" value={yt.title} onChange={(e) => updateVideo("youtube", idx, "title", e.target.value)}
-                  className="w-full text-xs border-gray-200 p-2 rounded bg-gray-50" />
-              </div>
+              )}
             </div>
-          ))}
-          {form.videoShowcase.youtube.length === 0 && <p className="text-xs text-gray-400 italic">No YouTube videos added yet.</p>}
-        </div>
+
+            {/* FEATURED */}
+            <ToggleSwitch
+              label="Featured Video"
+              checked={yt.featured}
+              onChange={(v) => updateItem("youtube", idx, "featured", v)}
+            />
+
+            {/* ORDER */}
+            <TextField
+              label="Order"
+              type="number"
+              value={String(yt.order)}
+              onChange={(e) =>
+                updateItem("youtube", idx, "order", Number(e.target.value))
+              }
+            />
+
+            {/* URL INPUT */}
+            <TextField
+              label="YouTube Video URL"
+              placeholder="https://youtube.com/watch?v=xxxx"
+              value={yt.embedId ? `https://youtube.com/watch?v=${yt.embedId}` : ""}
+              onChange={(e) =>
+                updateItem(
+                  "youtube",
+                  idx,
+                  "embedId",
+                  extractYoutubeEmbedId(e.target.value)
+                )
+              }
+            />
+
+            {/* TITLE */}
+            <TextField
+              label="Video Title"
+              value={yt.title}
+              onChange={(e) =>
+                updateItem("youtube", idx, "title", e.target.value)
+              }
+            />
+
+            {/* DESCRIPTION */}
+            <TextAreaField
+              label="Description"
+              value={yt.description}
+              maxLength={300}
+              onChange={(e) =>
+                updateItem("youtube", idx, "description", e.target.value)
+              }
+            />
+          </div>
+        ))}
       </div>
 
+      </div>
     </div>
   );
 }
 
 
-/**
- * Instagram URL se thumbnail URL generate karne ka function
- * @param url - Instagram reel ya post ki original link
- * @returns Thumbnail image ki string ya null
- */
-const getInstagramThumbnail = (url: string | undefined | null): string | null => {
-  if (!url || typeof url !== 'string') return null;
+function extractYoutubeEmbedId(url: string): string {
+  if (!url) return "";
 
-  try {
-    // URL ke query parameters hatane ke liye split ka use
-    const baseUrl: string = url.split("?")[0]; 
-    
-    // Check karna ki trailing slash hai ya nahi aur endpoint add karna
-    const cleanUrl: string = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-    
-    return `${cleanUrl}media/?size=m`;
-  } catch (error) {
-    console.error("Invalid URL provided to getInstagramThumbnail");
-    return null;
-  }
-};
+  const regex =
+    /(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
 
-
-/**
- * Instagram URL ko embed format mein convert karne ka function
- */
-const getInstagramEmbedUrl = (url: string | undefined | null): string | null => {
-  if (!url || typeof url !== 'string') return null;
-
-  try {
-    // Query params hata kar clean URL nikalna
-    const baseUrl = url.split("?")[0];
-    // Embed path add karna
-    const cleanUrl = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
-    return `${cleanUrl}embed`;
-  } catch (error) {
-    return null;
-  }
-};
+  const match = url.match(regex);
+  return match ? match[1] : "";
+}

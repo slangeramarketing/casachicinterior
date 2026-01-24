@@ -1,32 +1,76 @@
-import crypto from "crypto";
+/***************************************************
+ * File: modules/reviews/review.mapper.ts
+ * Layer: Mapper
+ *
+ * Purpose:
+ * - Converts Review DB records into Response DTOs
+ *
+ * Responsibilities:
+ * - Transform ObjectId → string
+ * - Transform Date → ISO string
+ *
+ * Restrictions:
+ * - Must NOT access database
+ * - Must NOT contain business logic
+ * - Must NOT perform validation
+ ***************************************************/
 
-export class ReviewMapper {
-  static toUI(review: any) {
-    // Email se MD5 hash banana Gravatar ke liye
-    const emailHash = crypto
-      .createHash("md5")
-      .update(review.clientEmail.toLowerCase())
-      .digest("hex");
+import { ReviewRecord } from "./review.types";
+import { ReviewResponseDTO } from "./review.dto";
 
+export const reviewMapper = {
+  /**
+   * Purpose:
+   * - Convert a single ReviewRecord into ReviewResponseDTO
+   *
+   * Used By:
+   * - Server Facade
+   * - Controller
+   *
+   * Returns:
+   * - Client-safe ReviewResponseDTO
+   */
+  toResponse(record: ReviewRecord): ReviewResponseDTO {
     return {
-      id: review._id.toString(),
-      name: review.clientName,
-      email: review.clientEmail,
-      location: review.clientLocation || "Valued Client",
-      // Agar clientAvatar nahi hai to Gravatar use karega
-      avatar: review.clientAvatar || `https://www.gravatar.com/avatar/${emailHash}?d=mp`,
-      rating: review.rating,
-      message: review.message,
-      status: review.status,
-      isFeatured: review.isFeatured,
-      serviceName: review.serviceId?.name || "Interior Service", // Populated field
-      serviceId: review.serviceId?._id || review.serviceId,
-      adminResponse: review.adminResponse || "",
-      date: review.createdAt ? new Date(review.createdAt).toLocaleDateString() : "",
-    };
-  }
+      id: record._id.toString(),
 
-  static toUIList(reviews: any[]) {
-    return reviews.map((review) => this.toUI(review));
-  }
-}
+      clientName: record.clientName,
+      clientEmail: record.clientEmail,
+      clientAvatar: record.clientAvatar,
+      clientLocation: record.clientLocation,
+
+      rating: record.rating,
+      message: record.message,
+
+      submissionSource: record.submissionSource,
+
+      status: record.status,
+      isFeatured: record.isFeatured,
+
+      serviceId: record.serviceId.toString(),
+      projectId: record.projectId
+        ? record.projectId.toString()
+        : undefined,
+
+      submittedAt: record.submittedAt
+        ? record.submittedAt.toISOString()
+        : undefined,
+      adminResponse:record.adminResponse,
+
+      createdAt: record.createdAt.toISOString(),
+      updatedAt: record.updatedAt.toISOString(),
+    };
+  },
+
+  /**
+   * Purpose:
+   * - Convert multiple ReviewRecords into DTO list
+   *
+   * Used By:
+   * - Admin dashboards
+   * - Listing APIs
+   */
+  toResponseList(records: ReviewRecord[]): ReviewResponseDTO[] {
+    return records.map(this.toResponse);
+  },
+};

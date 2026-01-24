@@ -11,6 +11,7 @@ import {
 import { MdOutlineCategory } from "react-icons/md";
 import defaultImg from "@/public/assets/default.jpg";
 import { useRouter } from "next/navigation";
+import { ShareButton } from "@/components/common/ShareButton";
 
 interface Props {
   blog: BlogResponseDTO;
@@ -100,7 +101,10 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
           {/* Social Share */}
           <div className="mt-8 p-6 bg-gray-50 rounded-2xl flex items-center justify-between">
             <span className="font-bold text-gray-800 flex items-center gap-2">
-              <FiShare2 /> Share this article:
+              <ShareButton
+                title={blog.title}
+                text={blog.summary}
+              /><p className="text-sm font-bold">this article</p>:
             </span>
             <div className="flex gap-4">
               <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm text-blue-600 hover:scale-110 transition-transform">
@@ -168,7 +172,7 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
           </div>
 
           {/* Newsletter / CTA */}
-          <div className="bg-orange-600 p-8 rounded-3xl text-white relative overflow-hidden group">
+          <div className="bg-orange-500 p-8 rounded-3xl text-white relative overflow-hidden group">
             <div className="relative z-10">
               <h3 className="text-2xl font-black mb-2">Upgrade Your Kitchen?</h3>
               <p className="text-orange-100 text-sm mb-6">Get expert modular kitchen tips delivered to your inbox.</p>

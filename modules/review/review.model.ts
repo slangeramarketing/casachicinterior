@@ -1,105 +1,138 @@
 import mongoose, { Schema, models, model } from "mongoose";
 
 /***************************************************
+ * File: modules/reviews/review.model.ts
  * Layer: Model
- * Context: Interior Design Project
- * Purpose: Feedback for Services (Kitchen, Wardrobe, etc.)
+ *
+ * Purpose:
+ * - Defines MongoDB schema for client reviews
+ * - Supports admin-generated review links (email / direct)
+ *
+ * Responsibilities:
+ * - Schema definition only
+ *
+ * Restrictions:
+ * - Must NOT contain business logic
+ * - Must NOT generate tokens
+ * - Must NOT validate workflows
  ***************************************************/
 
 const ReviewSchema = new Schema(
   {
     // --- Client Details ---
-    clientName: { 
-      type: String, 
-      required: true, 
-      trim: true 
-    },
-    clientEmail: { 
-      type: String, 
-      required: true, 
-      trim: true, 
-      lowercase: true 
-    },
-    // MD5 Gravatar ke liye ya client ki photo ke liye
-    clientAvatar: { 
+    clientName: {
       type: String,
-      default: ""
-    },
-    clientLocation: { 
-      type: String, 
-      placeholder: "e.g. Mumbai, BKC" // Interior projects mein location matter karti hai
+      required: true,
+      trim: true,
     },
 
-    // --- Connections (Interior Context) ---
-    // Kis service ke liye design kiya gaya (e.g., Living Room Design)
+    // Optional: only present when admin has email
+    clientEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+      index: true,
+    },
+
+    // Avatar URL or Gravatar hash (optional)
+    clientAvatar: {
+      type: String,
+      default: "",
+    },
+
+    clientLocation: {
+      type: String,
+      trim: true,
+    },
+
+    // --- Link Context ---
+    // Mandatory unique token used for review submission
+    reviewToken: {
+      type: String,
+      required: true,
+      unique: true,
+      index: true,
+    },
+
+    // How the review link was shared
+    submissionSource: {
+      type: String,
+      enum: ["email", "direct_link"],
+      required: true,
+    },
+
+    // --- Connections ---
     serviceId: {
       type: Schema.Types.ObjectId,
-      ref: "Service", 
+      ref: "Service",
       required: true,
-      index: true
+      index: true,
     },
-    // Future expansion: Jab project module banega (e.g., "The Sharma Villa")
+
+    // Future expansion (optional)
     projectId: {
       type: Schema.Types.ObjectId,
       ref: "Project",
-      required: false,
-      index: true
+      index: true,
     },
 
     // --- Review Content ---
-    rating: { 
-      type: Number, 
-      required: true, 
-      min: 1, 
+    rating: {
+      type: Number,
+      min: 1,
       max: 5,
-      default: 5 
-    },
-    message: { 
-      type: String, 
-      required: true, 
-      trim: true,
-      maxLength: 1000 
     },
 
-    // --- Admin Control & Workflow ---
-    status: { 
-      type: String, 
-      enum: ["pending", "approved", "rejected"], 
-      default: "pending",
-      index: true 
-    },
-    isFeatured: { 
-      type: Boolean, 
-      default: false, // Kya isse Homepage slider pe dikhana hai?
-      index: true 
-    },
-    
-    // Admin response (e.g. "Thank you for choosing our design services!")
-    adminResponse: { 
-      type: String, 
-      trim: true 
-    },
-
-    // --- Security & Link Generation ---
-    // Private link generate karne ke liye unique token
-    reviewToken: {
+    message: {
       type: String,
-      unique: true,
-      sparse: true 
+      trim: true,
+      maxLength: 1000,
     },
-    // Token kab expire hoga (Optional: for security)
+
+    // Actual time when client submits review
+    submittedAt: {
+      type: Date,
+    },
+
+    // --- Admin Workflow ---
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+      index: true,
+    },
+
+    isFeatured: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    adminResponse: {
+      type: String,
+      trim: true,
+    },
+
+    // --- Soft Delete ---
+    isDeleted: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    // --- Optional Security ---
     expiresAt: {
-      type: Date
-    }
+      type: Date,
+    },
   },
-  { 
-    timestamps: true 
+  {
+    timestamps: true,
   }
 );
 
-// Performance Indexing
-// Client email aur service ke basis par fast search ke liye
-ReviewSchema.index({ clientEmail: 1, serviceId: 1 });
+// --- Indexes ---
+ReviewSchema.index({ serviceId: 1, status: 1 });
 ReviewSchema.index({ createdAt: -1 });
 
-export const ReviewModel = models.Review || model("Review", ReviewSchema);
+export const ReviewModel =
+  models.Review || model("Review", ReviewSchema);

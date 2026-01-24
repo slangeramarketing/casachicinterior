@@ -1,9 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useRef } from "react";
-import { designSolutions } from "@/lib/data/designSolutions";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 interface HeaderProps {
   featuredServiceList:ServiceResponseDTO[];
@@ -70,7 +69,7 @@ export default function DesignSolutionsSection({featuredServiceList}:HeaderProps
               className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition"
             >
               <div className="relative w-full h-48">
-                <Image
+                <OptimizedImage
                   src={item.coverImage}
                   alt={item.title}
                   fill

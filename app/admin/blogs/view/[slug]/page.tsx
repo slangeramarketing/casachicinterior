@@ -1,9 +1,5 @@
 import { notFound } from "next/navigation";
 import { blogServer } from "@/modules/blogs/blog.server";
-import { blogCategoryServer } from "@/modules/blog-category/blog-category.server";
-import { UpdateBlogDTO } from "@/modules/blogs/blog.dto";
-import BlogForm from "@/components/admin/clientComponent/blogs/BlogForm";
-import { BlogCategoryResponseDTO } from "@/modules/blog-category/blog-category.dto";
 import { PageRouteHeader } from "@/components/common/PageHeader";
 import BlogDetail from "@/components/admin/clientComponent/blogs/BlogDetail";
 

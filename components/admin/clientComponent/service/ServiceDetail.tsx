@@ -1,9 +1,10 @@
-import Image from "next/image";
+"use client"
 import Link from "next/link";
 import { FiEdit2, FiCheckCircle, FiInfo, FiLayers, FiSearch, FiTag, FiHash, FiPlayCircle, FiInstagram, FiExternalLink, FiYoutube } from "react-icons/fi";
 import { PageRouteHeader } from "@/components/common/PageHeader";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import { getInteriorIconById } from "@/public/assets/constants-icons/interior-icons";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 interface AdminServiceDetailProps {
   service: ServiceResponseDTO;
@@ -41,7 +42,7 @@ export default function AdminServiceDetail({ service }: AdminServiceDetailProps)
             {/* 1. HERO PREVIEW */}
             <section className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-200">
               <div className="relative h-72 w-full">
-                <Image src={service.coverImage} alt={service.title} fill className="object-cover" />
+                <OptimizedImage src={service.coverImage} alt={service.title} fill className="object-cover" />
                 <div className="absolute top-4 left-4">
                   {service.featured && (
                     <span className="bg-yellow-400 text-xs font-bold px-3 py-1 rounded-full shadow-sm">⭐ FEATURED</span>
@@ -76,7 +77,7 @@ export default function AdminServiceDetail({ service }: AdminServiceDetailProps)
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {service.gallery.map((img, idx) => (
                   <div key={idx} className="group relative aspect-video rounded-lg overflow-hidden bg-gray-100 border">
-                    <Image src={img.url} alt={img.alt || ""} fill className="object-cover" />
+                    <OptimizedImage src={img.url} alt={img.alt || ""} fill className="object-cover" />
                     {img.caption && (
                       <div className="absolute inset-x-0 bottom-0 bg-black/60 p-1.5 opacity-0 group-hover:opacity-100 transition">
                         <p className="text-[10px] text-white truncate text-center">{img.caption}</p>
@@ -105,7 +106,7 @@ export default function AdminServiceDetail({ service }: AdminServiceDetailProps)
                         <div key={idx} className="min-w-[200px] max-w-[200px] group bg-gray-50 rounded-xl border p-3">
                           <div className="aspect-[9/16] bg-gradient-to-br from-purple-100 to-pink-50 rounded-lg mb-3 flex items-center justify-center border border-pink-100 overflow-hidden relative">
                             {reel.thumbnail ? (
-                              <Image src={reel.thumbnail} alt={reel.title || ""} fill className="object-cover" />
+                              <OptimizedImage src={reel.thumbnail} alt={reel.title || ""} fill className="object-cover" />
                             ) : (
                               <FiInstagram size={32} className="text-pink-200" />
                             )}

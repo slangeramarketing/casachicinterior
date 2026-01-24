@@ -19,6 +19,7 @@ import { MdCategory, MdOutlineCategory } from "react-icons/md";
 // --- Logic & Actions ---
 import { BlogCategoryResponseDTO } from "@/modules/blog-category/blog-category.dto";
 import { deleteBlogCategoryAction } from "@/app/actions/blog-category.action";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 type StatusFilter = "all" | "active" | "inactive";
 
@@ -106,7 +107,7 @@ export default function BlogCategoryList({ categories }: { categories: BlogCateg
             {/* 📸 Image & Info Section */}
             <div className="flex items-center gap-4">
               <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 shadow-sm flex-shrink-0">
-                <Image 
+                <OptimizedImage
                   src={category.coverImage || defaultImg} 
                   alt={category.name}
                   fill

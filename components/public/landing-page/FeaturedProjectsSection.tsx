@@ -1,6 +1,7 @@
 "use client";
 
-import Image from "next/image";
+
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { featuredProjects } from "@/lib/data/featuredProjects";
 import { motion } from "framer-motion";
 
@@ -67,7 +68,7 @@ export default function FeaturedProjectsSection() {
                     }`}
                   >
                     <div className="relative w-full max-w-[500px] h-64 rounded-xl overflow-hidden">
-                      <Image
+                      <OptimizedImage
                         src={project.image}
                         alt={project.title}
                         fill

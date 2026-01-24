@@ -95,7 +95,7 @@ export default function ContactSection() {
             className="space-y-6"
           >
             <ContactInfo icon={<FiMail />} title="Email Us" value="contact@casachicinterior.com" href="mailto:contact@casachicinterior.com" />
-            <ContactInfo icon={<FiPhone />} title="Call Us" value="+91 9123456789" href="tel:+919123456789" />
+            <ContactInfo icon={<FiPhone />} title="Call Us" value="+91 9123456789" href="tel:+918740990990" />
             <ContactInfo icon={<FiMapPin />} title="Visit Us" value="Delhi NCR, Noida Sector 62" />
             
             {/* Design Element */}

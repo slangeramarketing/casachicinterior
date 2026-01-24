@@ -35,27 +35,86 @@ const ServiceSchema = new Schema(
       caption: { type: String }
     }],
 
-  /* ---------------------------
-        Video Showcase (Flexible & Safe)
+    /* ---------------------------
+      Video Showcase (Feature Control Only)
     --------------------------- */
     videoShowcase: {
-      reels: {
-        type: [{
-          url: { type: String, trim: true },
-          thumbnail: { type: String },
-          title: { type: String, trim: true }
-        }],
-        default: [] // Khali array default rakhein
+      type: {
+        enabled: {
+          type: Boolean,
+          default: true, // 👈 section ON / OFF only
+        },
+
+        reels: {
+          type: [
+            {
+              url: {
+                type: String,
+                trim: true,
+                required: true,
+              },
+              thumbnail: {
+                type: String,
+                default: null,
+              },
+              title: {
+                type: String,
+                trim: true,
+                default: "",
+              },
+              featured: {
+                type: Boolean,
+                default: false,
+              },
+              order: {
+                type: Number,
+                default: 0,
+              },
+            },
+          ],
+          default: [],
+        },
+
+        youtube: {
+          type: [
+            {
+              embedId: {
+                type: String,
+                trim: true,
+                required: true,
+              },
+              title: {
+                type: String,
+                trim: true,
+                default: "",
+              },
+              description: {
+                type: String,
+                default: "",
+              },
+              featured: {
+                type: Boolean,
+                default: false,
+              },
+              order: {
+                type: Number,
+                default: 0,
+              },
+            },
+          ],
+          default: [],
+        },
       },
-      youtube: {
-        type: [{
-          embedId: { type: String, trim: true },
-          title: { type: String, trim: true },
-          description: { type: String }
-        }],
-        default: [] // Khali array default rakhein
-      }
+
+      // 👇 parent default (important)
+      default: {
+        enabled: true,
+        reels: [],
+        youtube: [],
+      },
     },
+
+
 
     /* ---------------------------
         FAQ (SEO Goldmine) 

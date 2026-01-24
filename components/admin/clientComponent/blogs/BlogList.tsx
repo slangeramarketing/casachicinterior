@@ -12,6 +12,9 @@ import BlogCard from "@/components/admin/clientComponent/blogs/BlogCard";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
 import { getGravatarUrl } from "@/lib/utils/gravatar";
+import ConfirmActionDialog from "../../ConfirmActionDialogProps";
+import { RiDeleteBin6Line } from "react-icons/ri";
+import { deleteBlogPostAction } from "@/app/actions/blog.action";
 
 interface BlogListProps {
   blogs: BlogResponseDTO[];
@@ -21,6 +24,7 @@ export default function BlogList({ blogs }: BlogListProps) {
   const router = useRouter();
   const [filter, setFilter] = useState<"az" | "za" | "new" | "old">("new");
   const [search, setSearch] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
   /* --- Search + Filter Logic --- */
   const filteredBlogs = useMemo(() => {
@@ -41,6 +45,10 @@ export default function BlogList({ blogs }: BlogListProps) {
 
     return data;
   }, [blogs, filter, search]);
+
+  async function  handleDelete(id:string){
+    return await deleteBlogPostAction(id);
+  };
 
   return (
     <div className="space-y-6 lg:px-8 py-6">
@@ -107,6 +115,7 @@ export default function BlogList({ blogs }: BlogListProps) {
               updatedAt={timeAgo(blog.updatedAt)}
               href={`/admin/blogs/view/${blog.slug}`}
               onEdit={()=>router.push(`/admin/blogs/${blog.id}`)}
+              onDelete={()=>handleDelete(blog.id)}
 
 
 
@@ -121,7 +130,11 @@ export default function BlogList({ blogs }: BlogListProps) {
               descriptionClassName="text-sm text-gray-500 line-clamp-2 my-2"
               readMoreClassName="hidden" // Handled by href
             />
+
+
           ))}
+
+
         </div>
       )}
     </div>

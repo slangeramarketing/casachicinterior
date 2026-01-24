@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import md5 from "md5";
+import { OptimizedImage } from "./OptimizedImage";
 
 /* =========================
    TYPES
@@ -61,7 +62,7 @@ export default function ReviewCard({ review }: { review: Review }) {
 
       {/* USER + RATING */}
       <div className="flex items-center gap-4 mt-6">
-        <Image
+        <OptimizedImage
           src={getGravatar(review.clientEmail)}
           alt={review.clientName}
           width={48}

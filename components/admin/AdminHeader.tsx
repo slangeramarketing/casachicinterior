@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { FiBell, FiMenu, FiSearch, FiX } from "react-icons/fi";
-import { FaUserCircle } from "react-icons/fa";
+import {FiMenu,FiX } from "react-icons/fi";
 import Link from "next/link";
 import AdminSidebar from "./Sidebar"; // Sidebar import zaroori hai
 import { getGravatarUrl } from "@/lib/utils/gravatar";
-import Image from "next/image";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 interface AdminHeaderProps {
   authUser: {
@@ -57,7 +56,7 @@ export default function AdminHeader({authUser}: AdminHeaderProps) {
       </div>
 
       {/* MAIN HEADER */}
-      <header className="h-16 px-8 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
+      <header className="w-full h-16 px-4 lg:px-8 flex items-center justify-between border-b border-gray-200 bg-white sticky top-0 z-10">
         {/* LEFT */}
         <div className="flex items-center gap-4">
           <button
@@ -83,7 +82,7 @@ export default function AdminHeader({authUser}: AdminHeaderProps) {
           href="/admin/users/profile"
           className="flex items-center gap-2 hover:opacity-80"
         >
-          <Image
+          <OptimizedImage
             src={avatarUrl}
             alt="User Avatar"
             width={40}

@@ -13,6 +13,7 @@ import CreateButton from "@/components/common/CreateButton";
 import { UserResponseDTO } from "@/modules/users/user.dto";
 import { deleteUserAction } from "@/app/actions/users.action";
 import { formatDateTime } from "@/lib/utils/formatDateTime";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 /* =========================
    GRAVATAR
@@ -51,7 +52,7 @@ export default function UsersClientPage({
       key: "profile",
       label: "Profile",
       render: (row) => (
-        <Image
+        <OptimizedImage
           src={getGravatar(row.email)}
           alt={row.name || "User"}
           width={40}

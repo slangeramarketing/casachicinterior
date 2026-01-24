@@ -1,9 +1,9 @@
 "use client";
-import Header from "@/components/public/Header";
-import Footer from "@/components/public/Footer";
 import { useEffect, useState } from "react";
 import { getFeaturedServicesAction } from "./actions/public.service.action";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
+import Header from "@/components/public/layouts/Header";
+import Footer from "@/components/public/layouts/Footer";
 
 
 export default  function ClientLayout({

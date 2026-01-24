@@ -1,4 +1,5 @@
-import Image from "next/image";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
+
 
 type ReviewPlatform = {
   name: string;
@@ -40,7 +41,7 @@ export default function ThirdPartyReviews() {
               key={platform.name}
               className="flex justify-center items-center grayscale hover:grayscale-0 transition"
             >
-              <Image
+              <OptimizedImage
                 src={platform.image}
                 alt={platform.alt}
                 width={90}

@@ -17,46 +17,60 @@ import VideoManager, {
   validateForm 
 } from "@/components/admin/clientComponent/service/ServiceFormHelperFiled"; // Path check kar lena agar folders alag hain
 import { createServiceAction, updateServiceAction } from "@/app/actions/service.action";
+import ImagePicker from "@/components/common/ImagePicker";
 
 
 export interface ServiceFormState {
   title: string;
   slug: string;
   shortDescription: string;
-  description: any; // Rich Text editor ka data
+  description: any;
   categoryId: string;
   displayOrder: number;
   status: "draft" | "published" | "archived";
   featured: boolean;
-  
-  // Media handling
-  coverImage: File | null;
+
+  // Media
+  coverImage: File |string | null;
+
   newGalleryFiles: { file: File; alt: string; caption: string }[];
-  // Interface mein update
   existingGallery: { url: string; alt?: string; caption?: string }[];
+
   videoShowcase: {
-    reels: Array<{ url: string; thumbnail?: string; title?: string }>;
-    youtube: Array<{ embedId: string; title?: string; description?: string }>;
+    enabled: boolean;
+
+    reels: Array<{
+      url: string;
+      title?: string;
+      order: number;
+      featured: boolean;
+      thumbnail: File | string | null; // 🔥 VERY IMPORTANT
+    }>;
+
+    youtube: Array<{
+      embedId: string;
+      title?: string;
+      description?: string;
+      order: number;
+      featured: boolean;
+    }>;
   };
 
   faqs: { question: string; answer: string }[];
 
-  // Pricing & Estimation (YE WALA MISSSING THA)
   startingPrice: number;
   priceUnit: string;
-  
-  // Lists
-  highlights: { icon: string; title: string }[]; 
-  
-  // SEO (Flattened for easier form binding)
+
+  highlights: { icon: string; title: string }[];
+
   metaTitle: string;
   metaDescription: string;
   metaKeywords: string;
-  
-  // Business
+
   ctaText: string;
   ctaLink: string;
 }
+
 
 
 
@@ -79,12 +93,16 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
     displayOrder: initialData?.displayOrder ?? 0,
     status: initialData?.status ?? "draft",
     featured: initialData?.featured ?? false,
-    coverImage: null as File | null,
+    coverImage: null as File |string | null,
     // Initial State update
     newGalleryFiles: [],
     // Initial state mein update
     existingGallery: initialData?.gallery ?? [],
-    videoShowcase: initialData?.videoShowcase || { reels: [], youtube: [] },
+    videoShowcase: initialData?.videoShowcase ?? {
+      enabled: true,
+      reels: [],
+      youtube: [],
+    },
     faqs: initialData?.faqs ?? [],
     startingPrice: initialData?.startingPrice ?? 0,
     priceUnit: initialData?.priceUnit ?? "sq ft",
@@ -130,10 +148,14 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
     try {
       // 2. Upload Cover
       let coverUrl = initialData?.coverImage || "";
-      if (form.coverImage) {
+      if (form.coverImage instanceof File) {
         coverUrl = await uploadImage(form.coverImage, "services");
         setProgress(40);
+      }else if (typeof form.coverImage === "string") {
+        coverUrl = form.coverImage; // server image reuse
       }
+
+
 
       // 3. Upload new gallery files with metadata
       const newGalleryUrls = await Promise.all(
@@ -154,6 +176,29 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
         ...newGalleryUrls
       ];
 
+
+      // --- Instagram Reel Thumbnail Upload ---
+      const processedReels = await Promise.all(
+        form.videoShowcase.reels.map(async (r) => {
+          let thumbnailUrl: string | null = null;
+
+          if (r.thumbnail instanceof File) {
+            thumbnailUrl = await uploadImage(r.thumbnail, "services");
+          } else if (typeof r.thumbnail === "string") {
+            thumbnailUrl = r.thumbnail;
+          }
+
+          return {
+            url: r.url,
+            title: r.title || "",
+            featured: r.featured,
+            order: r.order,
+            thumbnail: thumbnailUrl,
+          };
+        })
+      );
+
+
       // 5. Final Payload preparation
       const payloadData = {
         title: form.title,
@@ -164,37 +209,44 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
         displayOrder: Number(form.displayOrder),
         status: form.status,
         featured: form.featured,
+
         coverImage: coverUrl,
         gallery: finalGallery,
+
         videoShowcase: {
-          reels: form.videoShowcase.reels.map(r => ({
-            url: r.url,
-            thumbnail: r.thumbnail || "", // Optional: agar thumbnail nahi hai to empty string
-            title: r.title
-          })),
-          youtube: form.videoShowcase.youtube.map(y => ({
+          enabled: form.videoShowcase.enabled,
+
+          reels: processedReels,
+
+          youtube: form.videoShowcase.youtube.map((y) => ({
             embedId: y.embedId,
-            title: y.title,
-            description: y.description || ""
-          }))
+            title: y.title || "",
+            description: y.description || "",
+            featured: y.featured,
+            order: y.order,
+          })),
         },
-        highlights: form.highlights.map(h => ({ 
-          title: h.title, 
-          icon: h.icon 
-        })),
-        faqs: form.faqs, 
+
+        highlights: form.highlights,
+        faqs: form.faqs,
+
         startingPrice: Number(form.startingPrice),
         priceUnit: form.priceUnit,
+
         ctaText: form.ctaText,
         ctaLink: form.ctaLink,
+
         seo: {
           title: form.metaTitle,
           description: form.metaDescription,
-          keywords: form.metaKeywords.split(",").map(k => k.trim()).filter(Boolean),
-          metaRobots: "index, follow"
-        }
-
+          keywords: form.metaKeywords
+            .split(",")
+            .map((k) => k.trim())
+            .filter(Boolean),
+          metaRobots: "index, follow",
+        },
       };
+
 
       console.log("PayloadData: ",payloadData);
 
@@ -238,7 +290,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
       {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
 
       {/* STEP INDICATOR - Simplified for brevity */}
-      <div className="flex md:gap-4 gap-2">
+      <div className="flex md:gap-4 gap-2 w-full">
         {[1, 2, 3, 4, 5, 6, 7].map(num => (
           <button 
             key={num} 
@@ -283,15 +335,16 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
         )}
 
         {step === 3 && (
-          <div className="w-full space-y-8 animate-in slide-in-from-right duration-500">
+          <div className="w-full space-y-8 animate-in slide-in-from-right duration-500 border border-red-500">
             
             {/* 1. COVER IMAGE */}
             <div className="w-full md:p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
               <h3 className="text-sm font-bold text-gray-800 mb-4">Primary Branding</h3>
-              <ImageUpload 
+              <ImagePicker 
                 label="Cover Image (Primary)*" 
+                value={form.coverImage}
                 onChange={(file) => setForm({ ...form, coverImage: file })} 
-                wrapperClassName="w-full"
+                className="sm:w-full border-0"
               />
               {!form.coverImage && initialData?.coverImage && (
                 <div className="mt-3 p-2 bg-gray-50 rounded-lg flex items-center gap-3">
@@ -354,7 +407,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
               <button 
                 type="button"
                 onClick={() => setStep(4)}
-                className="px-8 py-2 bg-[#090F1A] text-white rounded-xl hover:bg-black transition-all text-sm font-medium shadow-lg"
+                className="px-8 py-2 bg-bg-primary text-white rounded-xl hover:bg-orange-600 transition-all text-sm font-medium shadow-lg"
               >
                 Next: SEO & Pricing
               </button>

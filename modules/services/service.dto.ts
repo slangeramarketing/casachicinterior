@@ -14,24 +14,33 @@
 
 
 /* -------------------------------------
-    Shared Sub-Interfaces
+   Video Showcase Sub-Interfaces
 ------------------------------------- */
+
 export interface ServiceVideoReelDTO {
   url: string;
-  thumbnail?: string;
+  thumbnail?: string | null;
   title?: string;
+
+  featured?: boolean;   // 👈 UI highlight
+  order?: number;       // 👈 reel ordering
 }
 
 export interface ServiceVideoYoutubeDTO {
   embedId: string;
   title?: string;
   description?: string;
+
+  featured?: boolean;   // 👈 UI highlight
+  order?: number;       // 👈 video ordering
 }
 
 export interface ServiceVideoShowcaseDTO {
+  enabled: boolean;        // 👈 section ON / OFF
   reels: ServiceVideoReelDTO[];
   youtube: ServiceVideoYoutubeDTO[];
 }
+
 
 
 /* -------------------------------------
@@ -86,12 +95,15 @@ export interface UpdateServiceDTO {
   title?: string;
   slug?: string;
   shortDescription?: string;
-  description?: any; // Rich Text support
+  description?: any;
   categoryId?: string;
-  
+
   coverImage?: string;
   gallery?: ServiceGalleryDTO[];
-  videoShowcase?: Partial<ServiceVideoShowcaseDTO>; // Optional field
+
+  // 👇 updated to match new structure
+  videoShowcase?: Partial<ServiceVideoShowcaseDTO>;
+
   highlights?: ServiceHighlightDTO[];
   faqs?: ServiceFaqDTO[];
 
@@ -108,6 +120,7 @@ export interface UpdateServiceDTO {
   ctaLink?: string;
 }
 
+
 /* -------------------------------------
    Service Response DTO (For UI)
 ------------------------------------- */
@@ -120,9 +133,12 @@ export interface ServiceResponseDTO {
 
   coverImage: string;
   gallery: ServiceGalleryDTO[];
-  videoShowcase: ServiceVideoShowcaseDTO; // UI hamesha empty array expect karega undefined nahi
+
+  // 👇 always present (backend ensures default)
+  videoShowcase: ServiceVideoShowcaseDTO;
+
   highlights: ServiceHighlightDTO[];
-  category: ServiceCategorySummaryDTO; 
+  category: ServiceCategorySummaryDTO;
   categoryId: string;
   faqs: ServiceFaqDTO[];
 

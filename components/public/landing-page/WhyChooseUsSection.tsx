@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import {
   whyChooseUsData,
   positionClasses,
 } from "@/lib/data/whyChooseUs";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 /* -----------------------------
    Animation constants (TS-safe)
@@ -36,7 +36,7 @@ export default function WhyChooseUsSection() {
 
           {/* CENTER */}
           <div className="relative z-10 bg-white rounded-full w-[360px] h-[360px] flex flex-col items-center justify-center text-center shadow-lg px-4">
-            <Image
+            <OptimizedImage
               src="/media/static/why-choose-men.png"
               alt="Why Choose Us"
               width={150}
@@ -82,7 +82,7 @@ export default function WhyChooseUsSection() {
         ========================== */}
         <div className="lg:hidden w-full">
           <div className="text-center mb-12">
-            <Image
+            <OptimizedImage
               src="/media/static/why-choose-men.png"
               alt="Why Choose Us"
               width={140}

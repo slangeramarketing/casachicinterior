@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
+
 import { useState } from "react";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 type Props = {
   images: string[];
@@ -24,7 +25,7 @@ export default function ProjectGallery({ images }: Props) {
     <div className="space-y-4 w-full">
       {/* MAIN IMAGE */}
       <div className="relative w-full h-[420px] rounded-xl overflow-hidden bg-gray-100">
-        <Image
+        <OptimizedImage
           src={validImages[active]}
           alt="Project image"
           fill
@@ -46,7 +47,7 @@ export default function ProjectGallery({ images }: Props) {
                 : "border-gray-300"
             }`}
           >
-            <Image
+            <OptimizedImage
               src={img}
               alt="thumbnail"
               fill

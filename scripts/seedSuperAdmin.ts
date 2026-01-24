@@ -25,7 +25,7 @@ async function seedSuperAdmin() {
   console.log("MONGO URI =", process.env.MONGODB_URI);
 
   const exists = await User.findOne({
-    email: "admin@gmail.com",
+    email: "427rohitkumar@gmail.com",
   });
 
   if (exists) {

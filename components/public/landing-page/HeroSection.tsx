@@ -1,7 +1,7 @@
 "use client";
 
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Link from "next/link";
 
 export default function HeroSection() {
@@ -18,7 +18,7 @@ export default function HeroSection() {
           ease: [0.16, 1, 0.3, 1],
         }}
       >
-        <Image
+        <OptimizedImage
           src="/media/static/hero-wallpaper.png"
           alt="Luxury interior design"
           fill

@@ -28,6 +28,7 @@ export async function loginService(
   await db();   // before mongoose queries;
   const user = await authRepository.findByEmailWithPassword(dto.email);
 
+
   if (!user) {
     throw new Error("INVALID_CREDENTIALS");
   }
@@ -46,6 +47,8 @@ export async function loginService(
     dto.password,
     user.passwordHash
   );
+
+
 
 
   if (!isValidPassword) {

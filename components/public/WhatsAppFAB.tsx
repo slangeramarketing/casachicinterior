@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import whatsapp from "@/public/media/static/whatsapp.svg"
+import { OptimizedImage } from "../common/OptimizedImage";
 
 interface WhatsAppFABProps {
   phoneNumber: string; // with country code, example: 919876543210
@@ -26,7 +27,7 @@ export default function WhatsAppFAB({
     >
       <span className="pulse-ring"></span>
 
-      <Image
+      <OptimizedImage
         src={whatsapp}
         alt="WhatsApp"
         width={28}

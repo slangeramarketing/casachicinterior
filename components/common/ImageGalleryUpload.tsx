@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState, ChangeEvent } from "react";
-import Image from "next/image";
 import defaultImg from "@/public/assets/default.jpg";
+import { OptimizedImage } from "./OptimizedImage";
 
 /***************************************************
  * ImageGalleryUpload
@@ -142,7 +142,7 @@ export default function ImageGalleryUpload({
         className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4 ${gridClassName}`}
       >
         {previews.length === 0 && (
-          <Image
+          <OptimizedImage
             src={defaultImg}
             alt="Placeholder"
             width={120}
@@ -153,7 +153,7 @@ export default function ImageGalleryUpload({
 
         {previews.map((src, index) => (
           <div key={index} className="relative group">
-            <Image
+            <OptimizedImage
               src={src}
               alt={`Preview ${index + 1}`}
               width={150}

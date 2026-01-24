@@ -1,7 +1,8 @@
 "use client";
 
-import Image from "next/image";
+
 import md5 from "md5";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 /* =========================
    TYPES
@@ -35,7 +36,7 @@ export default function ProfilePage({ user }: { user: ProfileUser }) {
 
         {/* HEADER */}
         <div className="flex items-center gap-6">
-          <Image
+          <OptimizedImage
             src={getGravatar(user.email)}
             alt={user.name}
             width={96}

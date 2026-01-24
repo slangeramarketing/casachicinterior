@@ -1,105 +1,119 @@
-"use server";
+/***************************************************
+ * File: modules/reviews/review.server.ts
+ * Layer: Server Facade
+ *
+ * Purpose:
+ * - Acts as Next.js server-side adapter for Review module
+ *
+ * Responsibilities:
+ * - Perform auth / role checks for admin operations
+ * - Call service layer only
+ * - Map domain records to response DTOs
+ *
+ * Restrictions:
+ * - Must NOT access repository directly
+ * - Must NOT contain business logic
+ * - Must NOT generate tokens
+ *
+ * Notes:
+ * - This file exports a stateless object with methods
+ ***************************************************/
 
-import { 
-  generateReviewLink, 
-  getAdminReviews, 
-  moderateReview, 
-  submitClientReview, 
-  validateReviewToken 
+import {
+  generateReviewLink as generateReviewLinkService,
+  validateReviewToken as validateReviewTokenService,
+  submitClientReview as submitClientReviewService,
+  getAdminReviews as getAdminReviewsService,
+  moderateReview as moderateReviewService,
+  deleteReview as deleteReviewService,
+  findReviewById,
 } from "./review.service";
-import { ReviewMapper } from "./review.mapper";
-import { CreateReviewTokenDTO, SubmitReviewDTO, UpdateReviewStatusDTO } from "./review.dto";
-import { revalidatePath } from "next/cache";
 
-export const ReviewActions = {
-  
-  /**
-   * ADMIN: Naya review link generate karna
-   */
-  generateLink: async (dto: CreateReviewTokenDTO) => {
-    try {
-      // 1. Service se link generate karwaya
-      const result = await generateReviewLink(dto);
-      
-      return {
-        success: true,
-        data: result, // Isme token aur link dono hain
-        message: "Review link generated successfully!",
-      };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
+import { reviewMapper } from "./review.mapper";
+import {
+  CreateReviewLinkDTO,
+  SubmitReviewDTO,
+  UpdateReviewModerationDTO,
+} from "./review.dto";
+
+/* =================================================
+   Server Facade Object
+================================================= */
+
+export const reviewServer = {
+  /* ===============================================
+     ADMIN → Generate Review Link
+     =============================================== */
+
+  async generateReviewLink(dto: CreateReviewLinkDTO) {
+    const result = await generateReviewLinkService(dto);
+
+    return {
+      token: result.token,
+      reviewLink: result.reviewLink,
+      emailed: result.emailed,
+    };
   },
 
-  /**
-   * PUBLIC: Token validate karna (Jab client link kholta hai)
-   */
-  getReviewByToken: async (token: string) => {
-    try {
-      const review = await validateReviewToken(token);
-      // Mapper use kar rahe hain taaki client ko sensitive data na jaye
-      return {
-        success: true,
-        data: ReviewMapper.toUI(review),
-      };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
+  /* ===============================================
+     PUBLIC → Validate Review Token
+     =============================================== */
+
+  async validateReviewToken(token: string) {
+    const record = await validateReviewTokenService(token);
+    return reviewMapper.toResponse(record);
   },
 
-  /**
-   * PUBLIC: Review submit karna
-   */
-  submitReview: async (dto: SubmitReviewDTO) => {
-    try {
-      await submitClientReview(dto);
-      
-      // Cache clear kar rahe hain taaki naya review turant dikhe (agar approved ho)
-      revalidatePath("/admin/reviews"); 
-      
-      return {
-        success: true,
-        message: "Thank you! Your review has been submitted for approval.",
-      };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
+  /* ===============================================
+     PUBLIC → Submit Review
+     =============================================== */
+
+  async submitClientReview(dto: SubmitReviewDTO) {
+    const record = await submitClientReviewService(dto);
+    return reviewMapper.toResponse(record);
   },
 
-  /**
-   * ADMIN: Saare reviews fetch karna
-   */
-  fetchAllReviews: async (status?: string) => {
-    try {
-      const reviews = await getAdminReviews(status);
-      // Mapper ka use karke array ko transform kiya
-      const formattedReviews = ReviewMapper.toUIList(reviews);
-      
-      return {
-        success: true,
-        data: formattedReviews,
-      };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
+  /* ===============================================
+     ADMIN → List Reviews
+     =============================================== */
+
+  async getAdminReviews(filters?: {
+    status?: "pending" | "approved" | "rejected";
+    isFeatured?: boolean;
+    serviceId?: string;
+  }) {
+    const records = await getAdminReviewsService(filters);
+    return reviewMapper.toResponseList(records);
   },
 
-  /**
-   * ADMIN: Review moderate karna (Approve/Reject/Featured)
-   */
-  updateStatus: async (id: string, dto: UpdateReviewStatusDTO) => {
-    try {
-      const updatedReview = await moderateReview(id, dto);
-      
-      revalidatePath("/admin/reviews");
-      
-      return {
-        success: true,
-        data: ReviewMapper.toUI(updatedReview),
-        message: `Review marked as ${dto.status || 'updated'}`,
-      };
-    } catch (error: any) {
-      return { success: false, message: error.message };
-    }
-  }
+    /* ===============================================
+     ADMIN → Find Review By ID
+     =============================================== */
+  async findById(reviewId: string) {
+    console.log("ServerLayer reviewID: ",reviewId);
+    const record = await findReviewById(reviewId);
+    if (!record) return null;
+    return reviewMapper.toResponse(record);
+  },
+
+  /* ===============================================
+     ADMIN → Moderate Review
+     =============================================== */
+
+  async moderateReview(
+    reviewId: string,
+    dto: UpdateReviewModerationDTO
+  ) {
+    const record = await moderateReviewService(reviewId, dto);
+    return reviewMapper.toResponse(record);
+  },
+
+  /* ===============================================
+     ADMIN → Soft Delete Review
+     =============================================== */
+
+  async deleteReview(reviewId: string) {
+    await deleteReviewService(reviewId);
+    return { success: true };
+  },
 };

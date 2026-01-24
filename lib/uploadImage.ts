@@ -20,6 +20,8 @@ export async function uploadImage(
 
   const data = await res.json();
 
+  console.log("JSON Upload-Image API Response: ",data);
+
   if (!res.ok || !data.success) {
     throw new Error(data?.message || "Image upload failed");
   }

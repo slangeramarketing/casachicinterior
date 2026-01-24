@@ -1,5 +1,5 @@
 // components/public/CategorySlider.tsx
-import Image from "next/image";
+import { OptimizedImage } from "../common/OptimizedImage";
 
 export default function CategorySlider({ categories, activeCategory, onCategoryChange }: any) {
   return (
@@ -23,13 +23,13 @@ export default function CategorySlider({ categories, activeCategory, onCategoryC
         {/* Categories from DB */}
         {categories.map((cat: any) => (
           <div 
-            key={cat._id}
+            key={cat.id}
             onClick={() => onCategoryChange(cat.slug)}
             className="flex-shrink-0 cursor-pointer group text-center"
           >
             <div className={`relative w-16 h-16 rounded-2xl overflow-hidden border-2 transition-all
               ${activeCategory === cat.slug ? "border-orange-500 scale-105 shadow-lg shadow-orange-100" : "border-neutral-100 opacity-70 group-hover:opacity-100"}`}>
-              <Image 
+              <OptimizedImage
                 src={cat.coverImage || "/placeholder-cat.jpg"} 
                 alt={cat.name} 
                 fill 

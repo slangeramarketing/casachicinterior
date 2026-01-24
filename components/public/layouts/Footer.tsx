@@ -39,10 +39,10 @@ export default function Footer({featuredServiceList}:HeaderProps) {
             </p>
 
             <div className="flex gap-4 text-lg">
-              <Link href="#" aria-label="Facebook">
+              <Link href="https://www.facebook.com/share/p/17wLP8x3zK/" aria-label="Facebook">
                 <FiFacebook className="hover:text-orange-400 transition" />
               </Link>
-              <Link href="#" aria-label="Instagram">
+              <Link href="https://www.instagram.com/casa.chic_interior?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" aria-label="Instagram">
                 <FiInstagram className="hover:text-orange-400 transition" />
               </Link>
             </div>
@@ -84,21 +84,28 @@ export default function Footer({featuredServiceList}:HeaderProps) {
               Contact Us
             </h3>
             <ul className="space-y-4 text-sm">
-              <li className="flex items-center gap-3">
+              <Link href={`tel:+918740990990`} className="flex items-center gap-3">
+                 <li className="flex items-center gap-3">
                 <FiPhone className="text-orange-400" />
                 +91 87409 90990
               </li>
+              </Link>
               <li className="flex items-center gap-3">
-                <FiMail className="text-orange-400" />
+                <Link href={`mailto:contact@casachicinterior.com`} className="flex items-center gap-3">
+                   <FiMail className="text-orange-400" />
                 contact@casachicinterior.com
+                </Link>
+                
               </li>
               <li className="flex items-center gap-3">
-                <FiMail className="text-orange-400" />
+                <Link href={`mailto:info@casachicinterior.com`} className="flex items-center gap-3">
+                   <FiMail className="text-orange-400" />
                 info@casachicinterior.com
+                </Link>  
               </li>
               <li className="flex items-center gap-3">
                 <FiMapPin className="text-orange-400" />
-                Noida
+                Delhi NCR, Noida Sector 62
               </li>
             </ul>
           </div>

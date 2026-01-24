@@ -13,44 +13,63 @@
  * - Must NOT contain formatting logic
  * - Must NOT be exposed to UI
  ***************************************************/
+
 import { Types } from "mongoose";
 
-// Raw Database Record (As stored in MongoDB)
+// Raw Database Record
 export interface ServiceRecord {
   _id: Types.ObjectId;
+
   slug: string;
   title: string;
   shortDescription: string;
-  description: any; 
-  categoryId: Types.ObjectId; // Plain ObjectId
+  description: any;
+
+  categoryId: Types.ObjectId;
+
   coverImage: string;
+
   gallery: {
     url: string;
     alt?: string;
     caption?: string;
   }[];
+
   videoShowcase: {
+    enabled: boolean;        // 👈 feature toggle
+
     reels: {
       url: string;
-      thumbnail?: string;
+      thumbnail?: string | null;
       title?: string;
+
+      featured?: boolean;   // 👈 reel highlight
+      order?: number;       // 👈 reel ordering
     }[];
+
     youtube: {
       embedId: string;
       title?: string;
       description?: string;
+
+      featured?: boolean;   // 👈 video highlight
+      order?: number;       // 👈 video ordering
     }[];
   };
+
   highlights: {
     icon: string;
     title: string;
   }[];
+
   faqs: {
     question: string;
     answer: string;
   }[];
+
   startingPrice?: number;
   priceUnit: string;
+
   seo: {
     title?: string;
     description?: string;
@@ -58,16 +77,19 @@ export interface ServiceRecord {
     ogImage?: string;
     metaRobots: string;
   };
+
   featured: boolean;
   status: "draft" | "published" | "archived";
   displayOrder: number;
+
   ctaText: string;
   ctaLink: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
-// Populated Category ka interface (Sirf selective fields jo repository fetch karegi)
+// Populated Category
 export interface PopulatedCategory {
   _id: Types.ObjectId;
   name: string;
@@ -75,7 +97,8 @@ export interface PopulatedCategory {
   icon?: string;
 }
 
-// Final Populated Record Type
-export interface ServiceWithPopulatedCategory extends Omit<ServiceRecord, "categoryId"> {
-  categoryId: PopulatedCategory; // categoryId ab ek string nahi, object hai
+// Final populated record
+export interface ServiceWithPopulatedCategory
+  extends Omit<ServiceRecord, "categoryId"> {
+  categoryId: PopulatedCategory;
 }
