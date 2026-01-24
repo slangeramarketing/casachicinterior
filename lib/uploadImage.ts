@@ -6,13 +6,7 @@ export async function uploadImage(
   formData.append("file", file);
   formData.append("type", type);
 
-  // 🔥 IMPORTANT: absolute URL for server actions
-  const baseUrl =
-    process.env.NEXT_PUBLIC_APP_URL ||
-    process.env.VERCEL_URL && `https://${process.env.VERCEL_URL}` ||
-    "http://localhost:3000";
-
-  const res = await fetch(`${baseUrl}/api/uploads`, {
+  const res = await fetch(`/api/uploads`, {
     method: "POST",
     body: formData,
     cache: "no-store",

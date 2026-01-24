@@ -17,7 +17,7 @@ export function buildNewContactEmail(
   data: NewContactEmailInput
 ): string {
 
-  const BASE_URL = process.env.PUBLIC_SITE_URL || "https://casachicinterior.com";
+  const BASE_URL = process.env.PUBLIC_SITE_URL || "https://staging.casachicinterior.in";
   return `
 <!DOCTYPE html>
 <html>

@@ -15,6 +15,8 @@ type ReplyToClientEmailInput = {
 export function buildReplyToClientEmail(
   data: ReplyToClientEmailInput
 ): string {
+
+  const BASE_URL = process.env.PUBLIC_SITE_URL || "https://staging.casachicinterior.in";
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +39,7 @@ export function buildReplyToClientEmail(
           <tr>
             <td>
               <img
-                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c"
+                src="${BASE_URL}/assets/contactEmailBanner.png"
                 alt="Interior Design"
                 width="600"
                 height="200"

@@ -8,9 +8,6 @@ export async function POST(req: NextRequest) {
     const file = formData.get("file") as File | null;
     const type = (formData.get("type") as string) || "common";
 
-    console.log("API FILE UPLOAD DATA: ",file);
-    console.log("API FILE UPLOAD TYPE DATA: ",type);
-
     if (!file) {
       return NextResponse.json(
         { success: false, message: "No file uploaded" },
@@ -50,7 +47,7 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     return NextResponse.json(
-      { success: false, message: error instanceof Error ? error.message : "Upload failed" },
+      { success: false, message: "Upload failed" },
       { status: 500 }
     );
   }

@@ -21,8 +21,6 @@ async function db():Promise<void>{
     }
 
     const uri = process.env.MONGODB_URI;
-        console.log("Mongoose URI: ",uri);
-
 
 
     try{
