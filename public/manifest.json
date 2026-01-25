@@ -3,7 +3,7 @@
   "short_name": "CasaChic Admin",
   "description": "CasaChic Interior Admin Dashboard",
   "start_url": "/auth/login",
-  "scope": "/admin",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#F97316",

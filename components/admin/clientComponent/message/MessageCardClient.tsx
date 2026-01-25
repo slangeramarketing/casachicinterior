@@ -6,7 +6,7 @@ import MessageCard from "@/components/admin/MessageCard";
 import FilterDropdown from "@/components/common/FilterDropdown";
 import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
 import SearchInput from "@/components/common/SearchInput";
-import { replyMessageAction } from "@/app/admin/message/actions/reply-message.action";
+import { replyMessageAction } from "@/app/(pwa)/admin/message/actions/reply-message.action";
 
 /* =========================
    TYPES

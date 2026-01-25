@@ -7,7 +7,7 @@ import { requireRole } from "@/lib/auth";
 
 import AdminSidebar from "@/components/admin/Sidebar";
 import AdminHeader from "@/components/admin/AdminHeader";
-import { getAuthenticatedUser } from "../actions/users.action";
+import { getAuthenticatedUser } from "../../actions/users.action";
 
 export default async function AdminLayout({
   children,
