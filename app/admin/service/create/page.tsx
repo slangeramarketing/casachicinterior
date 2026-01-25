@@ -30,7 +30,7 @@ export default async function CreateServiceServerPage() {
   const categories = await serviceCategoryServer.getAll();
 
   return (
-    <div className="pb-24">
+    <div className="pb-24 p-4">
       <ServiceForm
         mode="create"
         categories={categories}

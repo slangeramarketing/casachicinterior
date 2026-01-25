@@ -15,9 +15,9 @@ export default function AdminServiceDetail({ service }: AdminServiceDetailProps)
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* ================= ADMIN TOP BAR ================= */}
       <div className="bg-white border-b top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 grid md:grid-cols-2 gap-4 grid-cols-1 justify-between items-center">
           <PageRouteHeader />
-          <div className="flex items-center gap-4">
+          <div className="flex justify-end items-center gap-4">
             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase ${
               service.status === 'published' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'
             }`}>

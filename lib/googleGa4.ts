@@ -73,10 +73,13 @@ export async function fetchGa4DashboardData() {
     analyticsClient.runReport({
       property: `properties/${propertyId}`,
       dateRanges: [{ startDate: "7daysAgo", endDate: "today" }],
-      dimensions: [{ name: "pageReferrer" }],
+      dimensions: [
+        { name: "sessionSource" },
+        { name: "sessionMedium" }
+      ],
       metrics: [{ name: "activeUsers" }],
-      dimensionFilter: excludeAdminFilter,
     }),
+
   ]);
 
   return {

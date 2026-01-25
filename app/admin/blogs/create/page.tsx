@@ -21,9 +21,9 @@ export default async function CreateBlogServerPage() {
 
 
   return (
-    <div className="lg:max-w-7xl mx-auto py-6 lg:px-4">
+    <div className="lg:max-w-7xl mx-auto py-6 md:px-4">
       {/* Page Header */}
-      <div className="mb-6">
+      <div className="mb-6 p-4">
         <PageRouteHeader/>
         <h1 className="text-2xl font-bold text-gray-800">Create New Post</h1>
         <p className="text-sm text-gray-500">Share your thoughts with the world. Draft or publish immediately.</p>

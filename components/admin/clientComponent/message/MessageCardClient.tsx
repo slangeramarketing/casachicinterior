@@ -86,8 +86,8 @@ export default function MessageCardClient({messages}:Props) {
 
 
   return (
-    <section className="min-h-screen px-4 sm:p-6">
-      <div className="w-full flex justify-between pb-2">
+    <section className="min-h-screen px-4 py-6 sm:p-6">
+      <div className="w-full flex md:flex-row flex-col md:gap-0 gap-4 justify-between pb-2">
         <PageRouteHeader />
         <div className="flex gap-4">
           <SearchInput

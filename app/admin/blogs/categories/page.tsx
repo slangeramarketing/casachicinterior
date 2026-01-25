@@ -15,7 +15,7 @@ export default async function ListBlogCategoriesServerPage() {
     console.log("Blog Category",categories);
 
   return (
-    <div className="lg:px-8 py-6">
+    <div className="max-w-dvw:px-8 py-6">
       {/* Ab humein onDelete prop pass karne ki zaroorat nahi kyunki client khud handle karega */}
       <BlogCategoryList categories={categories} />
     </div>

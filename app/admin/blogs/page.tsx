@@ -16,7 +16,7 @@ export default async function AdminBlogsPage() {
 
   // Ab result.data ek Array hai (BlogResponseDTO[])
   return (
-    <div>
+    <div className="p-3 md:p-4">
       <BlogList 
         blogs={result.data || []} 
       />

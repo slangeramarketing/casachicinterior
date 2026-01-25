@@ -1,8 +1,8 @@
 "use client";
 
 
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import md5 from "md5";
-import { OptimizedImage } from "../common/OptimizedImage";
 
 /* =========================
    TYPES
@@ -35,7 +35,7 @@ export default function ProfilePage({ user }: { user: ProfileUser }) {
       <div className="w-full max-w-3xl bg-white rounded-2xl shadow border border-gray-300 p-8">
 
         {/* HEADER */}
-        <div className="flex items-center gap-6">
+        <div className="flex md:flex-row flex-col justify-center md:justify-items-start items-center gap-6">
           <OptimizedImage
             src={getGravatar(user.email)}
             alt={user.name}
@@ -44,12 +44,12 @@ export default function ProfilePage({ user }: { user: ProfileUser }) {
             className="rounded-full border"
           />
 
-          <div>
-            <h1 className="text-2xl font-semibold text-gray-800">
+          <div className="flex flex-col justify-center md:justify-items-start items-center md:items-start">
+            <h1 className="text-sm md:text-2xl font-semibold text-gray-800">
               {user.name}
             </h1>
 
-            <p className="text-gray-500">{user.email}</p>
+            <p className="text-gray-500 text-xs md:text-lg">{user.email}</p>
 
             <div className="flex gap-2 mt-2">
               <Badge label={user.role} />

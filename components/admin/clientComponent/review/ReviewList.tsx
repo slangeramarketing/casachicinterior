@@ -26,6 +26,7 @@ import CreateButton from "@/components/common/CreateButton";
 import { useRouter } from "next/navigation";
 import { ReviewResponseDTO } from "@/modules/review/review.dto";
 import { MdOutlineReviews } from "react-icons/md";
+import { PageRouteHeader } from "@/components/common/PageHeader";
 
 type StatusType = "all" | "pending" | "approved" | "rejected";
 
@@ -94,6 +95,7 @@ export default function ReviewList({ reviews }: ReviewListProps) {
       {/* TOOLBAR */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
         <div className="flex-1 max-w-md">
+            <PageRouteHeader/>
           <SearchInput
             value={searchQuery}
             onChange={setSearchQuery}

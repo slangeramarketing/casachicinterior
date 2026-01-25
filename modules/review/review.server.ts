@@ -86,6 +86,19 @@ export const reviewServer = {
     return reviewMapper.toResponseList(records);
   },
 
+  /* ===============================================
+   PUBLIC → Featured Approved Reviews
+   =============================================== */
+
+  async getPublicFeaturedReviews() {
+    const records = await getAdminReviewsService({
+      status: "approved",
+      isFeatured: true,
+    });
+
+    return reviewMapper.toResponseList(records);
+  },
+
     /* ===============================================
      ADMIN → Find Review By ID
      =============================================== */

@@ -44,7 +44,7 @@ export function GalleryManager({
         
         {/* --- 1. EXISTING IMAGES --- */}
         {existingItems.map((item, idx) => (
-          <div key={item.url} className="md:w-80 h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-green-100">
+          <div key={item.url} className="w-full h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-green-100">
             <div className="relative aspect-video bg-gray-100">
               <img src={item.url} className="object-cover w-full h-full" />
               <button onClick={() => onRemoveExisting(item.url)} className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full shadow-lg text-xs">✕</button>
@@ -69,7 +69,7 @@ export function GalleryManager({
 
         {/* --- 2. NEW SELECTED IMAGES (With Inputs) --- */}
         {newImages.map((item, idx) => (
-          <div key={idx} className="md:w-80 h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-orange-200 ring-1 ring-orange-100">
+          <div key={idx} className="w-full h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-orange-200 ring-1 ring-orange-100">
             <div className="relative aspect-video bg-gray-100">
               <img src={URL.createObjectURL(item.file)} className="object-cover w-full h-full" />
               <button onClick={() => onRemoveNew(idx)} className="absolute top-2 right-2 bg-gray-800 text-white p-1 rounded-full shadow-lg text-xs">✕</button>
@@ -93,7 +93,7 @@ export function GalleryManager({
         ))}
 
         {/* --- 3. ADD BUTTON --- */}
-        <label className="md:w-80 h-80 aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-orange-50 hover:border-orange-400 transition-all group">
+        <label className="w-full h-80 aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-orange-50 hover:border-orange-400 transition-all group">
           <span className="text-3xl text-gray-400 group-hover:text-orange-500 group-hover:scale-110 transition-transform">+</span>
           <span className="text-xs font-semibold text-gray-500 group-hover:text-orange-500">Upload Images</span>
           <input 
@@ -130,10 +130,10 @@ export function HighlightsManager({ items, onChange }: {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="grid grid-cols-1 space-y-4">
       <label className="text-sm font-semibold text-gray-700">Service Highlights</label>
       
-      <div className="md:flex md:flex-col grid grid-cols-2 items-end gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
+      <div className="grid grid-cols-1 md:grid-cols-2 items-end gap-3 bg-gray-50 p-3 rounded-lg border border-dashed border-gray-300">
         <div className="md:flex-none w-full">
           <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Pick Icon</label>
           {/* Aapka Icon Picker Component */}
@@ -159,7 +159,7 @@ export function HighlightsManager({ items, onChange }: {
           <button 
             type="button"
             onClick={addHighlight}
-            className="bg-orange-500 text-white px-6 py-2 rounded-md text-sm font-bold hover:bg-orange-600 transition-colors h-[44px]"
+            className="bg-orange-500 text-white px-6 py-2 rounded-md text-sm font-bold hover:bg-orange-600 transition-colors mt-5 h-8.6"
           >
             Add
           </button>
@@ -364,7 +364,7 @@ export default function VideoManager({ form, setForm }: any) {
   };
 
   return (
-    <div className="space-y-12 border border-red-500">
+    <div className="grid grid-cols-1 space-y-12">
 
       {/* GLOBAL TOGGLE */}
       <ToggleSwitch
@@ -377,7 +377,7 @@ export default function VideoManager({ form, setForm }: any) {
       {/* =========================
           INSTAGRAM REELS
       ========================= */}
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 space-y-4">
         <div className="flex justify-between items-center border-b pb-2">
           <h4 className="flex items-center gap-2 font-bold text-pink-600">
             <FiInstagram /> Instagram Reels
@@ -462,7 +462,7 @@ export default function VideoManager({ form, setForm }: any) {
           </button>
         </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {form.videoShowcase.youtube.map((yt: any, idx: number) => (
           <div
             key={idx}

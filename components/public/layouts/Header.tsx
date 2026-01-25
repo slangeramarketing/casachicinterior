@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import logoTransparent from "@/public/assets/logoTransparent.png";
@@ -15,6 +15,7 @@ interface HeaderProps {
 export default function Header({featuredServiceList}:HeaderProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const router=useRouter();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -186,33 +187,19 @@ export default function Header({featuredServiceList}:HeaderProps) {
           </summary>
 
           <div className="ml-4 mt-2 space-y-2 text-sm">
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Modular Interiors
-            </button>
+            {featuredServiceList?.map((service) => (
+              <button
+                  key={service.id}
+                  onClick={() => {
+                    setMenuOpen(false),
+                    router.push(`/services/${service.slug}`)
+                  }}
+                  className="block text-left w-full"
+                >
+                {service.title}
+              </button>
+              ))}
 
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Home Interiors
-            </button>
-
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Home Renovation
-            </button>
-
-            <button
-              onClick={() => setMenuOpen(false)}
-              className="block text-left w-full"
-            >
-              Commercial Spaces
-            </button>
           </div>
         </details>
 
@@ -232,20 +219,15 @@ export default function Header({featuredServiceList}:HeaderProps) {
           About Us
         </Link>
 
-        {/* <button
+        <button
+          onClick={()=>{
+            router.push('/contact'),
+            setMenuOpen(false)
+          }}
           className="w-full border border-white py-2 rounded-full mt-4"
         >
           Book Free Consultation
-        </button> */}
-
-          <Link
-            href="/contact"
-            className="
-              w-full border border-white py-2 rounded-full mt-4 text-center
-            "
-          >
-            Book Free Consultation
-          </Link>
+        </button>
       </div>
     )}
 

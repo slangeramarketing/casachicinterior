@@ -22,7 +22,7 @@ export default async function ReviewServerPage() {
   const reviews = await reviewServer.getAdminReviews();
   console.log("All Review Data feated: ",reviews);
   return (
-    <div>
+    <div className="p-4 md:p-0">
       <ReviewList reviews={reviews} />
     </div>
   );

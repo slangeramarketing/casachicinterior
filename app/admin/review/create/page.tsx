@@ -27,7 +27,7 @@ export default async function GenerateReviewLinkServerPage() {
   }));
 
   return (
-    <div className="p-6">
+    <div className="p-4">
       <ReviewForm mode="create" services={serviceOptions} />
     </div>
   );

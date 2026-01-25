@@ -35,7 +35,7 @@ export default async function AdminServiceServerPage() {
 
 
   return (
-    <main>
+    <main className="p-4 lg:p-0">
       <div className="flex flex-col gap-2 pb-2">
         <PageRouteHeader />
       </div>

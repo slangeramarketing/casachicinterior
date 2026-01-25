@@ -156,7 +156,7 @@ export default function ReviewForm({
      =============================================== */
 
   return (
-    <>
+    <div className="grid grid-cols-1 md:flex md:flex-col px-4 py-6">
       <PageRouteHeader />
       <PageTitle
         title={mode === "create" ? "Generate Review Link" : "Update Review"}
@@ -167,7 +167,7 @@ export default function ReviewForm({
         }
       />
 
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-2xl w-full mx-auto space-y-6">
         {alert && (
           <Alert
             type={alert.type}
@@ -179,7 +179,7 @@ export default function ReviewForm({
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white border rounded-xl p-6 space-y-6 shadow-sm"
+          className="bg-white border border-gray-300 rounded-xl p-6 space-y-6 shadow-sm w-full"
         >
           {/* ================= CREATE MODE ================= */}
           {mode === "create" && (
@@ -358,6 +358,6 @@ export default function ReviewForm({
           )}
         </form>
       </div>
-    </>
+    </div>
   );
 }

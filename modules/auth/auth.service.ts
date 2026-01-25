@@ -42,14 +42,10 @@ export async function loginService(
   if (!["admin", "super_admin"].includes(user.role)) {
     throw new Error("NOT_AUTHORIZED");
   }
-
   const isValidPassword = await bcrypt.compare(
     dto.password,
     user.passwordHash
   );
-
-
-
 
   if (!isValidPassword) {
     throw new Error("INVALID_CREDENTIALS");

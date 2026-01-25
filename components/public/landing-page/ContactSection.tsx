@@ -65,7 +65,7 @@ export default function ContactSection() {
 
   return (
     <section className="w-full py-34 bg-[#F2F2F2] overflow-hidden" id="contact">
-      <div className="max-w-6xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto md:px-6 px-2">
         
         {/* HEADER - Slide Up Animation */}
         <motion.div 

@@ -283,3 +283,11 @@ Inmein se kaunsa section aap sabse pehle build karna chahenge?
 3. **Visual Charts:** Users ka trend line graph (Pichle 7 ya 30 din ka).
 
 Aap option chuniye, phir hum `route.ts` ko us specific data ke liye update karenge! 🚀
+
+
+
+# 1 Content Writer Top knoch (With Story Tailing)
+# 2 Editing
+# 3 Graphics 
+# 4 Pricing model
+# 5 Branch 

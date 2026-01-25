@@ -1,4 +1,4 @@
-import ProfilePage from "@/components/admin/ProfilePage";
+import ProfilePage from "@/components/admin/clientComponent/users/ProfilePage";
 import { getAuthUser } from "@/lib/auth";
 import { userServer } from "@/modules/users/user.server";
 

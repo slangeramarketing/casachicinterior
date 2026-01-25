@@ -32,7 +32,7 @@ export default function TrafficTab({ data }: { data: any }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-in fade-in duration-500">
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex md:flex-row flex-col gap-4 md:justify-between md:items-center mb-6">
         <div>
           <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
             Traffic Acquisition <HiLightningBolt className="text-orange-500" />

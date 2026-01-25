@@ -11,7 +11,7 @@ export default async function UsersPage() {
   });
 
   return (
-    <div className="w-full">
+    <div className="w-full p-4 md:p-0">
      <UserList users={users} />
   </div>
   );

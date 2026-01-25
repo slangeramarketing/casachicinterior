@@ -143,7 +143,7 @@ export default function BlogForm({ mode, categories, initialData,currentUserId }
     <div className="flex flex-col lg:flex-row gap-6 p-2 max-w-[1400px] mx-auto">
       {/* LEFT: MAIN CONTENT AREA */}
       <div className="flex-1 space-y-6">
-        <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+        <div className="bg-white p-2 md:p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
           <TextField
             label="Post Title"
             placeholder="Enter a catchy title..."

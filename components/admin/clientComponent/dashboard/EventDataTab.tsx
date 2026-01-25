@@ -28,9 +28,9 @@ export default function EventDataTab({ data }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-in fade-in duration-500">
+    <div className="w-full grid grid-cols-1 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-in fade-in duration-500">
       {/* 1. Header Section */}
-      <div className="p-6 border-b border-gray-50 flex justify-between items-center bg-white">
+      <div className="w-full p-6 border-b border-gray-50 flex justify-between items-center bg-white">
         <div className="flex items-center gap-3">
           <div className="bg-orange-500 p-2.5 rounded-xl text-white shadow-lg shadow-orange-100">
             <HiLightningBolt size={20} className="animate-pulse" />
@@ -46,8 +46,8 @@ export default function EventDataTab({ data }: Props) {
       </div>
 
       {/* 2. Table Section */}
-      <div className="w-110 md:w-full overflow-x-auto">
-        <table className="w-full text-left border-collapse">
+      <div className="w-full overflow-x-auto">
+        <table className="md:w-full text-left border-collapse w-110">
           <thead>
             <tr className="bg-gray-50/50 text-gray-400 text-[10px] uppercase tracking-widest border-b border-gray-50">
               <th className="px-6 py-4 font-black">Interaction Type</th>

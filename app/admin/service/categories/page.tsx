@@ -33,7 +33,7 @@ export default async function ServiceCategoryServerPage() {
 
 
   return (
-    <main>
+    <main className="p-4 md:p-0">
       <div className="flex flex-col gap-2 pb-2">
         <PageRouteHeader />
       </div>

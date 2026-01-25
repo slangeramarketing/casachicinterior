@@ -87,12 +87,12 @@ export default function BlogCategoryList({ categories }: { categories: BlogCateg
     return (
       <div key={category.id} className="flex flex-col w-full">
         <div 
-          className={`flex justify-between items-center p-3 border-b border-gray-100 hover:bg-orange-50/30 transition-colors ${
+          className={`flex md:flex-row flex-col md:justify-between w-full items-center p-3 border-b border-gray-100 hover:bg-orange-50/30 transition-colors ${
             level > 0 ? "bg-gray-50/40" : "bg-white"
           } ${isPending ? "opacity-50 pointer-events-none" : ""}`}
           style={{ paddingLeft: `${level * 2 + 1}rem` }}
         >
-          <div className="flex items-center gap-4 flex-1">
+          <div className="flex items-center gap-4 flex-1 w-full md:w-auto">
             {/* Toggle Button */}
             <div className="w-6 flex items-center justify-center">
               {hasChildren && (
@@ -102,10 +102,10 @@ export default function BlogCategoryList({ categories }: { categories: BlogCateg
                   className={`cursor-pointer transition-transform text-orange-500 ${isExpanded ? "rotate-0" : "-rotate-90"}`}
                 />
               )}
-            </div>
+            </div>  
             
             {/* 📸 Image & Info Section */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-full">
               <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-200 bg-gray-100 shadow-sm flex-shrink-0">
                 <OptimizedImage
                   src={category.coverImage || defaultImg} 
@@ -133,7 +133,7 @@ export default function BlogCategoryList({ categories }: { categories: BlogCateg
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-1">
+          <div className="flex gap-1 justify-end w-full md:w-auto">
             <button 
               onClick={() => router.push(`/admin/blogs/categories/update/${category.id}`)}
               className="p-2 text-gray-400 hover:text-orange-500 hover:bg-orange-100 rounded-lg transition-all"

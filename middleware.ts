@@ -9,10 +9,30 @@ import { authorize } from "@/modules/auth/auth.middleware";
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+  const token = req.cookies.get("auth_token")?.value;
 
+  /* ===============================
+     CASE 1: User tries to access LOGIN
+     =============================== */
+  if (pathname.startsWith("/auth/login")) {
+    if (token) {
+      const result = authorize(token);
+
+      if (result.ok) {
+        const url = req.nextUrl.clone();
+        url.pathname = "/admin/home";
+        return NextResponse.redirect(url);
+      }
+    }
+
+    // Not logged in → allow login page
+    return NextResponse.next();
+  }
+
+  /* ===============================
+     CASE 2: Admin Routes Protection
+     =============================== */
   if (pathname.startsWith("/admin")) {
-    const token = req.cookies.get("auth_token")?.value;
-
     const result = authorize(token, ["admin", "super_admin"]);
 
     if (!result.ok && result.error === "UNAUTHORIZED") {
@@ -32,5 +52,8 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    "/admin/:path*",
+    "/auth/login",
+  ],
 };

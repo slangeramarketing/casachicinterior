@@ -20,24 +20,26 @@ export default function TableUi<T extends { id: string | number }>({
 
   if (!data || data.length === 0) {
     return (
-      <div className="text-center py-10 text-gray-400 border rounded-lg">
+      <div className="text-center py-10 text-gray-400 border rounded-xl">
         No records found
       </div>
     );
   }
 
   return (
-    /* 1. w-full aur overflow-x-auto ensure karta hai ki parent container scroll ho */
-    <div className="w-110 sm:w-180 lg:w-full overflow-x-auto rounded-xl border border-gray-200">
+    /* Scroll container */
+    <div className="grid grid-cols-1 scrollbar-thin overflow-x-auto rounded-xl border border-gray-200">
       
-      {/* 2. min-w-max ya min-w-[600px] use karein taaki columns collapse na hon */}
-      <table className="w-full text-sm text-left">
+      {/* min-w ensures horizontal scroll on small screens */}
+      <table className="min-w-[700px] w-full border-collapse text-sm">
+        
+        {/* HEADER */}
         <thead className="bg-gray-100 text-gray-700">
           <tr>
             {columns.map((col) => (
               <th
                 key={String(col.key)}
-                className="px-4 py-3 font-semibold whitespace-nowrap"
+                className="px-4 py-3 text-left font-semibold whitespace-nowrap border-b"
               >
                 {col.label}
               </th>
@@ -45,9 +47,13 @@ export default function TableUi<T extends { id: string | number }>({
           </tr>
         </thead>
 
+        {/* BODY */}
         <tbody className="divide-y">
           {data.map((row) => (
-            <tr key={row.id} className="hover:bg-gray-50 transition">
+            <tr
+              key={row.id}
+              className="hover:bg-gray-50 transition"
+            >
               {columns.map((col) => (
                 <td
                   key={String(col.key)}
@@ -63,6 +69,7 @@ export default function TableUi<T extends { id: string | number }>({
             </tr>
           ))}
         </tbody>
+
       </table>
     </div>
   );

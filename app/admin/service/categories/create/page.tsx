@@ -14,7 +14,7 @@ export default async function CreateServiceCategoryPage() {
   const categories = await serviceCategoryServer.getAll();
 
   return (
-    <main>
+    <main className="md:p-0 p-4 pb-18">
       <ServiceCategoryForm
         mode="create"
         categories={categories} // Direct DTO array pass ho raha hai

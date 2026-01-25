@@ -34,7 +34,7 @@ export default async function AdminLayout({
         <AdminHeader authUser={authUser} />
 
         {/* CONTENT */}
-        <div className="flex-1 overflow-y-auto p-4 lg:p-6 ">
+        <div className="flex-1 overflow-y-auto lg:p-6 ">
           {children}
         </div>
       </div>

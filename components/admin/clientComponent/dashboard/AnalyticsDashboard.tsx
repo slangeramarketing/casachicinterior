@@ -1,14 +1,12 @@
 'use client';
 import { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable';
 
 // React Icons Imports
 import { 
   FaChartLine, FaShareAlt, FaGlobe, FaMousePointer, 
   FaUserFriends, FaDownload, 
-  FaLinkedin, FaGithub, FaInstagram, FaFacebook, FaRobot, 
+  FaRobot, 
   FaFilePdf, FaBars
 } from 'react-icons/fa';
 
@@ -17,6 +15,19 @@ import BehaviorTab from './BehaviorTab';
 import GeoDataTab from './GeoDataTab';
 import EventDataTab from './EventDataTab';
 import ReferrerTab from './ReferrerTab';
+import { generateAnalyticsPdf } from '@/lib/analytics/generateAnalyticsPdf';
+
+type Insight = {
+  level: "info" | "warning" | "critical";
+  text: string;
+  icon: React.ReactNode;
+};
+
+type ParsedReferrer = {
+  source: string;
+  users: number;
+};
+
 
 export default function AnalyticsDashboard({ data }: { data: any }) {
   const [activeTab, setActiveTab] = useState('Overview');
@@ -32,6 +43,7 @@ export default function AnalyticsDashboard({ data }: { data: any }) {
 
   // --- ⚡ Real Data Logic ---
   const referrers = data?.referrers || [];
+  console.log("Social Refer: ",referrers);
   const overviewRows = data?.overview || [];
 
   const totalActiveUsers = overviewRows.reduce((acc: number, curr: any) => acc + parseInt(curr.metricValues?.[0]?.value || '0'), 0);
@@ -44,27 +56,93 @@ export default function AnalyticsDashboard({ data }: { data: any }) {
   }).reverse();
 
   // --- 🤖 AI Insights ---
-  const getInsight = () => {
-    if (referrers.length === 0) return { text: "Waiting for traffic...", icon: <FaRobot /> };
-    const topSourceRow = referrers.reduce((prev: any, current: any) => {
-      const prevVal = parseInt(prev?.metricValues?.[0]?.value || '0');
-      const currVal = parseInt(current?.metricValues?.[0]?.value || '0');
-      return (prevVal > currVal) ? prev : current;
-    }, referrers[0]);
-    const source = topSourceRow?.dimensionValues?.[0]?.value?.toLowerCase() || '';
-    return { text: `Analysis: Top source is ${source}`, icon: <FaRobot className="text-xl md:text-2xl" /> };
+  const getInsight = (): Insight => {
+    if (!referrers || referrers.length === 0) {
+      return {
+        level: "info",
+        text: "No traffic data available yet. Analytics will activate once users arrive.",
+        icon: <FaRobot />,
+      };
+    }
+
+    const parsed: ParsedReferrer[] = referrers.map((r: any) => ({
+      source: r.dimensionValues?.[0]?.value || "Direct",
+      users: parseInt(r.metricValues?.[0]?.value || "0"),
+    }));
+
+    const totalUsers = parsed.reduce(
+      (acc: number, curr: ParsedReferrer) => acc + curr.users,
+      0
+    );
+
+
+    if (totalUsers < 10) {
+      return {
+        level: "warning",
+        text: "Very low traffic detected. Marketing or SEO efforts may be required.",
+        icon: <FaRobot />,
+      };
+    }
+
+    const sorted = [...parsed].sort((a, b) => b.users - a.users);
+    const top = sorted[0];
+    const dominancePercent = Math.round((top.users / totalUsers) * 100);
+
+    // 🚨 Single-source dependency risk
+    if (dominancePercent >= 70) {
+      return {
+        level: "critical",
+        text: `High dependency detected: ${top.source} contributes ${dominancePercent}% of total traffic. Diversification recommended.`,
+        icon: <FaRobot />,
+      };
+    }
+
+    // ⚠️ Moderate dominance
+    if (dominancePercent >= 45) {
+      return {
+        level: "warning",
+        text: `${top.source} is the leading source (${dominancePercent}%). Consider strengthening secondary channels.`,
+        icon: <FaRobot />,
+      };
+    }
+
+    // ✅ Healthy distribution
+    return {
+      level: "info",
+      text: `Traffic sources are well balanced. Top source (${top.source}) contributes ${dominancePercent}%.`,
+      icon: <FaRobot />,
+    };
   };
 
   const insight = getInsight();
 
-  // Export functions remain same as before...
-  const exportToCSV = () => { /* ... existing logic ... */ };
-  const exportToPDF = () => { /* ... existing logic ... */ };
+
+
+
+
+//  ***********************************
+//      Export to PDF 
+//     *********************************
+  const exportToPDF = () => {
+    generateAnalyticsPdf({
+      overview: data.overview,
+      traffic: data.traffic,
+      behavior: data.behavior,
+      geo: data.geo,
+      events: data.events,
+      devices: data.devices,
+      referrers: data.referrers,
+      totalActiveUsers,
+      totalSessions,
+    });
+  };
+
+
 
   return (
     <div className="min-h-screen bg-gray-50 w-full overflow-x-hidden">
       {/* Header Section - Responsive Padding */}
-      <div className="bg-white border-b sticky top-0 z-30 px-4 md:px-8 pt-4 md:pt-6">
+      <div className="grid grid-cols-1 gap-0 bg-white sticky top-0 z-30 px-4 md:px-8 pt-4 md:pt-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="w-full md:w-auto">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
@@ -73,13 +151,7 @@ export default function AnalyticsDashboard({ data }: { data: any }) {
             <p className="text-[10px] md:text-xs text-gray-400 font-medium">Real-time performance of your brand.</p>
           </div>
           
-          <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-            <button 
-              onClick={exportToCSV}
-              className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-gray-100 text-gray-700 px-3 md:px-4 py-2 rounded-xl text-xs md:text-sm font-bold whitespace-nowrap"
-            >
-              <FaDownload size={12} /> CSV
-            </button>
+          <div className="flex items-center gap-2 w-full md:w-auto py-2 md:pb-0">
             <button 
               onClick={exportToPDF}
               className="flex-1 md:flex-none flex items-center justify-center gap-2 bg-orange-600 text-white px-3 md:px-5 py-2 rounded-xl text-xs md:text-sm font-bold shadow-md whitespace-nowrap"
@@ -90,7 +162,7 @@ export default function AnalyticsDashboard({ data }: { data: any }) {
         </div>
         
         {/* Navigation Tabs - Mobile Scrollable */}
-        <div className="flex w-100 md:w-full gap-4 md:gap-8 overflow-x-auto  border-b border-transparent">
+        <div className="flex gap-4 md:gap-8 overflow-x-auto overflow-y-hidden scrollbar-hide h-12 py-4">
           {tabs.map((tab) => (
             <button
               key={tab.name}

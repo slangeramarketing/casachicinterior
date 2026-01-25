@@ -34,7 +34,7 @@ export default function Sidebar() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    await fetch("/api/admin/auth/logout", { method: "POST" });
+    await fetch("/api/auth/logout", { method: "POST" });
     router.replace("/auth/login");
   };
 

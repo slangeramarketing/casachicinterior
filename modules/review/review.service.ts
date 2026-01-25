@@ -29,6 +29,7 @@ import { ReviewRecord } from "./review.types";
 import { renderReviewInviteEmail } from "@/lib/email/templates/review-invite";
 import { sendMail } from "@/lib/email/mailer";
 import { getGravatarUrl } from "@/lib/utils/gravatar";
+import db from "@/lib/db";
 
 /* =================================================
    ADMIN → Generate Review Link
@@ -37,6 +38,8 @@ import { getGravatarUrl } from "@/lib/utils/gravatar";
 export async function generateReviewLink(
   dto: CreateReviewLinkDTO
 ): Promise<{ token: string; reviewLink: string; emailed: boolean }> {
+  await db();
+
   if (dto.submissionSource === "email" && !dto.clientEmail) {
     throw new Error("Client email is required for email-based review link.");
   }
@@ -86,6 +89,8 @@ export async function generateReviewLink(
 export async function findReviewById(
   reviewId: string
 ): Promise<ReviewRecord | null> {
+  await db();
+
   console.log("Service Layer reviewID: ",reviewId);
 
   return reviewRepository.findById(new Types.ObjectId(reviewId));
@@ -99,6 +104,8 @@ export async function findReviewById(
 export async function validateReviewToken(
   token: string
 ): Promise<ReviewRecord> {
+  await db();
+
   const record = await reviewRepository.findByToken(token);
 
   if (!record) {
@@ -124,6 +131,8 @@ export async function validateReviewToken(
 export async function submitClientReview(
   dto: SubmitReviewDTO
 ): Promise<ReviewRecord> {
+  await db();
+
   const record = await validateReviewToken(dto.token);
 
   if (record.rating || record.message) {
@@ -165,6 +174,8 @@ export async function getAdminReviews(filters?: {
   isFeatured?: boolean;
   serviceId?: string;
 }): Promise<ReviewRecord[]> {
+   
+  await db();
   const query: any = {};
 
   if (filters?.status) query.status = filters.status;
@@ -184,6 +195,8 @@ export async function moderateReview(
   reviewId: string,
   dto: UpdateReviewModerationDTO
 ): Promise<ReviewRecord> {
+  await db();
+
   const record = await reviewRepository.updateModeration(
     new Types.ObjectId(reviewId),
     dto
@@ -203,6 +216,8 @@ export async function moderateReview(
 export async function deleteReview(
   reviewId: string
 ): Promise<void> {
+  await db();
+
   const success = await reviewRepository.softDelete(
     new Types.ObjectId(reviewId)
   );

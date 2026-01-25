@@ -283,19 +283,19 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
 
 
   return (
-    <div className="flex flex-col gap-6 pt-4 pb-18 px-2  lg:px-8 bg-gray-50 min-h-screen">
+    <div className="flex flex-col gap-6 pt-4 pb-18  lg:px-8 bg-gray-50 min-h-screen">
       <PageRouteHeader />
       <PageTitle title={mode === "create" ? "Add New Service" : "Edit Service"} />
 
       {alert && <Alert {...alert} onClose={() => setAlert(null)} />}
 
       {/* STEP INDICATOR - Simplified for brevity */}
-      <div className="flex md:gap-4 gap-2 w-full">
+      <div className="grid grid-cols-7 md:gap-4 gap-1 w-full">
         {[1, 2, 3, 4, 5, 6, 7].map(num => (
           <button 
             key={num} 
             onClick={() => setStep(num)} 
-            className={`px-2 md:px-4 py-2 rounded-md text-[10px] md:text-xs font-bold transition whitespace-nowrap
+            className={`px-1 md:px-4 py-2 rounded-md text-[7px] md:text-[10px] font-bold transition whitespace-nowrap
               ${step === num ? 'bg-bg-primary text-white' : 'bg-white text-gray-400 border'}`}
           >
             {num === 7 ? "🏁 Review" : `Step ${num}`}
@@ -303,7 +303,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
         ))}
       </div>
 
-      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+      <div className="bg-white px-2 py-6 md:p-6 rounded-xl border border-gray-200 shadow-sm">
         {step === 1 && (
           <div className="space-y-4">
             <TextField label="Title*" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
@@ -335,10 +335,10 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
         )}
 
         {step === 3 && (
-          <div className="w-full space-y-8 animate-in slide-in-from-right duration-500 border border-red-500">
+          <div className="w-full grid grid-cols-1 space-y-8 animate-in slide-in-from-right duration-500">
             
             {/* 1. COVER IMAGE */}
-            <div className="w-full md:p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
+            <div className="w-full p-2 md:p-6 border border-gray-200 rounded-2xl bg-white shadow-sm">
               <h3 className="text-sm font-bold text-gray-800 mb-4">Primary Branding</h3>
               <ImagePicker 
                 label="Cover Image (Primary)*" 
@@ -390,7 +390,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
             </div>
 
             {/* 3. VIDEO SHOWCASE (NEW 🔥) */}
-            <div className="w-full p-6 border border-gray-200 rounded-2xl bg-gray-50/50 shadow-inner">
+            <div className="w-full px-2 py-6 md:p-6 border border-gray-200 rounded-2xl bg-gray-50/50 shadow-inner">
               <h3 className="text-sm font-bold text-gray-800 mb-6">Social Video Showcase</h3>
               <VideoManager form={form} setForm={setForm} />
             </div>
@@ -551,7 +551,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
               <button 
                 type="button"
                 onClick={() => setStep(6)} 
-                className="px-6 py-2 border rounded hover:bg-gray-50 transition"
+                className="px-2 md:px-6 py-2 text-xs border rounded hover:bg-gray-50 transition"
               >
                 Back to FAQs
               </button>
@@ -559,7 +559,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
                 type="button"
                 onClick={handleSubmit} 
                 disabled={loading} 
-                className={`px-10 py-2 rounded font-bold text-white transition-all
+                className={`px-4 md:px-10 py-2 text-xs md:text-[16px] rounded font-bold text-white transition-all
                   ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-green-200'}`}
               >
                 {loading ? `Uploading...` : "Save & Publish Service"}

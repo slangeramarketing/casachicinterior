@@ -121,11 +121,16 @@ export default function UsersClientPage({
   ];
 
   return (
-    <div className="lg:px-10 w-full">
+    <div className="lg:px-10 w-full gap-4 flex flex-col">
       {/* Header */}
-      <div className="w-full flex justify-between items-center">
-        <PageRouteHeader />
-        <SearchInput />
+      <div className="w-full flex md:flex-row flex-col justify-between items-center gap-4 md:gap-0">
+        <div className="w-full md:w-auto">
+          <PageRouteHeader />
+        </div>
+        <div className="w-full md:w-auto">
+          <SearchInput />
+        </div>
+        
       </div>
 
       <div className="flex justify-between items-center w-full">

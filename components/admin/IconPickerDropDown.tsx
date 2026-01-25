@@ -30,7 +30,7 @@ export default function IconPickerDropDown({ value, onChange, name }: IconPicker
       <select 
         value={selectedId}
         onChange={(e) => handleChange(e.target.value)}
-        className="border p-2 rounded-md outline-none focus:ring-2 focus:ring-orange-500 w-full"
+        className="border border-gray-300 p-2 rounded-md outline-none focus:ring-2 focus:ring-orange-500 w-full"
       >
         {INTERIOR_ICONS.map(item => (
           <option key={item.id} value={item.id}>{item.label}</option>
