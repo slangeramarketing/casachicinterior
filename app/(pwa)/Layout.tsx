@@ -1,3 +1,5 @@
+import PwaSuppressor from "@/app/pwa-suppress";
+
 export const metadata = {
   manifest: "/manifest.json",
 };
@@ -7,5 +9,10 @@ export default function PwaLayout({
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <>
+      <PwaSuppressor />
+      {children}
+    </>
+  );
 }

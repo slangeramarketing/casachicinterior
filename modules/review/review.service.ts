@@ -30,6 +30,7 @@ import { renderReviewInviteEmail } from "@/lib/email/templates/review-invite";
 import { sendMail } from "@/lib/email/mailer";
 import { getGravatarUrl } from "@/lib/utils/gravatar";
 import db from "@/lib/db";
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
 /* =================================================
    ADMIN → Generate Review Link
@@ -54,8 +55,11 @@ export async function generateReviewLink(
     reviewToken: token,
     clientLocation:dto.clientLocation,
   });
+ 
+  const baseUrl = await getBaseUrl();
 
- const reviewLink = `${process.env.NEXT_PUBLIC_BASE_URL}/review/submission/${token}`;
+  const reviewLink = `${baseUrl}/review/submission/${token}`;
+  console.log("Base URL: ",reviewLink);
 
 
   /* -------------------------------
@@ -90,9 +94,6 @@ export async function findReviewById(
   reviewId: string
 ): Promise<ReviewRecord | null> {
   await db();
-
-  console.log("Service Layer reviewID: ",reviewId);
-
   return reviewRepository.findById(new Types.ObjectId(reviewId));
 }
 
@@ -148,7 +149,6 @@ export async function submitClientReview(
       ? getGravatarUrl(record.clientEmail, 120)
       : undefined;
 
-      console.log("Avater JO save hoga: ",avatar);
 
   const updated = await reviewRepository.submitReviewByToken(dto.token, {
     rating: dto.rating,

@@ -19,7 +19,7 @@ export default function HeroSection() {
         }}
       >
         <OptimizedImage
-          src="/media/static/hero-wallpaper.png"
+          src="/assets/hero-wallpaper.png"
           alt="Luxury interior design"
           fill
           priority

@@ -1,5 +1,5 @@
 {
-  "name": "CasaChic Admin Dashboard",
+  "name": "CasaChic Admin",
   "short_name": "CasaChic Admin",
   "description": "CasaChic Interior Admin Dashboard",
   "start_url": "/auth/login",

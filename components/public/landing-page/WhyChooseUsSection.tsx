@@ -37,7 +37,7 @@ export default function WhyChooseUsSection() {
           {/* CENTER */}
           <div className="relative z-10 bg-white rounded-full w-[360px] h-[360px] flex flex-col items-center justify-center text-center shadow-lg px-4">
             <OptimizedImage
-              src="/media/static/why-choose-men.png"
+              src="/assets/why-choose-men.png"
               alt="Why Choose Us"
               width={150}
               height={150}

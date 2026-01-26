@@ -4,7 +4,6 @@ import { reviewServer } from '@/modules/review/review.server'
 
 export default async function page() {
     const reviewData = await reviewServer.getPublicFeaturedReviews();
-    console.log("ReviewData: ",reviewData);
   
   return (
     <div>

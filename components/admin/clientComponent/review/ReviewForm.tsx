@@ -156,7 +156,7 @@ export default function ReviewForm({
      =============================================== */
 
   return (
-    <div className="grid grid-cols-1 md:flex md:flex-col px-4 py-6">
+    <div className="grid grid-cols-1 md:flex md:flex-col py-6">
       <PageRouteHeader />
       <PageTitle
         title={mode === "create" ? "Generate Review Link" : "Update Review"}
@@ -167,7 +167,7 @@ export default function ReviewForm({
         }
       />
 
-      <div className="max-w-2xl w-full mx-auto space-y-6">
+      <div className="w-full md:max-w-2xl w-full mx-auto space-y-6">
         {alert && (
           <Alert
             type={alert.type}
@@ -331,29 +331,30 @@ export default function ReviewForm({
 
           {/* ================= COPY LINK ================= */}
           {generatedLink && (
-            <div className="border rounded-md p-4 bg-gray-50 space-y-2">
-              <p className="text-xs font-medium text-gray-600">
-                Generated Review Link
-              </p>
-
-              <div className="flex gap-2">
+            <div className="border border-gray-300 rounded-md p-4 bg-gray-50 space-y-2">
+              <div className="grid grid-cols-2 justify-between gap-2 items-center">
+                <p className="text-sm md:text-ls font-medium text-gray-600">
+                  Generated Review Link
+                </p>
+                <div className="md:w-auto w-full flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigator.clipboard.writeText(generatedLink);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 1500);
+                    }}
+                    className="p-3   border border-gray-300 rounded-md text-sm"
+                  >
+                    {copied ? <FiCheck /> : <FiCopy />}
+                  </button>
+                </div>
+              </div>
                 <input
                   readOnly
                   value={generatedLink}
-                  className="flex-1 text-xs px-3 py-2 border rounded-md bg-white"
+                  className="grid grid-cols-1 w-full text-xs px-3 py-2 border border-gray-300 rounded-md bg-white"
                 />
-                <button
-                  type="button"
-                  onClick={() => {
-                    navigator.clipboard.writeText(generatedLink);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 1500);
-                  }}
-                  className="px-4 border rounded-md text-sm"
-                >
-                  {copied ? <FiCheck /> : <FiCopy />}
-                </button>
-              </div>
             </div>
           )}
         </form>

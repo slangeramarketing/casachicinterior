@@ -49,7 +49,7 @@ export default function ShortAboutSection() {
           {/* Large Image */}
           <div>
             <OptimizedImage
-              src="/media/static/short-about-img1.png"
+              src="/assets/short-about-img1.png"
               alt="Luxury living room interior"
               width={400}
               height={400}
@@ -60,7 +60,7 @@ export default function ShortAboutSection() {
           {/* Small Image 1 */}
           <div className="flex items-end">
             <OptimizedImage
-              src="/media/static/short-about-img2.png"
+              src="/assets/short-about-img2.png"
               alt="Modern sofa interior"
               width={300}
               height={220}
@@ -71,7 +71,7 @@ export default function ShortAboutSection() {
           {/* Small Image 2 */}
           <div className="col-span-2">
             <OptimizedImage
-              src="/media/static/short-about-img3.png"
+              src="/assets/short-about-img3.png"
               alt="Minimal home interior"
               width={600}
               height={300}

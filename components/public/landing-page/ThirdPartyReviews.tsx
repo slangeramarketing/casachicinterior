@@ -10,22 +10,22 @@ type ReviewPlatform = {
 const reviewPlatforms: ReviewPlatform[] = [
   {
     name: "Google Reviews",
-    image: "/media/static/googleReview.png",
+    image: "/assets/googleReview.png",
     alt: "Google Reviews rating",
   },
   {
     name: "GoodFirms",
-    image: "/media/static/goodFirms.png",
+    image: "/assets/goodFirms.png",
     alt: "GoodFirms rating",
   },
   {
     name: "Trustpilot",
-    image: "/media/static/Trustpilot.png",
+    image: "/assets/Trustpilot.png",
     alt: "Trustpilot rating",
   },
   {
     name: "Houzz",
-    image: "/media/static/hauzzReview.png",
+    image: "/assets/hauzzReview.png",
     alt: "Houzz rating",
   },
 ];

@@ -2,21 +2,21 @@
 
 /***************************************************
  * File: app/auth/login/page.tsx
- * Layer: Client UI
- *
  * Purpose:
- * - Admin authentication UI
- *
- * Responsibilities:
- * - Collect credentials
- * - Call auth API
- * - Handle UI state only
- *
+ * - Admin login UI
+ * - PWA install entry point
  ***************************************************/
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiMail, FiLock } from "react-icons/fi";
+import {
+  FiMail,
+  FiLock,
+  FiLogIn,
+} from "react-icons/fi";
+import { MdInstallDesktop } from "react-icons/md";
+
+import { usePwaInstall } from "@/lib/pwa/usePwaInstall";
 
 import type {
   LoginDTO,
@@ -28,6 +28,7 @@ type LoginAPIResponse = LoginResponseDTO | AuthErrorDTO;
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const { canInstall, install } = usePwaInstall();
 
   const [form, setForm] = useState<LoginDTO>({
     email: "",
@@ -38,12 +39,11 @@ export default function AdminLoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  /* -------------------------------------
+  /* -----------------------------
      Submit Handler
-  ------------------------------------- */
+  ----------------------------- */
   const handleLogin = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
     setError(null);
     setSuccess(null);
     setLoading(true);
@@ -61,7 +61,6 @@ export default function AdminLoginPage() {
         throw new Error(data.message || "Authentication failed");
       }
 
-      /* Admin-only access */
       if (
         data.user.role !== "admin" &&
         data.user.role !== "super_admin"
@@ -73,46 +72,47 @@ export default function AdminLoginPage() {
       router.replace("/admin/home");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unexpected error");
-      console.log("AUth ERROR: ",err)
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-4">
-      <div className="w-full max-w-md border border-gray-200 rounded-xl p-8 shadow-sm">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-white px-4">
+      <div className="w-full max-w-md bg-white rounded-2xl p-8 shadow-xl border border-gray-100">
 
-        {/* Header */}
+        {/* HEADER */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-800">
-            Admin Login
+          <h1 className="text-2xl font-black text-gray-800">
+            CasaChic Admin
           </h1>
           <p className="text-sm text-gray-500 mt-1">
-            Secure access to dashboard
+            Secure dashboard access
           </p>
         </div>
 
-        {/* Error */}
+        {/* ERROR */}
         {error && (
-          <div className="mb-4 text-sm text-red-700 bg-red-50 px-3 py-2 rounded-md">
+          <div className="mb-4 text-sm text-red-700 bg-red-50 px-3 py-2 rounded-lg">
             {error}
           </div>
         )}
 
-        {/* Success */}
+        {/* SUCCESS */}
         {success && (
-          <div className="mb-4 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-md flex justify-center items-center">
-            {`${success} Redirecting...`}
+          <div className="mb-4 text-sm text-green-700 bg-green-50 px-3 py-2 rounded-lg text-center">
+            {success} · Redirecting…
           </div>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleLogin} className="space-y-5 pb-6">
+        {/* FORM */}
+        <form onSubmit={handleLogin} className="space-y-5">
 
           {/* Email */}
           <div>
-            <label className="text-sm text-gray-600">Email</label>
+            <label className="text-sm font-medium text-gray-600">
+              Email
+            </label>
             <div className="relative mt-1">
               <FiMail className="absolute left-3 top-3.5 text-gray-400" />
               <input
@@ -122,17 +122,18 @@ export default function AdminLoginPage() {
                 onChange={(e) =>
                   setForm({ ...form, email: e.target.value })
                 }
-                className="w-full pl-10 pr-3 py-2.5 rounded-md
-                  bg-[#F2F2F2] border border-gray-300
-                  text-gray-800 outline-none
-                  focus:border-[#F97316]"
+                className="w-full pl-10 pr-3 py-2.5 rounded-lg
+                  bg-gray-50 border border-gray-300
+                  focus:border-orange-500 outline-none"
               />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <label className="text-sm text-gray-600">Password</label>
+            <label className="text-sm font-medium text-gray-600">
+              Password
+            </label>
             <div className="relative mt-1">
               <FiLock className="absolute left-3 top-3.5 text-gray-400" />
               <input
@@ -142,34 +143,40 @@ export default function AdminLoginPage() {
                 onChange={(e) =>
                   setForm({ ...form, password: e.target.value })
                 }
-                className="w-full pl-10 pr-3 py-2.5 rounded-md
-                  bg-[#F2F2F2] border border-gray-300
-                  text-gray-800 outline-none
-                  focus:border-[#F97316]"
+                className="w-full pl-10 pr-3 py-2.5 rounded-lg
+                  bg-gray-50 border border-gray-300
+                  focus:border-orange-500 outline-none"
               />
             </div>
           </div>
 
-          {/* Submit */}
+          {/* LOGIN BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 rounded-md
-              bg-[#F97316] text-white font-semibold
-              hover:bg-[#ea6a10] transition
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-lg
+              bg-orange-500 text-white font-bold
+              hover:bg-orange-600 transition
               disabled:opacity-60"
           >
+            <FiLogIn />
             {loading ? "Signing in..." : "Login"}
           </button>
-
-          {/* Future: Forgot Password */}
-          {/*<p className="text-center text-sm text-gray-500">
-            Forgot password?{" "}
-            <span className="text-[#F97316] cursor-pointer">
-              Reset
-            </span>
-          </p>*/}
         </form>
+
+        {/* PWA INSTALL (ONLY WHEN AVAILABLE) */}
+        {canInstall && (
+          <div className="mt-6 pt-6 border-t text-center">
+            <button
+              onClick={install}
+              className="inline-flex items-center gap-2 text-sm font-semibold
+                text-orange-600 hover:text-orange-700 transition"
+            >
+              <MdInstallDesktop className="text-lg" />
+              Install Admin App
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

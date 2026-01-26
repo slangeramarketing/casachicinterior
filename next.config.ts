@@ -16,10 +16,12 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "www.gravatar.com",
         pathname: "/**",
-      },{
-        protocol: 'https',
-        hostname: 'ui-avatars.com',
-      }
+      },
+      {
+        protocol: "https",
+        hostname: "ui-avatars.com",
+        pathname: "/**",
+      },
     ],
   },
 
@@ -29,15 +31,18 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // 🔥 VERY IMPORTANT — silence Turbopack
   turbopack: {},
 };
 
 export default withPWA({
   dest: "public",
-  register: true,
-  skipWaiting: true,
 
-  // dev mode me SW off (BEST PRACTICE)
-  disable: process.env.NODE_ENV === "development",
+  // ✅ register SW
+  register: true,
+
+  // 🔥 CRITICAL: stop auto-activation popup loop
+  skipWaiting: false,
+
+  // ✅ SW only in production
+  disable: process.env.NODE_ENV !== "production",
 })(nextConfig);

@@ -4,9 +4,9 @@ import { useState } from "react";
 
 import { FaHeadset, FaChevronUp } from "react-icons/fa";
 
-import whatsapp from "@/public/media/static/whatsapp.svg";
-import phone from "@/public/media/static/phone.png";
-import instagram from "@/public/media/static/instagram.png";
+import whatsapp from "@/public/assets/whatsapp.svg";
+import phone from "@/public/assets/phone.png";
+import instagram from "@/public/assets/instagram.png";
 import { OptimizedImage } from "../common/OptimizedImage";
 
 export default function ContactFAB() {
