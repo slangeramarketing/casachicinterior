@@ -3,14 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AnimatePresence, motion, Variants } from "framer-motion";
-import { FiArrowRight, FiCheck, FiChevronDown, FiHelpCircle } from "react-icons/fi";
+import { FiArrowRight, FiChevronDown} from "react-icons/fi";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import { getInteriorIconById } from "@/public/assets/constants-icons/interior-icons";
 import { useState } from "react";
 import MediaViewer from "@/components/common/MediaViewer";
 import ProcessFlow from "./ProcessFlow";
 import ContactSection from "../landing-page/ContactSection";
-import { DiVisualstudio } from "react-icons/di";
 import VideoShowcase from "./VideoShowcase";
 
 interface PublicServiceDetailProps {

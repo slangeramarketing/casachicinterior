@@ -3,67 +3,112 @@
  * Layer: Mapper
  * Purpose: Converts Plain DB Types → Response DTO.
  ***************************************************/
-import { IBlogCategoryRecord } from "./blog-category.types";
+
+import { Types } from "mongoose";
+import {
+  IBlogCategoryRecord,
+  IPopulatedBlogCategoryRecord,
+} from "./blog-category.types";
 import { BlogCategoryResponseDTO } from "./blog-category.dto";
+
+type AnyCategoryRecord =
+  | IBlogCategoryRecord
+  | IPopulatedBlogCategoryRecord;
+
+function normalizeParentId(
+  parentId: AnyCategoryRecord["parentId"]
+): string | null {
+  if (!parentId) return null;
+
+  // Case 1: ObjectId
+  if (parentId instanceof Types.ObjectId) {
+    return parentId.toString();
+  }
+
+  // Case 2: populated object
+  if (typeof parentId === "object" && "_id" in parentId) {
+    return parentId._id.toString();
+  }
+
+  return null;
+}
 
 export const blogCategoryMapper = {
   /**
-   * Purpose: Map a single DB record to a Response DTO
+   * Map single DB record → Response DTO
    */
-  toResponse(record: IBlogCategoryRecord): BlogCategoryResponseDTO {
+  toResponse(record: AnyCategoryRecord): BlogCategoryResponseDTO {
+    const parentId = normalizeParentId(record.parentId);
+
     return {
       id: record._id.toString(),
       name: record.name,
       slug: record.slug,
       description: record.description || "",
-      parentId: record.parentId ? record.parentId.toString() : null,
+
+      parentId,
+
       icon: record.icon || "",
       coverImage: record.coverImage || "",
+
       seo: {
-        metaTitle: record.seo?.metaTitle || "",
-        metaDescription: record.seo?.metaDescription || "",
+        metaTitle: record.seo?.metaTitle || record.name,
+        metaDescription:
+          record.seo?.metaDescription || record.description || "",
         keywords: record.seo?.keywords || [],
         metaRobots: record.seo?.metaRobots || "index, follow",
         canonicalUrl: record.seo?.canonicalUrl || "",
       },
+
       status: record.status,
       displayOrder: record.displayOrder,
-      isSubCategory: record.parentId !== null,
-      createdAt: record.createdAt.toISOString(),
-      updatedAt: record.updatedAt.toISOString(),
+
+      isSubCategory: !!parentId,
+
+      createdAt:
+        record.createdAt instanceof Date
+          ? record.createdAt.toISOString()
+          : record.createdAt,
+
+      updatedAt:
+        record.updatedAt instanceof Date
+          ? record.updatedAt.toISOString()
+          : record.updatedAt,
     };
   },
 
   /**
-   * Purpose: Convert an array of records
+   * Map list
    */
-  toResponseList(records: IBlogCategoryRecord[]): BlogCategoryResponseDTO[] {
+  toResponseList(
+    records: AnyCategoryRecord[]
+  ): BlogCategoryResponseDTO[] {
     return records.map((record) => this.toResponse(record));
   },
 
   /**
-   * Purpose: Converts a flat array of DTOs into a nested Tree structure
+   * Convert flat DTO list → Tree structure
    */
-  toTree(dtoList: BlogCategoryResponseDTO[]): any[] {
-    const map: { [key: string]: any } = {};
-    const tree: any[] = [];
+  toTree(
+    dtoList: BlogCategoryResponseDTO[]
+  ): BlogCategoryResponseDTO[] {
+    const map: Record<string, BlogCategoryResponseDTO & { children: BlogCategoryResponseDTO[] }> = {};
+    const tree: BlogCategoryResponseDTO[] = [];
 
-    // 1. Pehle saare items ka ek map banao for quick access
+    // Init map
     dtoList.forEach((item) => {
       map[item.id] = { ...item, children: [] };
     });
 
-    // 2. Parent-child relationship set karo
+    // Build tree
     dtoList.forEach((item) => {
       if (item.parentId && map[item.parentId]) {
-        // Agar parent mil gaya, toh uske children array mein push kardo
-        map[item.parentId].children.push(map[item.id]);
+        map[item.parentId].children!.push(map[item.id]);
       } else {
-        // Agar parentId null hai, toh ye root category hai
         tree.push(map[item.id]);
       }
     });
 
     return tree;
-  }
+  },
 };

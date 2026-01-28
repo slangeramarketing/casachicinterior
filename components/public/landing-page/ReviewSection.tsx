@@ -1,10 +1,7 @@
 "use client";
 
 import { FaStar, FaQuoteLeft } from "react-icons/fa";
-import { getGravatarUrl } from "@/lib/utils/gravatar";
-import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { ReviewResponseDTO } from "@/modules/review/review.dto";
-import { MdLocationOff } from "react-icons/md";
 
 interface ReviewSectionProps {
   reviews: ReviewResponseDTO[];

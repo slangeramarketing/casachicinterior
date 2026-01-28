@@ -14,81 +14,201 @@
  * - Must NOT contain business logic or formatting.
  * - Must NOT return Mongoose Documents (Use .lean()).
  ***************************************************/
+/***************************************************
+ * File: modules/blogs/blog.repository.ts
+ * Layer: Repository
+ ***************************************************/
+
+import { Types } from "mongoose";
 import { BlogModel } from "./blog.model";
-import "@/modules/blog-category/blog-category.model"; // Ensure model registration
-import "@/modules/users/user.model"; // Ensure model registration
+import "@/modules/blog-category/blog-category.model";
+import "@/modules/users/user.model";
 import db from "@/lib/db";
 import { IBlogRecord, IPopulatedBlogRecord } from "./blog.types";
+import { AppError } from "@/lib/errors/AppError";
 
 export const blogRepository = {
   /**
-   * Purpose: Fetch all blogs with populated references
+   * Fetch all blogs (populated)
    */
-  async findAll(query: any = {}): Promise<IPopulatedBlogRecord[]> {
+  async findAll(
+    filter: Record<string, any> = {}
+  ): Promise<IPopulatedBlogRecord[]> {
     await db();
-    return await BlogModel.find(query)
-      .populate("categoryId", "name slug")
-      .populate("authorId", "name image")
-      .sort({ createdAt: -1 })
-      .lean() as unknown as IPopulatedBlogRecord[];
+
+    try {
+      return await BlogModel.find(filter)
+        .populate({
+          path: "categoryId",
+          select: "name slug",
+        })
+        .populate({
+          path: "authorId",
+          select: "name image",
+        })
+        .sort({ createdAt: -1 })
+        .lean<IPopulatedBlogRecord[]>();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to fetch blogs",
+        code: "BLOG_FIND_ALL_FAILED",
+        statusCode: 500,
+        context: { filter },
+        cause: err,
+      });
+    }
   },
 
   /**
-   * Purpose: Get single blog by ID with full population
+   * Find blog by ID (populated)
    */
   async findById(id: string): Promise<IPopulatedBlogRecord | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
     await db();
-    return await BlogModel.findById(id)
-      .populate("categoryId")
-      .populate("authorId")
-      .lean() as unknown as IPopulatedBlogRecord;
+
+    try {
+      return await BlogModel.findById(id)
+        .populate({
+          path: "categoryId",
+          select: "name slug",
+        })
+        .populate({
+          path: "authorId",
+          select: "name image",
+        })
+        .lean<IPopulatedBlogRecord>();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to fetch blog by ID",
+        code: "BLOG_FIND_BY_ID_FAILED",
+        statusCode: 500,
+        context: { id },
+        cause: err,
+      });
+    }
   },
 
   /**
-   * Purpose: Get single blog by Slug
+   * Find blog by slug (populated)
    */
   async findBySlug(slug: string): Promise<IPopulatedBlogRecord | null> {
     await db();
-    return await BlogModel.findOne({ slug })
-      .populate("categoryId")
-      .populate("authorId")
-      .lean() as unknown as IPopulatedBlogRecord;
+
+    try {
+      return await BlogModel.findOne({ slug })
+        .populate({
+          path: "categoryId",
+          select: "name slug",
+        })
+        .populate({
+          path: "authorId",
+          select: "name image",
+        })
+        .lean<IPopulatedBlogRecord>();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to fetch blog by slug",
+        code: "BLOG_FIND_BY_SLUG_FAILED",
+        statusCode: 500,
+        context: { slug },
+        cause: err,
+      });
+    }
   },
 
   /**
-   * Purpose: Create a new blog record
+   * Create blog
    */
-  async create(data: Partial<IBlogRecord>): Promise<IBlogRecord> {
+  async create(
+    data: Partial<IBlogRecord>
+  ): Promise<IBlogRecord> {
     await db();
-    const doc = await BlogModel.create(data);
-    return doc.toObject();
+
+    try {
+      const doc = await BlogModel.create(data);
+      return doc.toObject();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to create blog",
+        code: "BLOG_CREATE_FAILED",
+        statusCode: 500,
+        context: { data },
+        cause: err,
+      });
+    }
   },
 
   /**
-   * Purpose: Update blog record
+   * Update blog
    */
-  async update(id: string, data: Partial<IBlogRecord>): Promise<IBlogRecord | null> {
+  async updateById(
+    id: string,
+    data: Partial<IBlogRecord>
+  ): Promise<IBlogRecord | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
     await db();
-    return await BlogModel.findByIdAndUpdate(
-      id,
-      { $set: data },
-      { new: true, runValidators: true }
-    ).lean() as IBlogRecord;
+
+    try {
+      return await BlogModel.findByIdAndUpdate(
+        id,
+        { $set: data },
+        { new: true, runValidators: true }
+      ).lean<IBlogRecord>();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to update blog",
+        code: "BLOG_UPDATE_FAILED",
+        statusCode: 500,
+        context: { id, data },
+        cause: err,
+      });
+    }
   },
 
   /**
-   * Purpose: Delete blog record
+   * Delete blog
    */
-  async delete(id: string): Promise<IBlogRecord | null> {
+  async deleteById(id: string): Promise<boolean> {
+    if (!Types.ObjectId.isValid(id)) return false;
+
     await db();
-    return await BlogModel.findByIdAndDelete(id).lean() as IBlogRecord;
+
+    try {
+      const res = await BlogModel.findByIdAndDelete(id);
+      return !!res;
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to delete blog",
+        code: "BLOG_DELETE_FAILED",
+        statusCode: 500,
+        context: { id },
+        cause: err,
+      });
+    }
   },
 
   /**
-   * Purpose: Increment blog view count
+   * Increment view count
    */
   async incrementViews(id: string): Promise<void> {
+    if (!Types.ObjectId.isValid(id)) return;
+
     await db();
-    await BlogModel.findByIdAndUpdate(id, { $inc: { viewCount: 1 } });
-  }
+
+    try {
+      await BlogModel.findByIdAndUpdate(id, {
+        $inc: { viewCount: 1 },
+      });
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to increment blog views",
+        code: "BLOG_INCREMENT_VIEWS_FAILED",
+        statusCode: 500,
+        context: { id },
+        cause: err,
+      });
+    }
+  },
 };

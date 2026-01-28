@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 
 let deferredPrompt: any = null;
@@ -8,8 +7,10 @@ export function usePwaInstall() {
   const [canInstall, setCanInstall] = useState(false);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const handler = (e: any) => {
-      e.preventDefault(); // 🔥 browser default popup STOP
+      e.preventDefault();
       deferredPrompt = e;
       setCanInstall(true);
     };
@@ -25,12 +26,10 @@ export function usePwaInstall() {
     if (!deferredPrompt) return;
 
     deferredPrompt.prompt();
-    const choice = await deferredPrompt.userChoice;
+    await deferredPrompt.userChoice;
 
     deferredPrompt = null;
     setCanInstall(false);
-
-    return choice;
   };
 
   return { canInstall, install };

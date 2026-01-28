@@ -14,49 +14,80 @@
  * - Must NOT return DTOs
  * - Must NOT use object+method export
  ***************************************************/
-/***************************************************
- * File: modules/service-categories/service-category.service.ts
- * Layer: Service
- ***************************************************/
 
 import { Types } from "mongoose";
 import { serviceCategoryRepository } from "./service-category.repository";
 import { ServiceCategoryRecord } from "./service-category.types";
 import db from "@/lib/db";
+import { AppError } from "@/lib/errors";
 
-
-
+/* =====================================================
+   CREATE CATEGORY
+===================================================== */
 export async function createServiceCategory(
-  data: any // Hum DTO se data le rahe hain
+  data: any
 ): Promise<ServiceCategoryRecord> {
   await db();
 
-  if (!data.slug) throw new Error("Slug is required");
-  
-  const exists = await serviceCategoryRepository.findBySlug(data.slug);
-  if (exists) throw new Error("Category slug already exists");
-
-  // Hierarchy Check
-  if (data.parentId) {
-    const parent = await serviceCategoryRepository.findById(data.parentId.toString());
-    if (!parent) throw new Error("Parent category not found");
+  if (!data.slug) {
+    throw new AppError({
+      message: "Category slug is required",
+      code: "CATEGORY_SLUG_REQUIRED",
+      statusCode: 400,
+      context: { data },
+    });
   }
 
-  // 🔥 Mapping ensuring: DTO -> Database Record
-  const recordToSave = {
+  const exists = await serviceCategoryRepository.findBySlug(data.slug);
+  if (exists) {
+    throw new AppError({
+      message: "Category slug already exists",
+      code: "CATEGORY_SLUG_DUPLICATE",
+      statusCode: 409,
+      context: { slug: data.slug },
+    });
+  }
+
+  // Hierarchy validation
+  if (data.parentId) {
+    const parentId = data.parentId.toString();
+
+    if (!Types.ObjectId.isValid(parentId)) {
+      throw new AppError({
+        message: "Invalid parent category id",
+        code: "CATEGORY_INVALID_PARENT_ID",
+        statusCode: 400,
+        context: { parentId },
+      });
+    }
+
+    const parent = await serviceCategoryRepository.findById(parentId);
+    if (!parent) {
+      throw new AppError({
+        message: "Parent category not found",
+        code: "CATEGORY_PARENT_NOT_FOUND",
+        statusCode: 404,
+        context: { parentId },
+      });
+    }
+  }
+
+  const recordToSave: Partial<ServiceCategoryRecord> = {
     ...data,
-    parentId: data.parentId ? new Types.ObjectId(data.parentId) : null,
+    parentId: data.parentId
+      ? new Types.ObjectId(data.parentId)
+      : null,
     seo: {
       title: data.seo?.title || "",
-      description: data.seo?.description || ""
-    }
+      description: data.seo?.description || "",
+    },
   };
 
   return serviceCategoryRepository.create(recordToSave);
 }
 
 /* =====================================================
-   Get Category by ID
+   GET BY ID
 ===================================================== */
 export async function getServiceCategoryById(
   id: string
@@ -66,30 +97,29 @@ export async function getServiceCategoryById(
 }
 
 /* =====================================================
-   List Categories
+   LIST CATEGORIES
 ===================================================== */
 export async function listServiceCategories(options?: {
   parentId?: string | null;
   publicOnly?: boolean;
 }): Promise<ServiceCategoryRecord[]> {
   await db();
-  
+
   const filter: any = {};
 
   if (options?.publicOnly) {
     filter.status = "active";
   }
 
-  // Support for specific parent or top-level (null)
   if (options?.parentId !== undefined) {
-    filter.parentId = options.parentId; 
+    filter.parentId = options.parentId;
   }
 
   return serviceCategoryRepository.findAll(filter);
 }
 
 /* =====================================================
-   Update Category
+   UPDATE CATEGORY
 ===================================================== */
 export async function updateServiceCategory(
   id: string,
@@ -97,16 +127,35 @@ export async function updateServiceCategory(
 ): Promise<ServiceCategoryRecord | null> {
   await db();
 
-  // Rule 1: Self-parenting prevent karein
-  if (data.parentId && data.parentId.toString() === id) {
-    throw new Error("Category cannot be its own parent");
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AppError({
+      message: "Invalid category id",
+      code: "CATEGORY_INVALID_ID",
+      statusCode: 400,
+      context: { id },
+    });
   }
 
-  // Rule 2: Unique slug check agar change ho raha ho
+  // Prevent self-parenting
+  if (data.parentId && data.parentId.toString() === id) {
+    throw new AppError({
+      message: "Category cannot be its own parent",
+      code: "CATEGORY_SELF_PARENT",
+      statusCode: 400,
+      context: { id },
+    });
+  }
+
+  // Slug uniqueness
   if (data.slug) {
     const existing = await serviceCategoryRepository.findBySlug(data.slug);
     if (existing && existing._id.toString() !== id) {
-      throw new Error("Slug is already taken by another category");
+      throw new AppError({
+        message: "Slug is already taken by another category",
+        code: "CATEGORY_SLUG_DUPLICATE",
+        statusCode: 409,
+        context: { slug: data.slug, id },
+      });
     }
   }
 
@@ -114,22 +163,32 @@ export async function updateServiceCategory(
 }
 
 /* =====================================================
-   Delete Category
+   DELETE CATEGORY
 ===================================================== */
 export async function deleteServiceCategory(
   id: string
 ): Promise<boolean> {
   await db();
 
-  // Rule: Check karein ki koi sub-category toh nahi judi isse?
-  const hasChildren = await serviceCategoryRepository.hasChildren(id);
-  if (hasChildren) {
-    throw new Error("Cannot delete category with sub-categories. Remove sub-categories first.");
+  if (!Types.ObjectId.isValid(id)) {
+    throw new AppError({
+      message: "Invalid category id",
+      code: "CATEGORY_INVALID_ID",
+      statusCode: 400,
+      context: { id },
+    });
   }
 
-  // Note: Yahan aap ek aur check add kar sakte hain: 
-  // "Kya koi Service is category se judi hai?" 
-  // (Yeh tab hoga jab aap serviceRepository ko yahan import karenge)
+  const hasChildren = await serviceCategoryRepository.hasChildren(id);
+  if (hasChildren) {
+    throw new AppError({
+      message:
+        "Cannot delete category with sub-categories. Remove sub-categories first.",
+      code: "CATEGORY_HAS_CHILDREN",
+      statusCode: 409,
+      context: { id },
+    });
+  }
 
   return serviceCategoryRepository.deleteById(id);
 }

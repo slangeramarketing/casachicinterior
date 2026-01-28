@@ -1,7 +1,7 @@
 import React from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import { HiOutlineCalendar, HiOutlineArrowRight } from 'react-icons/hi2';
+import { OptimizedImage } from '@/components/common/OptimizedImage';
 
 // Props Interface based on your specific requirements
 interface BlogCardProps {
@@ -34,7 +34,7 @@ const PublicBlogCard: React.FC<BlogCardProps> = ({
       
       {/* --- Image Section --- */}
       <div className="relative aspect-[16/10] overflow-hidden">
-        <Image
+        <OptimizedImage
           src={thumbnail}
           alt={title}
           fill

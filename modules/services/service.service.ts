@@ -19,50 +19,107 @@
  * File: modules/services/service.service.ts
  * Layer: Service
  ***************************************************/
-// modules/services/service.service.ts
 
+import db from "@/lib/db";
 import { Types } from "mongoose";
 import { serviceRepository } from "./service.repository";
 import { ServiceRecord, ServiceWithPopulatedCategory } from "./service.types";
-import db from "@/lib/db";
+import {
+  AppError,
+  DatabaseError,
+  InvalidIdError,
+} from "@/lib/errors";
 
-export async function createService(data: Partial<ServiceRecord>): Promise<ServiceRecord> {
+/* ================================
+   CREATE SERVICE
+================================ */
+
+export async function createService(
+  data: Partial<ServiceRecord>
+): Promise<ServiceRecord> {
   await db();
-  if (!data.slug) throw new Error("Slug is required");
-  
-  const existing = await serviceRepository.findBySlug(data.slug);
-  if (existing) throw new Error("Service with this slug already exists");
 
-  return serviceRepository.create({
-    ...data,
-    status: data.status || "draft",
-    highlights: data.highlights || [],
-    faqs: data.faqs || [],
-  });
+  if (!data.slug) {
+    throw new AppError({
+      message: "Slug is required",
+      code: "VALIDATION_ERROR",
+      statusCode: 400,
+      context: { field: "slug" },
+    });
+  }
+
+  try {
+    const existing = await serviceRepository.findBySlug(data.slug);
+    if (existing) {
+      throw new AppError({
+        message: "Service with this slug already exists",
+        code: "DUPLICATE_SLUG",
+        statusCode: 409,
+        context: { slug: data.slug },
+      });
+    }
+
+    return await serviceRepository.create({
+      ...data,
+      status: data.status || "draft",
+      highlights: data.highlights || [],
+      faqs: data.faqs || [],
+    });
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+
+    throw new DatabaseError("Failed to create service", {
+      slug: data.slug,
+    }, err);
+  }
 }
 
-/**
- * Get Service by ID (Populated)
- */
-export async function getServiceById(id: string): Promise<ServiceWithPopulatedCategory | null> {
+/* ================================
+   GET BY ID
+================================ */
+
+export async function getServiceById(
+  id: string
+): Promise<ServiceWithPopulatedCategory | null> {
   await db();
-  return serviceRepository.findById(id);
+
+  if (!Types.ObjectId.isValid(id)) {
+    throw new InvalidIdError("Invalid service ID", { id });
+  }
+
+  try {
+    return await serviceRepository.findById(id);
+  } catch (err) {
+    throw new DatabaseError("Failed to fetch service by ID", { id }, err);
+  }
 }
 
-/**
- * Get Service by Slug (Populated)
- */
-export async function getServiceBySlug(slug: string): Promise<ServiceWithPopulatedCategory | null> {
-  await db();
-  const service = await serviceRepository.findBySlug(slug);
+/* ================================
+   GET BY SLUG (PUBLIC)
+================================ */
 
-  if (!service || service.status !== "published") return null;
-  return service;
+export async function getServiceBySlug(
+  slug: string
+): Promise<ServiceWithPopulatedCategory | null> {
+  await db();
+
+  try {
+    const service = await serviceRepository.findBySlug(slug);
+
+    if (!service || service.status !== "published") {
+      return null;
+    }
+
+    return service;
+  } catch (err) {
+    throw new DatabaseError("Failed to fetch service by slug", { slug }, err);
+  }
 }
 
-/**
- * List Services (Populated for both Admin & Public)
- */
+/* ================================
+   LIST SERVICES
+================================ */
+
 export async function listServices(options?: {
   publicOnly?: boolean;
   categoryId?: string;
@@ -70,39 +127,96 @@ export async function listServices(options?: {
   limit?: number;
 }): Promise<ServiceWithPopulatedCategory[]> {
   await db();
-  
+
   const filter: any = {};
-  if (options?.publicOnly) {
-    filter.status = "published";
-  } else {
-    filter.status = { $in: ["draft", "published"] };
-  }
+
+  filter.status = options?.publicOnly
+    ? "published"
+    : { $in: ["draft", "published"] };
 
   if (options?.categoryId) {
-    filter.categoryId =options.categoryId;
+    if (!Types.ObjectId.isValid(options.categoryId)) {
+      throw new InvalidIdError("Invalid category ID", {
+        categoryId: options.categoryId,
+      });
+    }
+    filter.categoryId = options.categoryId;
   }
 
   if (typeof options?.featured === "boolean") {
     filter.featured = options.featured;
   }
 
-  return serviceRepository.findAll(filter, { limit: options?.limit });
+  try {
+    return await serviceRepository.findAll(filter, {
+      limit: options?.limit,
+    });
+  } catch (err) {
+    throw new DatabaseError("Failed to list services", { filter }, err);
+  }
 }
 
-export async function updateService(id: string, data: Partial<ServiceRecord>): Promise<ServiceWithPopulatedCategory | null> {
+/* ================================
+   UPDATE SERVICE
+================================ */
+
+export async function updateService(
+  id: string,
+  data: Partial<ServiceRecord>
+): Promise<ServiceWithPopulatedCategory | null> {
   await db();
-  if (data.slug) {
-    const existing = await serviceRepository.findBySlug(data.slug);
-    if (existing && existing._id.toString() !== id) {
-      throw new Error("New slug is already taken");
-    }
+
+  if (!Types.ObjectId.isValid(id)) {
+    throw new InvalidIdError("Invalid service ID", { id });
   }
-  return serviceRepository.updateById(id, data);
+
+  try {
+    if (data.slug) {
+      const existing = await serviceRepository.findBySlug(data.slug);
+      if (existing && existing._id.toString() !== id) {
+        throw new AppError({
+          message: "Slug already in use by another service",
+          code: "DUPLICATE_SLUG",
+          statusCode: 409,
+          context: { slug: data.slug },
+        });
+      }
+    }
+
+    return await serviceRepository.updateById(id, data);
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+
+    throw new DatabaseError("Failed to update service", { id, data }, err);
+  }
 }
+
+/* ================================
+   DELETE SERVICE
+================================ */
 
 export async function deleteService(id: string): Promise<boolean> {
   await db();
-  const service = await serviceRepository.findById(id);
-  if (!service) throw new Error("Service not found");
-  return serviceRepository.deleteById(id);
+
+  if (!Types.ObjectId.isValid(id)) {
+    throw new InvalidIdError("Invalid service ID", { id });
+  }
+
+  try {
+    const service = await serviceRepository.findById(id);
+    if (!service) {
+      throw new AppError({
+        message: "Service not found",
+        code: "NOT_FOUND",
+        statusCode: 404,
+        context: { id },
+      });
+    }
+
+    return await serviceRepository.deleteById(id);
+  } catch (err) {
+    if (err instanceof AppError) throw err;
+
+    throw new DatabaseError("Failed to delete service", { id }, err);
+  }
 }

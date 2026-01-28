@@ -1,83 +1,165 @@
 /***************************************************
  * File: modules/blog-category/blog-category.service.ts
  * Layer: Service
- *
- * Purpose:
- * - Business logic for Blog Categories.
- *
- * Responsibilities:
- * - Fetching flat and tree-ready records.
- * - Validation rules for categories.
- *
- * Restrictions:
- * - Must NOT use Mappers (Mapping belongs to Facade).
- * - Returns IBlogCategoryRecord (DB Model Type).
  ***************************************************/
 
+import db from "@/lib/db";
+import { Types } from "mongoose";
 import { blogCategoryRepository } from "./blog-category.repository";
-import { CreateBlogCategoryDTO, UpdateBlogCategoryDTO } from "./blog-category.dto";
+import {
+  CreateBlogCategoryDTO,
+  UpdateBlogCategoryDTO,
+} from "./blog-category.dto";
 import { IBlogCategoryRecord } from "./blog-category.types";
+import { AppError } from "@/lib/errors/AppError";
 
-/**
- * Fetch all categories for Tree structure
- * Note: Service returns raw records, Facade will call Mapper.toTree
- */
-export async function getCategoryTree(): Promise<IBlogCategoryRecord[]> {
-  return await blogCategoryRepository.findAll();
-}
+/* =====================================================
+   READ
+===================================================== */
 
-/**
- * Fetch all categories as a flat list
- */
 export async function getAllCategories(): Promise<IBlogCategoryRecord[]> {
-  return await blogCategoryRepository.findAll();
-} 
-
-/**
- * Slug ke basis par category dhoondhna
- */
-export async function getCategoryBySlug(slug: string): Promise<IBlogCategoryRecord | null> {
-  return await blogCategoryRepository.findBySlug(slug);
+  await db();
+  return blogCategoryRepository.findAll();
 }
 
-/**
- * ID ke basis par category dhoondhna (Populated)
- */
-export async function getCategoryById(id: string): Promise<IBlogCategoryRecord | null> {
-  return await blogCategoryRepository.findById(id);
+export async function getCategoryTree(): Promise<IBlogCategoryRecord[]> {
+  await db();
+  return blogCategoryRepository.findAll();
 }
 
-/**
- * Create a new blog category
- */
-export async function createBlogCategory(data: CreateBlogCategoryDTO): Promise<IBlogCategoryRecord> {
+export async function getCategoryBySlug(
+  slug: string
+): Promise<IBlogCategoryRecord | null> {
+  await db();
+  return blogCategoryRepository.findBySlug(slug);
+}
+
+export async function getCategoryById(
+  id: string
+): Promise<IBlogCategoryRecord | null> {
+  await db();
+  return blogCategoryRepository.findById(id);
+}
+
+/* =====================================================
+   WRITE
+===================================================== */
+
+export async function createBlogCategory(
+  data: CreateBlogCategoryDTO
+): Promise<IBlogCategoryRecord> {
+  await db();
+
   const existing = await blogCategoryRepository.findBySlug(data.slug);
-  if (existing) throw new Error("Category with this slug already exists");
+  if (existing) {
+    throw new AppError({
+      message: "Category with this slug already exists",
+      code: "BLOG_CATEGORY_SLUG_CONFLICT",
+      statusCode: 409,
+      context: { slug: data.slug },
+    });
+  }
 
-  return await blogCategoryRepository.create(data);
+  // ✅ DTO → DB RECORD MAPPING (IMPORTANT)
+  return blogCategoryRepository.create({
+    name: data.name,
+    slug: data.slug,
+    description: data.description ?? "",
+    parentId: data.parentId ? new Types.ObjectId(data.parentId) : null,
+    icon: data.icon,
+    coverImage: data.coverImage,
+
+    seo: {
+      metaTitle: data.seo?.metaTitle,
+      metaDescription: data.seo?.metaDescription,
+      keywords: data.seo?.keywords ?? [],
+      metaRobots: data.seo?.metaRobots ?? "index, follow",
+      canonicalUrl: data.seo?.canonicalUrl,
+    },
+
+    status: data.status,
+    displayOrder: data.displayOrder ?? 0,
+  });
 }
 
-/**
- * Update an existing category
- */
-export async function updateBlogCategory(id: string, data: UpdateBlogCategoryDTO): Promise<IBlogCategoryRecord> {
+export async function updateBlogCategory(
+  id: string,
+  data: UpdateBlogCategoryDTO
+): Promise<IBlogCategoryRecord> {
+  await db();
+
   if (data.slug) {
     const existing = await blogCategoryRepository.findBySlug(data.slug);
     if (existing && existing._id.toString() !== id) {
-      throw new Error("Slug is already taken");
+      throw new AppError({
+        message: "Slug already used by another category",
+        code: "BLOG_CATEGORY_SLUG_CONFLICT",
+        statusCode: 409,
+        context: { id, slug: data.slug },
+      });
     }
   }
 
-  const updated = await blogCategoryRepository.update(id, data);
-  if (!updated) throw new Error("Category not found");
+  const updated = await blogCategoryRepository.updateById(id, {
+    ...(data.name !== undefined && { name: data.name }),
+    ...(data.slug !== undefined && { slug: data.slug }),
+    ...(data.description !== undefined && { description: data.description }),
+    ...(data.icon !== undefined && { icon: data.icon }),
+    ...(data.coverImage !== undefined && { coverImage: data.coverImage }),
+    ...(data.status !== undefined && { status: data.status }),
+    ...(data.displayOrder !== undefined && {
+      displayOrder: data.displayOrder,
+    }),
+    ...(data.parentId !== undefined && {
+      parentId: data.parentId
+        ? new Types.ObjectId(data.parentId)
+        : null,
+    }),
+    ...(data.seo && {
+      seo: {
+        metaTitle: data.seo.metaTitle,
+        metaDescription: data.seo.metaDescription,
+        keywords: data.seo.keywords ?? [],
+        metaRobots: data.seo.metaRobots ?? "index, follow",
+        canonicalUrl: data.seo.canonicalUrl,
+      },
+    }),
+  });
+
+  if (!updated) {
+    throw new AppError({
+      message: "Category not found",
+      code: "BLOG_CATEGORY_NOT_FOUND",
+      statusCode: 404,
+      context: { id },
+    });
+  }
 
   return updated;
 }
 
-/**
- * Delete category by ID
- */
 export async function deleteBlogCategory(id: string): Promise<boolean> {
-  const result = await blogCategoryRepository.delete(id);
-  return !!result;
+  await db();
+
+  const hasChildren = await blogCategoryRepository.hasChildren(id);
+  if (hasChildren) {
+    throw new AppError({
+      message: "Cannot delete category with sub-categories",
+      code: "BLOG_CATEGORY_HAS_CHILDREN",
+      statusCode: 400,
+      context: { id },
+    });
+  }
+
+  const deleted = await blogCategoryRepository.deleteById(id);
+  if (!deleted) {
+    throw new AppError({
+      message: "Category not found",
+      code: "BLOG_CATEGORY_NOT_FOUND",
+      statusCode: 404,
+      context: { id },
+    });
+  }
+
+  return true;
 }

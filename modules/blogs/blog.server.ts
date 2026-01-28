@@ -16,6 +16,24 @@
  * - Must NOT access repository directly.
  * - Must NOT return raw database objects.
  ***************************************************/
+/***************************************************
+ * File: modules/blogs/blog.server.ts
+ * Layer: Server Facade
+ *
+ * Purpose:
+ * - Next.js server-side adapter for Blog module.
+ * - Acts as the single entry point for UI (Server Components) and Actions.
+ *
+ * Responsibilities:
+ * - Coordination between Service and Mapper.
+ * - Perform auth & role checks (Admin logic goes here).
+ * - Cache revalidation via revalidatePath.
+ *
+ * Restrictions:
+ * - No "use server" at the top (due to object export).
+ * - Must NOT access repository directly.
+ * - Must NOT return raw database objects.
+ ***************************************************/
 
 import { revalidatePath } from "next/cache";
 import { 
@@ -26,7 +44,7 @@ import {
   deleteBlog, 
   getBlogById
 } from "./blog.service";
-import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
+import { BlogResponseDTO, CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
 import { BlogMapper } from "./blog.mapper";
 
 /**
@@ -36,7 +54,9 @@ export const blogServer = {
   /**
    * Purpose: Fetch all blogs for Admin/Public list
    */
-  async getAll(filters: any = {}) {
+  async getAll(filters: any = {}):Promise<
+  | { success: true; data: BlogResponseDTO[] }
+  | { success: false; error: string }> {
     try {
       const records = await getAllBlogs(filters);
       

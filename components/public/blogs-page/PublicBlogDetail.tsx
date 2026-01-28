@@ -1,17 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
 import { 
   FiCalendar, FiUser, FiTag, FiSearch, 
-  FiShare2, FiFacebook, FiTwitter, FiLinkedin 
+  FiFacebook, FiTwitter, FiLinkedin 
 } from "react-icons/fi";
-import { MdOutlineCategory } from "react-icons/md";
 import defaultImg from "@/public/assets/default.jpg";
 import { useRouter } from "next/navigation";
 import { ShareButton } from "@/components/common/ShareButton";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 interface Props {
   blog: BlogResponseDTO;
@@ -42,7 +41,7 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
     <div className="bg-white min-h-screen">
       {/* 1. Hero Banner Section */}
       <div className="relative w-full h-[50vh] md:h-[60vh] lg:h-[70vh]">
-        <Image
+        <OptimizedImage
           src={blog.bannerImage || blog.thumbnail || defaultImg}
           alt={blog.title}
           fill
@@ -148,7 +147,7 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
                 relatedBlogs.map((item) => (
                   <Link href={`/blog/${item.slug}`} key={item.id} className="flex gap-4 group">
                     <div className="relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0">
-                      <Image
+                      <OptimizedImage
                         src={item.thumbnail || defaultImg}
                         alt={item.title}
                         fill

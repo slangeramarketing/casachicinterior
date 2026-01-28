@@ -5,7 +5,6 @@
 import before from "@/public/assets/HomeRenovationBefor.png"
 import after from "@/public/assets/HomeRenovationAfter.png"
 import React, { useState, useRef } from "react";
-import Image from "next/image";
 import { OptimizedImage } from "../common/OptimizedImage";
 
 const PortfolioShowcase: React.FC = () => {

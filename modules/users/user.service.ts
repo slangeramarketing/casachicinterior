@@ -2,6 +2,10 @@
  * File: modules/users/user.service.ts
  * Layer: Service
  ***************************************************/
+/***************************************************
+ * File: modules/users/user.service.ts
+ * Layer: Service
+ ***************************************************/
 
 import { userRepository } from "./user.repository";
 import {

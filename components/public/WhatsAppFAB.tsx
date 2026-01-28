@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import whatsapp from "@/public/media/static/whatsapp.svg"
 import { OptimizedImage } from "../common/OptimizedImage";
 

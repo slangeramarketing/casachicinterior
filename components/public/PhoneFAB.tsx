@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+
 import phoneIcon from "@/public/media/static/phone.png";
 import { OptimizedImage } from "../common/OptimizedImage";
 

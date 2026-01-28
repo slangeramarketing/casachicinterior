@@ -1,22 +1,21 @@
-
 import PublicBlogListPage from "@/components/public/blogs-page/PublicBlogListPage";
 import { BlogCategoryResponseDTO } from "@/modules/blog-category/blog-category.dto";
 import { blogCategoryServer } from "@/modules/blog-category/blog-category.server";
+import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
 import { blogServer } from "@/modules/blogs/blog.server";
-
 
 export default async function BlogsServerPage() {
   const result = await blogServer.getAll();
-  console.log("blogs Data: ",result.data);
+  const blogCategoryList = await blogCategoryServer.getList();
 
-  const blogCategoryList=await blogCategoryServer.getList();
+  // ✅ blogs ALWAYS array
+  const blogs: BlogResponseDTO[] =
+    result.success ? result.data : [];
 
-  // Is tareeke se 'any' error khatam ho jayegi
-  const categories: BlogCategoryResponseDTO[] = blogCategoryList.success && blogCategoryList.data 
-    ? blogCategoryList.data 
-    : [];
+  // ✅ categories ALWAYS array
+  const categories: BlogCategoryResponseDTO[] =
+    blogCategoryList.success ? blogCategoryList.data : [];
 
-  // Error handling
   if (!result.success) {
     return (
       <div className="p-10 text-center text-red-500">
@@ -24,7 +23,11 @@ export default async function BlogsServerPage() {
       </div>
     );
   }
+
   return (
-    <PublicBlogListPage blogs={result.data || []} categories={categories} />
+    <PublicBlogListPage
+      blogs={blogs}
+      categories={categories}
+    />
   );
 }

@@ -14,60 +14,114 @@
  * - Must NOT contain business logic.
  * - Must NOT perform database operations.
  ***************************************************/
-// modules/blogs/blog.mapper.ts
+/***************************************************
+ * File: modules/blogs/blog.mapper.ts
+ * Layer: Mapper
+ ***************************************************/
 
 import { BlogResponseDTO } from "./blog.dto";
 
+type AnyDoc = Record<string, any>;
+
 export const BlogMapper = {
-  toResponse(doc: any): BlogResponseDTO {
-    if (!doc) throw new Error("Mapper received null document");
+  toResponse(doc: AnyDoc): BlogResponseDTO {
+    if (!doc) {
+      throw new Error("BlogMapper.toResponse received null/undefined document");
+    }
 
+    /* ----------------------------------
+       SAFE HELPERS
+    ---------------------------------- */
+    const toIdString = (val: any): string => {
+      if (!val) return "";
+      if (typeof val === "string") return val;
+      if (val._id) return val._id.toString();
+      return val.toString?.() ?? "";
+    };
+
+    const toISO = (val: any): string | undefined => {
+      if (!val) return undefined;
+      if (val instanceof Date) return val.toISOString();
+      return undefined;
+    };
+
+    /* ----------------------------------
+       CATEGORY (populated OR raw)
+    ---------------------------------- */
+    const categoryId = doc.categoryId ?? null;
+
+    const category = {
+      id: toIdString(categoryId),
+      name:
+        typeof categoryId === "object" && categoryId?.name
+          ? categoryId.name
+          : "Uncategorized",
+      slug:
+        typeof categoryId === "object" && categoryId?.slug
+          ? categoryId.slug
+          : "",
+    };
+
+    /* ----------------------------------
+       AUTHOR (populated OR raw)
+    ---------------------------------- */
+    const authorId = doc.authorId ?? null;
+
+    const author = {
+      id: toIdString(authorId),
+      name:
+        typeof authorId === "object" && authorId?.name
+          ? authorId.name
+          : "Admin",
+      image:
+        typeof authorId === "object" && authorId?.image
+          ? authorId.image
+          : "",
+    };
+
+    /* ----------------------------------
+       RESPONSE DTO
+    ---------------------------------- */
     return {
-      id: doc._id?.toString() || "",
-      title: doc.title || "",
-      slug: doc.slug || "",
-      summary: doc.summary || "",
-      content: doc.content || "",
-      thumbnail: doc.thumbnail || "",
-      bannerImage: doc.bannerImage || "",
-      
-      // Category: Agar populated hai to object use karega, nahi to sirf ID string
-      category: {
-        id: doc.categoryId?._id?.toString() || doc.categoryId?.toString() || "",
-        name: doc.categoryId?.name || "Uncategorized",
-        slug: doc.categoryId?.slug || "",
-      },
+      id: toIdString(doc._id),
 
-      // Author: Same logic
-      author: {
-        id: doc.authorId?._id?.toString() || doc.authorId?.toString() || "",
-        name: doc.authorId?.name || "Admin",
-        image: doc.authorId?.image || "",
-      },
+      title: doc.title ?? "",
+      slug: doc.slug ?? "",
+      summary: doc.summary ?? "",
+      content: doc.content ?? "",
+
+      thumbnail: doc.thumbnail ?? "",
+      bannerImage: doc.bannerImage ?? "",
+
+      category,
+      author,
 
       tags: Array.isArray(doc.tags) ? doc.tags : [],
-      readingTime: doc.readingTime || 0,
-      viewCount: doc.viewCount || 0,
-      
+      readingTime: typeof doc.readingTime === "number" ? doc.readingTime : 0,
+      viewCount: typeof doc.viewCount === "number" ? doc.viewCount : 0,
+
       seo: {
-        metaTitle: doc.seo?.metaTitle || doc.title || "",
-        metaDescription: doc.seo?.metaDescription || doc.summary || "",
-        keywords: doc.seo?.keywords || [],
-        ogImage: doc.seo?.ogImage || doc.thumbnail || "",
-        canonicalUrl: doc.seo?.canonicalUrl || "",
-        metaRobots: doc.seo?.metaRobots || "index, follow",
+        metaTitle: doc.seo?.metaTitle ?? doc.title ?? "",
+        metaDescription: doc.seo?.metaDescription ?? doc.summary ?? "",
+        keywords: Array.isArray(doc.seo?.keywords)
+          ? doc.seo.keywords
+          : [],
+        ogImage: doc.seo?.ogImage ?? doc.thumbnail ?? "",
+        canonicalUrl: doc.seo?.canonicalUrl ?? "",
+        metaRobots: doc.seo?.metaRobots ?? "index, follow",
       },
 
-      status: doc.status || "draft",
+      status: doc.status ?? "draft",
       featured: Boolean(doc.featured),
-      publishedAt: doc.publishedAt instanceof Date ? doc.publishedAt.toISOString() : undefined,
-      createdAt: doc.createdAt instanceof Date ? doc.createdAt.toISOString() : new Date().toISOString(),
-      updatedAt: doc.updatedAt instanceof Date ? doc.updatedAt.toISOString() : new Date().toISOString(),
+
+      publishedAt: toISO(doc.publishedAt),
+      createdAt: toISO(doc.createdAt) ?? new Date().toISOString(),
+      updatedAt: toISO(doc.updatedAt) ?? new Date().toISOString(),
     };
   },
 
-  toResponseList(docs: any[]): BlogResponseDTO[] {
+  toResponseList(docs: AnyDoc[]): BlogResponseDTO[] {
     if (!Array.isArray(docs)) return [];
     return docs.map((doc) => this.toResponse(doc));
-  }
+  },
 };

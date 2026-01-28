@@ -37,6 +37,28 @@ import {
   ServiceCategoryResponseDTO,
 } from "./service-category.dto";
 import { getAuthUser } from "@/lib/auth";
+import { AppError } from "@/lib/errors";
+
+/* =====================================================
+   Helper: Admin Auth Guard
+===================================================== */
+async function requireAdmin() {
+  const user = await getAuthUser();
+
+  if (!user || !["admin", "super_admin"].includes(user.role)) {
+    throw new AppError({
+      message: "Unauthorized: Admin access required",
+      code: "AUTH_FORBIDDEN",
+      statusCode: 403,
+      context: {
+        userId: user?.userId,
+        role: user?.role,
+      },
+    });
+  }
+
+  return user;
+}
 
 /* =====================================================
    Server Facade Object
@@ -46,72 +68,47 @@ export const serviceCategoryServer = {
       READ OPERATIONS
   ============================= */
 
-  /**
-   * Get all categories for Admin table (includes inactive)
-   */
   async getAll(): Promise<ServiceCategoryResponseDTO[]> {
     const records = await listServiceCategories();
     return serviceCategoryMapper.toResponseList(records);
   },
 
-  /**
-   * Get category by ID for Edit Forms
-   */
   async getById(id: string): Promise<ServiceCategoryResponseDTO | null> {
     const record = await getServiceCategoryById(id);
     if (!record) return null;
     return serviceCategoryMapper.toResponse(record);
   },
 
-  /**
-   * Get categories by parent (Useful for nested dropdowns)
-   * Pass null to get top-level categories
-   */
-  async getByParent(parentId: string | null): Promise<ServiceCategoryResponseDTO[]> {
-    const records = await listServiceCategories({
-      parentId,
-    });
+  async getByParent(
+    parentId: string | null
+  ): Promise<ServiceCategoryResponseDTO[]> {
+    const records = await listServiceCategories({ parentId });
     return serviceCategoryMapper.toResponseList(records);
   },
 
-  /**
-   * Get active categories for Public UI (Menus/Filters)
-   */
   async getActive(): Promise<ServiceCategoryResponseDTO[]> {
-    const records = await listServiceCategories({
-      publicOnly: true,
-    });
+    const records = await listServiceCategories({ publicOnly: true });
     return serviceCategoryMapper.toResponseList(records);
   },
 
   /* =============================
-      WRITE OPERATIONS (ADMIN ONLY)
+      WRITE OPERATIONS (ADMIN)
   ============================= */
 
-  /**
-   * Create category with Auth & Role check
-   */
-  async create(data: CreateServiceCategoryDTO): Promise<ServiceCategoryResponseDTO> {
-    const user = await getAuthUser();
-    if (!user || !["admin", "super_admin"].includes(user.role)) {
-      throw new Error("Unauthorized: Insufficient permissions.");
-    }
+  async create(
+    data: CreateServiceCategoryDTO
+  ): Promise<ServiceCategoryResponseDTO> {
+    await requireAdmin();
 
     const record = await createServiceCategory(data as any);
     return serviceCategoryMapper.toResponse(record);
   },
 
-  /**
-   * Update category with Auth & Role check
-   */
   async update(
     id: string,
     data: UpdateServiceCategoryDTO
   ): Promise<ServiceCategoryResponseDTO | null> {
-    const user = await getAuthUser();
-    if (!user || !["admin", "super_admin"].includes(user.role)) {
-      throw new Error("Unauthorized");
-    }
+    await requireAdmin();
 
     const record = await updateServiceCategory(id, data as any);
     if (!record) return null;
@@ -119,16 +116,8 @@ export const serviceCategoryServer = {
     return serviceCategoryMapper.toResponse(record);
   },
 
-  /**
-   * Delete category
-   */
   async remove(id: string): Promise<boolean> {
-    const user = await getAuthUser();
-    if (!user || !["admin", "super_admin"].includes(user.role)) {
-      throw new Error("Unauthorized");
-    }
-
-    // Service layer will handle children/sub-category check
+    await requireAdmin();
     return deleteServiceCategory(id);
   },
 };

@@ -1,106 +1,168 @@
 import { ServiceResponseDTO } from "./service.dto";
+import { AppError } from "@/lib/errors";
 
 export const serviceMapper = {
   toResponse(record: any): ServiceResponseDTO {
-    const isPopulated =
+    if (!record) {
+      throw new AppError({
+        message: "ServiceMapper received null/undefined record",
+        code: "MAPPER_NULL_RECORD",
+        statusCode: 500,
+      });
+    }
+
+    if (!record._id) {
+      throw new AppError({
+        message: "Service record missing _id",
+        code: "MAPPER_MISSING_ID",
+        statusCode: 500,
+        context: { record },
+      });
+    }
+
+    /* --------------------------------
+       CATEGORY (DEFENSIVE)
+    --------------------------------- */
+    let categoryId: string;
+    let category: ServiceResponseDTO["category"];
+
+    if (
       record.categoryId &&
       typeof record.categoryId === "object" &&
-      "name" in record.categoryId;
+      record.categoryId._id
+    ) {
+      categoryId = record.categoryId._id.toString();
+      category = {
+        id: categoryId,
+        name: record.categoryId.name ?? "Unknown",
+        slug: record.categoryId.slug ?? "unknown",
+        icon: record.categoryId.icon ?? "check",
+      };
+    } else if (record.categoryId) {
+      categoryId = record.categoryId.toString();
+      category = {
+        id: categoryId,
+        name: "Unknown",
+        slug: "unknown",
+        icon: "check",
+      };
+    } else {
+      // 🔥 THIS WAS YOUR PRODUCTION CRASH ROOT CAUSE
+      throw new AppError({
+        message: "Service record has null categoryId",
+        code: "MAPPER_NULL_CATEGORY",
+        statusCode: 500,
+        context: { serviceId: record._id.toString() },
+      });
+    }
 
-    const category = isPopulated
-      ? {
-          id: record.categoryId._id.toString(),
-          name: record.categoryId.name,
-          slug: record.categoryId.slug,
-          icon: record.categoryId.icon || "check",
-        }
-      : {
-          // 🔒 fallback when not populated
-          id: record.categoryId.toString(),
-          name: "Unknown",
-          slug: "unknown",
-          icon: "check",
-        };
+    /* --------------------------------
+       VIDEO SHOWCASE (SAFE DEFAULTS)
+    --------------------------------- */
+    const videoShowcase = record.videoShowcase ?? {
+      enabled: true,
+      reels: [],
+      youtube: [],
+    };
 
     return {
       id: record._id.toString(),
-      slug: record.slug,
-      title: record.title,
-      shortDescription: record.shortDescription,
-      description: record.description,
+      slug: record.slug ?? "",
+      title: record.title ?? "",
+      shortDescription: record.shortDescription ?? "",
+      description: record.description ?? "",
 
-      categoryId: category.id,
-      category, // ✅ NEVER undefined
+      categoryId,
+      category,
 
-      coverImage: record.coverImage,
+      coverImage: record.coverImage ?? "",
 
-      gallery: (record.gallery || []).map((img: any) => ({
-        url: img.url,
-        alt: img.alt || "",
-        caption: img.caption || "",
-      })),
+      gallery: Array.isArray(record.gallery)
+        ? record.gallery.map((img: any) => ({
+            url: img?.url ?? "",
+            alt: img?.alt ?? "",
+            caption: img?.caption ?? "",
+          }))
+        : [],
 
       videoShowcase: {
-        enabled: record.videoShowcase?.enabled ?? true,
+        enabled: videoShowcase.enabled ?? true,
 
-        reels: (record.videoShowcase?.reels || []).map((r: any) => ({
-          url: r.url,
-          thumbnail: r.thumbnail ?? null,
-          title: r.title || "",
-          featured: !!r.featured,
-          order: r.order ?? 0,
-        })),
+        reels: Array.isArray(videoShowcase.reels)
+          ? videoShowcase.reels.map((r: any) => ({
+              url: r?.url ?? "",
+              thumbnail: r?.thumbnail ?? null,
+              title: r?.title ?? "",
+              featured: !!r?.featured,
+              order: typeof r?.order === "number" ? r.order : 0,
+            }))
+          : [],
 
-        youtube: (record.videoShowcase?.youtube || []).map((y: any) => ({
-          embedId: y.embedId,
-          title: y.title || "",
-          description: y.description || "",
-          featured: !!y.featured,
-          order: y.order ?? 0,
-        })),
+        youtube: Array.isArray(videoShowcase.youtube)
+          ? videoShowcase.youtube.map((y: any) => ({
+              embedId: y?.embedId ?? "",
+              title: y?.title ?? "",
+              description: y?.description ?? "",
+              featured: !!y?.featured,
+              order: typeof y?.order === "number" ? y.order : 0,
+            }))
+          : [],
       },
 
-      highlights: (record.highlights || []).map((h: any) => ({
-        icon: h.icon,
-        title: h.title,
-      })),
+      highlights: Array.isArray(record.highlights)
+        ? record.highlights.map((h: any) => ({
+            icon: h?.icon ?? "check",
+            title: h?.title ?? "",
+          }))
+        : [],
 
-      faqs: (record.faqs || []).map((f: any) => ({
-        question: f.question,
-        answer: f.answer,
-      })),
+      faqs: Array.isArray(record.faqs)
+        ? record.faqs.map((f: any) => ({
+            question: f?.question ?? "",
+            answer: f?.answer ?? "",
+          }))
+        : [],
 
-      startingPrice: record.startingPrice,
-      priceUnit: record.priceUnit,
+      startingPrice: record.startingPrice ?? undefined,
+      priceUnit: record.priceUnit ?? "",
 
       seo: {
-        title: record.seo?.title || "",
-        description: record.seo?.description || "",
-        keywords: record.seo?.keywords || [],
-        ogImage: record.seo?.ogImage || "",
-        metaRobots: record.seo?.metaRobots || "index, follow",
+        title: record.seo?.title ?? "",
+        description: record.seo?.description ?? "",
+        keywords: record.seo?.keywords ?? [],
+        ogImage: record.seo?.ogImage ?? "",
+        metaRobots: record.seo?.metaRobots ?? "index, follow",
       },
 
       featured: !!record.featured,
-      status: record.status,
-      displayOrder: record.displayOrder,
+      status: record.status ?? "draft",
+      displayOrder: typeof record.displayOrder === "number" ? record.displayOrder : 0,
 
-      ctaText: record.ctaText || "",
-      ctaLink: record.ctaLink || "",
+      ctaText: record.ctaText ?? "",
+      ctaLink: record.ctaLink ?? "",
 
       createdAt:
         record.createdAt instanceof Date
           ? record.createdAt.toISOString()
-          : record.createdAt,
+          : String(record.createdAt ?? ""),
 
       updatedAt:
         record.updatedAt instanceof Date
           ? record.updatedAt.toISOString()
-          : record.updatedAt,
+          : String(record.updatedAt ?? ""),
     };
   },
 
   toResponseList(records: any[]): ServiceResponseDTO[] {
+    if (!Array.isArray(records)) {
+      throw new AppError({
+        message: "ServiceMapper expected array",
+        code: "MAPPER_INVALID_LIST",
+        statusCode: 500,
+        context: { records },
+      });
+    }
+
     return records.map((rec) => this.toResponse(rec));
   },
 };

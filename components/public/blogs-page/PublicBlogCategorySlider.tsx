@@ -1,5 +1,5 @@
 // components/public/CategorySlider.tsx
-import Image from "next/image";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 interface Category {
   _id: string;
@@ -45,7 +45,7 @@ export default function PublicBlogCategorySlider({ categories, activeCategory, o
               activeCategory === cat.slug ? "border-orange-500 scale-110" : "border-transparent"
             }`}>
               <div className="relative w-full h-full rounded-full overflow-hidden">
-                <Image 
+                <OptimizedImage 
                   src={cat.coverImage || "/placeholder-cat.jpg"} 
                   alt={cat.name} 
                   fill 

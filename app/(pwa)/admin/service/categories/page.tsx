@@ -30,6 +30,7 @@ export default async function ServiceCategoryServerPage() {
 
   // Logging for debugging during development
   console.log(`Fetched ${categories?.length || 0} categories for Admin.`);
+  console.log("Category Data: ",categories);
 
 
   return (

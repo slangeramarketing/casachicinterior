@@ -19,6 +19,10 @@
  * Note:
  * - This file exports a stateless object with methods
  ***************************************************/
+/***************************************************
+ * File: modules/users/user.repository.ts
+ * Layer: Repository
+ ***************************************************/
 
 import { Types } from "mongoose";
 import UserModel from "./user.model";
@@ -37,33 +41,37 @@ interface UserFilter {
    USER REPOSITORY
 ------------------------------------- */
 export const userRepository = {
-  /**
-   * Create a new user
-   */
+  /* =============================
+      CREATE
+  ============================= */
+
   async create(data: Partial<UserRecord>): Promise<UserRecord> {
-    const user = await UserModel.create(data);
-    return user.toObject(); // ✅ must return plain object
+    const doc = await UserModel.create(data);
+    return doc.toObject();
   },
 
-  /**
-   * Find user by ID
-   */
+  /* =============================
+      READ
+  ============================= */
+
   async findById(id: string): Promise<UserRecord | null> {
-    return UserModel.findById(new Types.ObjectId(id)).lean();
+    if (!Types.ObjectId.isValid(id)) return null;
+
+    return UserModel.findById(id)
+      .lean<UserRecord>()
+      .exec();
   },
 
-  /**
-   * Find user by email
-   */
   async findByEmail(email: string): Promise<UserRecord | null> {
-    return UserModel.findOne({ email }).lean();
+    if (!email) return null;
+
+    return UserModel.findOne({ email })
+      .lean<UserRecord>()
+      .exec();
   },
 
-  /**
-   * List users with filters & pagination
-   */
   async findAll(
-    filters: UserFilter,
+    filters: UserFilter = {},
     page = 1,
     limit = 10
   ): Promise<UserRecord[]> {
@@ -72,68 +80,84 @@ export const userRepository = {
     if (filters.role) query.role = filters.role;
     if (filters.status) query.status = filters.status;
 
-    if (filters.search) {
+    if (filters.search?.trim()) {
       query.$or = [
         { name: { $regex: filters.search, $options: "i" } },
         { email: { $regex: filters.search, $options: "i" } },
       ];
     }
 
+    const safePage = Math.max(1, page);
+    const safeLimit = Math.min(Math.max(limit, 1), 100);
+
     return UserModel.find(query)
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .lean();
+      .skip((safePage - 1) * safeLimit)
+      .limit(safeLimit)
+      .lean<UserRecord[]>()
+      .exec();
   },
 
-  /**
-   * Update user by ID
-   */
-async updateById(id: string, data: Partial<UserRecord>): Promise<UserRecord | null> {
-  // 1. Security check: Password ko yahan se delete kar dein 
-  // taaki general update se password kabhi change na ho
-  delete data.password; 
+  /* =============================
+      UPDATE
+  ============================= */
 
-  return UserModel.findByIdAndUpdate(
-    new Types.ObjectId(id),
-    { $set: data }, // $set sirf unhi fields ko update karega jo data mein hain
-    { new: true }
-  ).lean();
-},
+  async updateById(
+    id: string,
+    data: Partial<UserRecord>
+  ): Promise<UserRecord | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
 
-  /**
-   * Update user status
-   */
+    // 🔒 Password update is NOT allowed here
+    if ("password" in data) {
+      delete (data as any).password;
+    }
+
+    return UserModel.findByIdAndUpdate(
+      id,
+      { $set: data },
+      { new: true, runValidators: true }
+    )
+      .lean<UserRecord>()
+      .exec();
+  },
+
   async updateStatus(
     id: string,
     status: UserStatus
   ): Promise<UserRecord | null> {
+    if (!Types.ObjectId.isValid(id)) return null;
+
     return UserModel.findByIdAndUpdate(
-      new Types.ObjectId(id),
+      id,
       { status },
-      { new: true }
-    ).lean();
+      { new: true, runValidators: true }
+    )
+      .lean<UserRecord>()
+      .exec();
   },
 
-  /**
-   * Permanently delete user
-   */
+  /* =============================
+      DELETE
+  ============================= */
+
   async deleteById(id: string): Promise<boolean> {
-    const result = await UserModel.findByIdAndDelete(
-      new Types.ObjectId(id)
-    );
-    return !!result;
+    if (!Types.ObjectId.isValid(id)) return false;
+
+    const res = await UserModel.findByIdAndDelete(id).exec();
+    return !!res;
   },
 
-  /**
-   * Count users with filters
-   */
-  async count(filters: UserFilter): Promise<number> {
+  /* =============================
+      COUNT
+  ============================= */
+
+  async count(filters: UserFilter = {}): Promise<number> {
     const query: any = {};
 
     if (filters.role) query.role = filters.role;
     if (filters.status) query.status = filters.status;
 
-    return UserModel.countDocuments(query);
+    return UserModel.countDocuments(query).exec();
   },
 };

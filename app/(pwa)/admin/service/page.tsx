@@ -32,6 +32,11 @@ export default async function AdminServiceServerPage() {
    * No HTTP/Action overhead here.
    */
   const services = await serviceServer.getAll();
+  if(!services){
+    console.log("LOG: Service-Category-List-Data Blank ",services);
+  }else{
+    console.log("Service Data list: ",services);
+  }
 
 
   return (

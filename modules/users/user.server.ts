@@ -20,25 +20,38 @@ import {
   UserFilterDTO,
   UserStatus,
 } from "./user.dto";
+import { AppError } from "@/lib/errors/AppError";
 
 export const userServer = {
-  /**
-   * Create user
-   */
+  /* ============================
+     CREATE
+  ============================ */
   async create(data: UserCreateDTO) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     const record = await createUser(authUser.role, data);
     return userMapper.toResponse(record);
   },
 
-  /**
-   * Update user
-   */
+  /* ============================
+     UPDATE
+  ============================ */
   async update(userId: string, data: UserUpdateDTO) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     const record = await updateUser(
       authUser.role,
@@ -49,12 +62,18 @@ export const userServer = {
     return userMapper.toResponse(record);
   },
 
-  /**
-   * Update user status
-   */
+  /* ============================
+     UPDATE STATUS
+  ============================ */
   async updateStatus(userId: string, status: UserStatus) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     const record = await updateUserStatus(
       authUser.role,
@@ -65,22 +84,34 @@ export const userServer = {
     return userMapper.toResponse(record);
   },
 
-  /**
-   * Delete user (super_admin only)
-   */
+  /* ============================
+     DELETE
+  ============================ */
   async delete(userId: string) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     await deleteUser(authUser.role, userId);
   },
 
-  /**
-   * List users
-   */
+  /* ============================
+     LIST
+  ============================ */
   async list(filters: UserFilterDTO) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     const records = await listUsers(
       authUser.role,
@@ -90,12 +121,18 @@ export const userServer = {
     return userMapper.toResponseList(records);
   },
 
-  /**
-   * Get user by ID
-   */
+  /* ============================
+     GET BY ID
+  ============================ */
   async getById(userId: string) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     const record = await getUserById(
       authUser.role,
@@ -105,12 +142,18 @@ export const userServer = {
     return userMapper.toResponse(record);
   },
 
-  /**
-   * Count users
-   */
+  /* ============================
+     COUNT
+  ============================ */
   async count(filters: UserFilterDTO) {
     const authUser = await getAuthUser();
-    if (!authUser) throw new Error("Unauthorized");
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
 
     return countUsers(authUser.role, filters);
   },

@@ -1,117 +1,167 @@
 /***************************************************
  * File: modules/service-categories/service-category.repository.ts
  * Layer: Repository
- *
- * Purpose:
- * - Handles DB operations for ServiceCategory
- *
- * Responsibilities:
- * - Read / write categories from MongoDB
- * - Return plain JS objects only
- *
- * Restrictions:
- * - Must NOT contain business logic
- * - Must NOT import DTOs or Mapper
- *
- * Notes:
- * - Exports a stateless object with methods
- ***************************************************/
-/***************************************************
- * File: modules/service-categories/service-category.repository.ts
- * Layer: Repository
  ***************************************************/
 
 import { ServiceCategoryModel } from "./service-category.model";
 import { ServiceCategoryRecord } from "./service-category.types";
 import { Types } from "mongoose";
+import { AppError } from "@/lib/errors";
 
 export const serviceCategoryRepository = {
-  /**
-   * Create a new category
-   */
+  /* ============================
+     CREATE
+  ============================ */
   async create(
     data: Partial<ServiceCategoryRecord>
   ): Promise<ServiceCategoryRecord> {
-    const doc = await ServiceCategoryModel.create(data);
-    return doc.toObject();
+    try {
+      const doc = await ServiceCategoryModel.create(data);
+      return doc.toObject();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to create service category",
+        code: "CATEGORY_CREATE_FAILED",
+        statusCode: 500,
+        context: { data },
+        cause: err,
+      });
+    }
   },
 
-  /**
-   * Find category by MongoDB ID
-   */
-  async findById(
-    id: string
-  ): Promise<ServiceCategoryRecord | null> {
-    if (!Types.ObjectId.isValid(id)) return null;
+  /* ============================
+     FIND BY ID
+  ============================ */
+  async findById(id: string): Promise<ServiceCategoryRecord | null> {
+    if (!Types.ObjectId.isValid(id)) {
+      throw new AppError({
+        message: "Invalid category id",
+        code: "CATEGORY_INVALID_ID",
+        statusCode: 400,
+        context: { id },
+      });
+    }
+
     return ServiceCategoryModel.findById(id)
-      .lean<ServiceCategoryRecord>();
+      .lean<ServiceCategoryRecord>()
+      .exec();
   },
 
-  /**
-   * Find category by unique slug
-   */
-  async findBySlug(
-    slug: string
-  ): Promise<ServiceCategoryRecord | null> {
+  /* ============================
+     FIND BY SLUG
+  ============================ */
+  async findBySlug(slug: string): Promise<ServiceCategoryRecord | null> {
+    if (!slug) return null;
+
     return ServiceCategoryModel.findOne({ slug })
-      .lean<ServiceCategoryRecord>();
+      .lean<ServiceCategoryRecord>()
+      .exec();
   },
 
-  /**
-   * List categories with robust filtering
-   * - parentId: Use null for top-level categories
-   */
+  /* ============================
+     FIND ALL
+  ============================ */
   async findAll(filter: {
     parentId?: string | Types.ObjectId | null;
     status?: "active" | "inactive";
   } = {}): Promise<ServiceCategoryRecord[]> {
-    const queryFilter: any = { ...filter };
+    const queryFilter: any = {};
 
-    // Hierarchy filter handling
+    if (filter.status) {
+      queryFilter.status = filter.status;
+    }
+
     if (filter.parentId !== undefined) {
-      queryFilter.parentId = filter.parentId === null 
-        ? null 
-        : new Types.ObjectId(filter.parentId);
+      if (filter.parentId === null) {
+        queryFilter.parentId = null;
+      } else {
+        if (!Types.ObjectId.isValid(filter.parentId)) {
+          throw new AppError({
+            message: "Invalid parentId in category filter",
+            code: "CATEGORY_INVALID_PARENT_ID",
+            statusCode: 400,
+            context: { parentId: filter.parentId },
+          });
+        }
+        queryFilter.parentId = new Types.ObjectId(filter.parentId);
+      }
     }
 
     return ServiceCategoryModel.find(queryFilter)
-      .sort({ displayOrder: 1, name: 1 }) // Order wise then Alphabetical
-      .lean<ServiceCategoryRecord[]>();
+      .sort({ displayOrder: 1, name: 1 })
+      .lean<ServiceCategoryRecord[]>()
+      .exec();
   },
 
-  /**
-   * Update category by ID
-   */
+  /* ============================
+     UPDATE
+  ============================ */
   async updateById(
     id: string,
     data: Partial<ServiceCategoryRecord>
   ): Promise<ServiceCategoryRecord | null> {
-    if (!Types.ObjectId.isValid(id)) return null;
+    if (!Types.ObjectId.isValid(id)) {
+      throw new AppError({
+        message: "Invalid category id for update",
+        code: "CATEGORY_INVALID_ID",
+        statusCode: 400,
+        context: { id },
+      });
+    }
 
-    return ServiceCategoryModel.findByIdAndUpdate(
-      id,
-      { $set: data }, // Nested objects like SEO update safe rehta hai $set se
-      { new: true, runValidators: true }
-    ).lean<ServiceCategoryRecord>();
+    try {
+      return ServiceCategoryModel.findByIdAndUpdate(
+        id,
+        { $set: data },
+        { new: true, runValidators: true }
+      )
+        .lean<ServiceCategoryRecord>()
+        .exec();
+    } catch (err) {
+      throw new AppError({
+        message: "Failed to update service category",
+        code: "CATEGORY_UPDATE_FAILED",
+        statusCode: 500,
+        context: { id, data },
+        cause: err,
+      });
+    }
   },
 
-  /**
-   * Delete by ID
-   */
+  /* ============================
+     DELETE
+  ============================ */
   async deleteById(id: string): Promise<boolean> {
-    if (!Types.ObjectId.isValid(id)) return false;
-    const res = await ServiceCategoryModel.findByIdAndDelete(id);
+    if (!Types.ObjectId.isValid(id)) {
+      throw new AppError({
+        message: "Invalid category id for delete",
+        code: "CATEGORY_INVALID_ID",
+        statusCode: 400,
+        context: { id },
+      });
+    }
+
+    const res = await ServiceCategoryModel.findByIdAndDelete(id).exec();
     return !!res;
   },
 
-  /**
-   * Extra: Check if category has children before deleting
-   * (Crucial for Business Logic)
-   */
+  /* ============================
+     CHILD CHECK
+  ============================ */
   async hasChildren(parentId: string): Promise<boolean> {
-    const count = await ServiceCategoryModel.countDocuments({ 
-      parentId: new Types.ObjectId(parentId) 
+    if (!Types.ObjectId.isValid(parentId)) {
+      throw new AppError({
+        message: "Invalid parentId while checking children",
+        code: "CATEGORY_INVALID_PARENT_ID",
+        statusCode: 400,
+        context: { parentId },
+      });
+    }
+
+    const count = await ServiceCategoryModel.countDocuments({
+      parentId: new Types.ObjectId(parentId),
     });
+
     return count > 0;
-  }
+  },
 };

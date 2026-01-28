@@ -13,58 +13,66 @@
  * - Must NOT contain business logic
  * - Must NOT access database
  ***************************************************/
-/***************************************************
- * File: modules/service-categories/service-category.mapper.ts
- * Layer: Mapper
- ***************************************************/
-
 import { ServiceCategoryRecord } from "./service-category.types";
 import { ServiceCategoryResponseDTO } from "./service-category.dto";
 
 export const serviceCategoryMapper = {
-  /**
-   * Purpose:
-   * - Convert single DB record to response DTO
-   */
-  toResponse(
-    record: ServiceCategoryRecord
-  ): ServiceCategoryResponseDTO {
+  toResponse(record: ServiceCategoryRecord): ServiceCategoryResponseDTO {
+    if (!record || !record._id) {
+      throw new Error("Invalid ServiceCategory record: missing _id");
+    }
+
     return {
       id: record._id.toString(),
 
-      name: record.name,
-      slug: record.slug,
-      
-      description: record.description || "",
-      icon: record.icon || "",
-      thumbnail: record.thumbnail || "",
+      name: record.name ?? "",
+      slug: record.slug ?? "",
 
-      parentId: record.parentId
-        ? record.parentId.toString()
-        : null,
+      description: record.description ?? "",
+      icon: record.icon ?? "",
+      thumbnail: record.thumbnail ?? "",
 
-      displayOrder: record.displayOrder,
-      status: record.status,
+      parentId:
+        record.parentId && typeof record.parentId === "object"
+          ? record.parentId.toString()
+          : typeof record.parentId === "string"
+          ? record.parentId
+          : null,
 
-      // Nested SEO mapping with Fallbacks
+      displayOrder: record.displayOrder ?? 0,
+      status: record.status ?? "inactive",
+
       seo: {
-        title: record.seo?.title || record.name,
-        description: record.seo?.description || record.description || "",
+        title:
+          record.seo?.title?.trim() ||
+          record.name ||
+          "",
+        description:
+          record.seo?.description?.trim() ||
+          record.description ||
+          "",
       },
 
-      createdAt: record.createdAt.toISOString(),
-      updatedAt: record.updatedAt.toISOString(),
+      createdAt:
+        record.createdAt instanceof Date
+          ? record.createdAt.toISOString()
+          : typeof record.createdAt === "string"
+          ? record.createdAt
+          : "",
+
+      updatedAt:
+        record.updatedAt instanceof Date
+          ? record.updatedAt.toISOString()
+          : typeof record.updatedAt === "string"
+          ? record.updatedAt
+          : "",
     };
   },
 
-  /**
-   * Purpose:
-   * - Convert list of DB records
-   */
   toResponseList(
     records: ServiceCategoryRecord[]
   ): ServiceCategoryResponseDTO[] {
-    // Context binding to avoid 'this' errors in .map()
+    if (!Array.isArray(records)) return [];
     return records.map((record) => this.toResponse(record));
   },
 };
