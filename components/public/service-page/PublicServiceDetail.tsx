@@ -11,6 +11,7 @@ import MediaViewer from "@/components/common/MediaViewer";
 import ProcessFlow from "./ProcessFlow";
 import ContactSection from "../landing-page/ContactSection";
 import VideoShowcase from "./VideoShowcase";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 interface PublicServiceDetailProps {
   service: ServiceResponseDTO;
@@ -69,7 +70,7 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
           transition={{ duration: 1.5 }}
           className="absolute inset-0"
         >
-          <Image 
+          <OptimizedImage 
             src={service.coverImage} 
             alt={service.title} 
             fill 
@@ -158,7 +159,7 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
             </div>
           </div>
           <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
-            <Image src={service.gallery[0]?.url || service.coverImage} alt="Detail view" fill className="object-cover" />
+            <OptimizedImage src={service.gallery[0]?.url || service.coverImage} alt="Detail view" fill className="object-cover" />
           </div>
         </motion.section>
 
