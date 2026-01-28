@@ -1,30 +1,46 @@
 /***************************************************
  * File: modules/users/user.server.ts
  * Layer: Server Facade
+ *
+ * Purpose:
+ * - Acts as Next.js–specific server adapter for Users module
+ *
+ * Responsibilities:
+ * - Perform authentication checks
+ * - Call appropriate service methods
+ * - Apply mapper before returning data
+ *
+ * Restrictions:
+ * - Must NOT access repository directly
+ * - Must NOT contain business logic
+ * - Must NOT format data
  ***************************************************/
 
 import { getAuthUser } from "@/lib/auth";
+import { AppError } from "@/lib/errors/AppError";
+
 import {
   createUser,
-  updateUser,
-  updateUserStatus,
+  updateUserBySuperAdmin,
+  updateSelfProfile,
   deleteUser,
   listUsers,
   countUsers,
   getUserById,
 } from "./user.service";
+
 import { userMapper } from "./user.mapper";
+
 import {
   UserCreateDTO,
   UserUpdateDTO,
   UserFilterDTO,
-  UserStatus,
+  AdminSelfUpdateDTO,
 } from "./user.dto";
-import { AppError } from "@/lib/errors/AppError";
 
 export const userServer = {
   /* ============================
-     CREATE
+     CREATE USER (SUPER ADMIN)
   ============================ */
   async create(data: UserCreateDTO) {
     const authUser = await getAuthUser();
@@ -41,9 +57,12 @@ export const userServer = {
   },
 
   /* ============================
-     UPDATE
+     UPDATE USER (SUPER ADMIN)
   ============================ */
-  async update(userId: string, data: UserUpdateDTO) {
+  async updateBySuperAdmin(
+    userId: string,
+    data: UserUpdateDTO
+  ) {
     const authUser = await getAuthUser();
     if (!authUser) {
       throw new AppError({
@@ -53,7 +72,7 @@ export const userServer = {
       });
     }
 
-    const record = await updateUser(
+    const record = await updateUserBySuperAdmin(
       authUser.role,
       userId,
       data
@@ -63,9 +82,11 @@ export const userServer = {
   },
 
   /* ============================
-     UPDATE STATUS
+     UPDATE SELF PROFILE (ADMIN / SUPER ADMIN)
   ============================ */
-  async updateStatus(userId: string, status: UserStatus) {
+  async updateSelf(
+    data: AdminSelfUpdateDTO
+  ) {
     const authUser = await getAuthUser();
     if (!authUser) {
       throw new AppError({
@@ -75,17 +96,17 @@ export const userServer = {
       });
     }
 
-    const record = await updateUserStatus(
+    const record = await updateSelfProfile(
       authUser.role,
-      userId,
-      status
+      authUser.userId,
+      data
     );
 
     return userMapper.toResponse(record);
   },
 
   /* ============================
-     DELETE
+     DELETE USER (SUPER ADMIN)
   ============================ */
   async delete(userId: string) {
     const authUser = await getAuthUser();
@@ -101,7 +122,7 @@ export const userServer = {
   },
 
   /* ============================
-     LIST
+     LIST USERS (SUPER ADMIN)
   ============================ */
   async list(filters: UserFilterDTO) {
     const authUser = await getAuthUser();
@@ -122,7 +143,23 @@ export const userServer = {
   },
 
   /* ============================
-     GET BY ID
+     COUNT USERS (SUPER ADMIN)
+  ============================ */
+  async count(filters: UserFilterDTO) {
+    const authUser = await getAuthUser();
+    if (!authUser) {
+      throw new AppError({
+        message: "Authentication required",
+        code: "UNAUTHORIZED",
+        statusCode: 401,
+      });
+    }
+
+    return countUsers(authUser.role, filters);
+  },
+
+  /* ============================
+     GET USER BY ID
   ============================ */
   async getById(userId: string) {
     const authUser = await getAuthUser();
@@ -140,21 +177,5 @@ export const userServer = {
     );
 
     return userMapper.toResponse(record);
-  },
-
-  /* ============================
-     COUNT
-  ============================ */
-  async count(filters: UserFilterDTO) {
-    const authUser = await getAuthUser();
-    if (!authUser) {
-      throw new AppError({
-        message: "Authentication required",
-        code: "UNAUTHORIZED",
-        statusCode: 401,
-      });
-    }
-
-    return countUsers(authUser.role, filters);
   },
 };

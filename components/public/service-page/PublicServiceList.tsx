@@ -1,5 +1,6 @@
 "use client";
 
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import Image from "next/image";
 import Link from "next/link";
@@ -45,7 +46,7 @@ export default function PublicServicesList({ services }: { services: ServiceResp
             >
               {/* Image */}
               <div className="relative h-60 w-full">
-                <Image
+                <OptimizedImage
                   src={service.coverImage || "/placeholder-service.jpg"}
                   alt={service.title}
                   fill

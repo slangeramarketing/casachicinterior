@@ -12,21 +12,21 @@
  *
  * Restrictions:
  * - No DB access
+ * - No repository access
  * - No business logic
- * - No auth logic (handled in userServer)
  ***************************************************/
 
 import { userServer } from "@/modules/users/user.server";
 import {
   UserCreateDTO,
   UserUpdateDTO,
-  UserStatus,
+  UserFilterDTO,
+  AdminSelfUpdateDTO,
 } from "@/modules/users/user.dto";
 import { getAuthUser } from "@/lib/auth";
-import { userRepository } from "@/modules/users/user.repository";
 
 /* =========================
-   CREATE
+   CREATE (SUPER ADMIN)
 ========================= */
 export async function createUserAction(
   data: UserCreateDTO
@@ -35,27 +35,26 @@ export async function createUserAction(
 }
 
 /* =========================
-   UPDATE
+   UPDATE USER (SUPER ADMIN)
 ========================= */
-export async function updateUserAction(
+export async function updateUserBySuperAdminAction(
   userId: string,
   data: UserUpdateDTO
 ) {
-  return userServer.update(userId, data);
+  return userServer.updateBySuperAdmin(userId, data);
 }
 
 /* =========================
-   UPDATE STATUS
+   UPDATE SELF PROFILE (ADMIN / SUPER ADMIN)
 ========================= */
-export async function updateUserStatusAction(
-  userId: string,
-  status: UserStatus
+export async function updateSelfProfileAction(
+  data: AdminSelfUpdateDTO
 ) {
-  return userServer.updateStatus(userId, status);
+  return userServer.updateSelf(data);
 }
 
 /* =========================
-   DELETE
+   DELETE USER (SUPER ADMIN)
 ========================= */
 export async function deleteUserAction(
   userId: string
@@ -63,22 +62,49 @@ export async function deleteUserAction(
   return userServer.delete(userId);
 }
 
+/* =========================
+   LIST USERS (SUPER ADMIN)
+========================= */
+export async function listUsersAction(
+  filters: UserFilterDTO
+) {
+  return userServer.list(filters);
+}
 
+/* =========================
+   COUNT USERS (SUPER ADMIN)
+========================= */
+export async function countUsersAction(
+  filters: UserFilterDTO
+) {
+  return userServer.count(filters);
+}
+
+/* =========================
+   GET USER BY ID
+========================= */
+export async function getUserByIdAction(
+  userId: string
+) {
+  return userServer.getById(userId);
+}
+
+/* =========================
+   GET AUTHENTICATED USER (PUBLIC PROFILE)
+========================= */
 /**
  * Purpose:
- * - Return authenticated user's PUBLIC profile
+ * - Return authenticated user's public profile
  *
- * Returns:
- * - null if not authenticated
- * - { id, email, name, role }
+ * Notes:
+ * - Used by AdminHeader / Layout
+ * - Returns null if unauthenticated
  */
 export async function getAuthenticatedUser() {
   const jwt = await getAuthUser();
-
   if (!jwt) return null;
 
   const user = await userServer.getById(jwt.userId);
-
   if (!user) return null;
 
   return {
@@ -86,5 +112,6 @@ export async function getAuthenticatedUser() {
     email: user.email,
     name: user.name,
     role: user.role,
+    profile: user.profile,
   };
 }

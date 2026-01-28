@@ -6,6 +6,7 @@ import Link from "next/link";
 import AdminSidebar from "./Sidebar"; // Sidebar import zaroori hai
 import { getGravatarUrl } from "@/lib/utils/gravatar";
 import { OptimizedImage } from "../common/OptimizedImage";
+import { UserRole } from "@/modules/users/user.dto";
 
 interface AdminHeaderProps {
   authUser: {
@@ -13,6 +14,7 @@ interface AdminHeaderProps {
     email: string;
     name: string;
     role: string;
+    profile?:string;
   } | null;
 }
 
@@ -25,11 +27,6 @@ function getFirstName(name?: string) {
 
 export default function AdminHeader({authUser}: AdminHeaderProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
-  const avatarUrl = authUser?.email
-    ? getGravatarUrl(authUser.email, 80)
-    : "/media/static/default-avatar.png"; // optional fallback
-
   return (
     <>
       {/* MOBILE OVERLAY */}
@@ -51,7 +48,14 @@ export default function AdminHeader({authUser}: AdminHeaderProps) {
           </button>
         </div>
         <div className="overflow-y-auto h-[calc(100vh-64px)]" onClick={() => setSidebarOpen(false)}>
-          <AdminSidebar />
+          <AdminSidebar
+            authUser={
+              authUser
+                ? { role: authUser.role as "admin" | "super_admin" }
+                : null
+            }
+          />
+
         </div>
       </div>
 
@@ -79,15 +83,19 @@ export default function AdminHeader({authUser}: AdminHeaderProps) {
 
           {/* RIGHT */}
         <Link
-          href="/admin/users/profile"
+          href="/admin/profile"
           className="flex items-center gap-2 hover:opacity-80"
         >
           <OptimizedImage
-            src={avatarUrl}
+            src={
+              authUser?.profile && authUser?.profile.trim() !== ""
+                ? authUser.profile
+                : getGravatarUrl(authUser?.email ||"")
+            }
             alt="User Avatar"
             width={40}
             height={40}
-            className="rounded-full border"
+            className="rounded-full border object-cover"
           />
         </Link>
         </div>

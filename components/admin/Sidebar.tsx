@@ -26,10 +26,17 @@ interface MenuItem {
   children?: { name: string; href: string }[];
 }
 
+interface SidebarProps {
+  authUser: {
+    role: "admin" | "super_admin";
+  } | null;
+}
+
+
 /* -------------------------------------
    Component
 ------------------------------------- */
-export default function Sidebar() {
+export default function Sidebar({authUser}:SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -38,17 +45,21 @@ export default function Sidebar() {
     router.replace("/auth/login");
   };
 
-  const menu: MenuItem[] = [
-    { name: "Dashboard", href: "/admin/home", icon: <FiHome size={18} /> },
+const menu: MenuItem[] = [
+  { name: "Dashboard", href: "/admin/home", icon: <FiHome size={18} /> },
+  { name: "Blogs", href: "/admin/blogs", icon: <FaBlog size={18} /> },
+  { name: "Service", href: "/admin/service", icon: <LuBrainCircuit size={18} /> },
+  { name: "Projects", href: "/admin/projects", icon: <GoGear size={18} /> },
 
+  // 🔐 USERS — SUPER ADMIN ONLY
+  ...(authUser?.role === "super_admin"
+    ? [{ name: "User", href: "/admin/users", icon: <FaUser size={18} /> }]
+    : []),
 
-    { name: "Blogs", href: "/admin/blogs", icon: <FaBlog size={18} /> },
-    { name: "Service", href: "/admin/service", icon: <LuBrainCircuit size={18} /> },
-    { name: "Projects", href: "/admin/projects", icon: <GoGear size={18} /> },
-    { name: "User", href: "/admin/users", icon: <FaUser size={18} /> },
-    { name: "Message", href: "/admin/message", icon: <IoChatboxEllipsesOutline size={18} /> },
-    { name: "Review", href: "/admin/review", icon: <MdOutlineReviews size={18} /> },
-  ];
+  { name: "Message", href: "/admin/message", icon: <IoChatboxEllipsesOutline size={18} /> },
+  { name: "Review", href: "/admin/review", icon: <MdOutlineReviews size={18} /> },
+];
+
 
   return (
     <aside className="h-full bg-white border-r border-gray-200 px-4 py-6">

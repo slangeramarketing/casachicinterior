@@ -1,6 +1,13 @@
 import { ServiceResponseDTO } from "./service.dto";
 import { AppError } from "@/lib/errors";
 
+const FALLBACK_CATEGORY = {
+  id: "",
+  name: "Uncategorized",
+  slug: "uncategorized",
+  icon: "check",
+};
+
 export const serviceMapper = {
   toResponse(record: any): ServiceResponseDTO {
     if (!record) {
@@ -21,39 +28,33 @@ export const serviceMapper = {
     }
 
     /* --------------------------------
-       CATEGORY (DEFENSIVE)
+       CATEGORY (SAFE & NON-CRASHING)
     --------------------------------- */
-    let categoryId: string;
-    let category: ServiceResponseDTO["category"];
+    let categoryId = FALLBACK_CATEGORY.id;
+    let category = FALLBACK_CATEGORY;
 
-    if (
-      record.categoryId &&
-      typeof record.categoryId === "object" &&
-      record.categoryId._id
-    ) {
-      categoryId = record.categoryId._id.toString();
-      category = {
-        id: categoryId,
-        name: record.categoryId.name ?? "Unknown",
-        slug: record.categoryId.slug ?? "unknown",
-        icon: record.categoryId.icon ?? "check",
-      };
-    } else if (record.categoryId) {
-      categoryId = record.categoryId.toString();
-      category = {
-        id: categoryId,
-        name: "Unknown",
-        slug: "unknown",
-        icon: "check",
-      };
-    } else {
-      // 🔥 THIS WAS YOUR PRODUCTION CRASH ROOT CAUSE
-      throw new AppError({
-        message: "Service record has null categoryId",
-        code: "MAPPER_NULL_CATEGORY",
-        statusCode: 500,
-        context: { serviceId: record._id.toString() },
-      });
+    if (record.categoryId) {
+      // populated
+      if (
+        typeof record.categoryId === "object" &&
+        record.categoryId._id
+      ) {
+        categoryId = record.categoryId._id.toString();
+        category = {
+          id: categoryId,
+          name: record.categoryId.name ?? FALLBACK_CATEGORY.name,
+          slug: record.categoryId.slug ?? FALLBACK_CATEGORY.slug,
+          icon: record.categoryId.icon ?? FALLBACK_CATEGORY.icon,
+        };
+      }
+      // unpopulated ObjectId
+      else {
+        categoryId = record.categoryId.toString();
+        category = {
+          ...FALLBACK_CATEGORY,
+          id: categoryId,
+        };
+      }
     }
 
     /* --------------------------------
@@ -123,7 +124,7 @@ export const serviceMapper = {
           }))
         : [],
 
-      startingPrice: record.startingPrice ?? undefined,
+      startingPrice: record.startingPrice,
       priceUnit: record.priceUnit ?? "",
 
       seo: {
@@ -136,7 +137,10 @@ export const serviceMapper = {
 
       featured: !!record.featured,
       status: record.status ?? "draft",
-      displayOrder: typeof record.displayOrder === "number" ? record.displayOrder : 0,
+      displayOrder:
+        typeof record.displayOrder === "number"
+          ? record.displayOrder
+          : 0,
 
       ctaText: record.ctaText ?? "",
       ctaLink: record.ctaLink ?? "",

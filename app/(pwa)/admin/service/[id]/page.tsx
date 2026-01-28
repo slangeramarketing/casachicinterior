@@ -27,7 +27,7 @@ export default async function UpdateServiceServerPage({
   ----------------------------------------------------- */
 
   return (
-    <div>
+    <div className="pb-24 p-4">
       <ServiceForm
         mode="update"
         categories={allCategories}

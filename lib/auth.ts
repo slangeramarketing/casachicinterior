@@ -7,6 +7,7 @@
   import { cookies } from "next/headers";
   import { verifyJwt } from "./jwt";
   import { JwtPayload } from "@/modules/auth/auth.types";
+import { redirect } from "next/navigation";
 
   /**
    * Read auth token from HTTP-only cookie
@@ -39,7 +40,7 @@
     const payload = await requireAuth();
 
     if (!allowedRoles.includes(payload.role)) {
-      throw new Error("FORBIDDEN");
+        redirect("/admin/forbidden");
     }
 
     return payload;

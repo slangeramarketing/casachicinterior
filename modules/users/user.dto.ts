@@ -12,15 +12,25 @@ export interface UserCreateDTO {
   email: string;
   password: string;
   role?: UserRole;
+  profile?:string
+  status:string;
 }
 
 /* UPDATE */
 export interface UserUpdateDTO {
   name?: string;
+  email?:string;
   profile?: string;
   role?: UserRole;
   status?: UserStatus;
 }
+
+
+export interface AdminSelfUpdateDTO {
+  name?: string;
+  profile?: string;
+}
+
 
 /* FILTER */
 export interface UserFilterDTO {

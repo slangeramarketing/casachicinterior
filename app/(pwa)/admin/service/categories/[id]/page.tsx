@@ -36,23 +36,26 @@ export default async function UpdateServiceCategoryPage({
       Render with SEO Mapping
   --------------------------------- */
   return (
-    <ServiceCategoryForm
-      mode="update"
-      categories={allCategories}
-      initialData={{
-        id: category.id,
-        name: category.name,
-        slug: category.slug,
-        parentId: category.parentId,
-        displayOrder: category.displayOrder,
-        status: category.status,
-        icon: category.icon, // Icon pass karna mat bhulna
-        thumbnail: category.thumbnail, // Purani image edit mode mein dikhane ke liye
-        // SEO data ko extract karke flat format mein bhej rahe hain 
-        // kyunki humare Client Form ki state flat hai
-        metaTitle: category.seo?.title || "", 
-        metaDescription: category.seo?.description || "",
-      }}
-    />
+    <div className="md:p-0 p-4 pb-18">
+      <ServiceCategoryForm
+        mode="update"
+        categories={allCategories}
+        initialData={{
+          id: category.id,
+          name: category.name,
+          slug: category.slug,
+          parentId: category.parentId,
+          displayOrder: category.displayOrder,
+          status: category.status,
+          icon: category.icon, // Icon pass karna mat bhulna
+          thumbnail: category.thumbnail, // Purani image edit mode mein dikhane ke liye
+          // SEO data ko extract karke flat format mein bhej rahe hain 
+          // kyunki humare Client Form ki state flat hai
+          metaTitle: category.seo?.title || "", 
+          metaDescription: category.seo?.description || "",
+        }}
+      />
+    </div>
+
   );
 }

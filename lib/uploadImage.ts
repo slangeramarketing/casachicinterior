@@ -1,6 +1,6 @@
 export async function uploadImage(
   file: File,
-  type: "blogs" | "projects" | "services" | "common" = "common"
+  type: "blogs" | "projects" | "services" |"profile"| "common" = "common"
 ): Promise<string> {
   const formData = new FormData();
   formData.append("file", file);

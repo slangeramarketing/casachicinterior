@@ -24,7 +24,7 @@ export default async function AdminLayout({
 
       {/* SIDEBAR */}
       <div className="hidden md:block w-[250px] border-r border-gray-200">
-        <AdminSidebar />
+        <AdminSidebar authUser={authUser} />
       </div>
 
       {/* MAIN AREA */}

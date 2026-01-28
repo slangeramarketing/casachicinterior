@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import md5 from "md5";
 import TableUi, { Column } from "@/components/common/TableUi";
 import { PageRouteHeader, PageTitle } from "@/components/common/PageHeader";
@@ -53,11 +52,15 @@ export default function UsersClientPage({
       label: "Profile",
       render: (row) => (
         <OptimizedImage
-          src={getGravatar(row.email)}
+          src={
+            row.profile && row.profile.trim() !== ""
+              ? row.profile
+              : getGravatar(row.email)
+          }
           alt={row.name || "User"}
           width={40}
           height={40}
-          className="rounded-full border"
+          className="rounded-full border object-cover"
         />
       ),
     },

@@ -2,10 +2,28 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { createUserAction, updateUserAction } from "@/app/actions/users.action";
-import { UserCreateDTO, UserResponseDTO } from "@/modules/users/user.dto";
+import { createUserAction,updateUserBySuperAdminAction } from "@/app/actions/users.action";
+import type {
+  UserResponseDTO,
+  UserRole,
+  UserStatus,
+} from "@/modules/users/user.dto";
 import Alert, { AlertType } from "@/components/common/Alert";
+import ProfileImageUpload from "@/components/common/ProfileImageUpload";
+import { uploadImage } from "@/lib/uploadImage";
+import { SelectField } from "@/components/common/FormField";
 
+/* =========================
+   TYPES
+========================= */
+type UserFormState = {
+  name: string;
+  email: string;
+  password?: string;
+  role?: UserRole;
+  profile?: string;
+  status: UserStatus;
+};
 
 interface UserFormProps {
   mode: "create" | "update";
@@ -21,88 +39,109 @@ export default function UserForm({
 }: UserFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const id=initialData?.id || "";
+  const [alert, setAlert] = useState<AlertType | null>(null);
+  const [profileFile, setProfileFile] = useState<File | null>(null);
 
-  const [alert,setAlert]=useState<AlertType | null>(null);
+  const userId = initialData?.id ?? "";
 
-  const [form, setForm] = useState<UserCreateDTO>({
-    name: initialData?.name || "",
-    email: initialData?.email || "",
-    role: initialData?.role,
+  /* =========================
+     FORM STATE (TYPE SAFE)
+  ========================= */
+  const [form, setForm] = useState<UserFormState>({
+    name: initialData?.name ?? "",
+    email: initialData?.email ?? "",
     password: "",
+    role: initialData?.role,
+    profile: initialData?.profile,
+    status: initialData?.status ?? "active",
   });
 
   /* =========================
      HANDLERS
   ========================= */
-  const handleChange = (
+  function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
+  ) {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+async function handleSubmit(e: React.FormEvent) {
+  e.preventDefault();
+  setLoading(true);
 
-    try {
-      if (mode === "create") {
-        await createUserAction({
-          name: form.name,
-          email: form.email,
-          password: form.password!,
-          role: form.role,
-        });
+  try {
+    let profileUrl = initialData?.profile;
 
-        setAlert({
-          type: "success",
-          title: "User created successfully",
-          message: "The new user has been created.",
-        })
-            // handleSubmit ke andar update logic ko aise change karein:
-      } else {
-        // Password ko update payload se delete kar dein
-        const { password, ...updateData } = form; 
-        
-        await updateUserAction(
-          id,
-          updateData // Ab sirf name, email, aur role jayega
-        );
-        // ... rest of the code
+    // Upload profile image if selected
+    if (profileFile) {
+      profileUrl = await uploadImage(profileFile, "profile");
+    }
+
+    if (mode === "create") {
+      if (!form.password) {
+        throw new Error("Password is required");
       }
 
-      router.push("/admin/users");
-    } catch (error: any) {
-      setAlert({
-        type: "error",
-        title: "Something went wrong",
-        message: error?.message || "Please try again.",
-      })
-    } finally {
-      setLoading(false);
+      await createUserAction({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+        status: form.status,
+        profile: profileUrl,
+      });
+    } else {
+      // 🔐 SUPER ADMIN FULL UPDATE
+      await updateUserBySuperAdminAction(userId, {
+        name: form.name,
+        email: form.email,
+        role: form.role,
+        status: form.status,
+        profile: profileUrl,
+      });
     }
-  };
+
+    router.push("/admin/users");
+  } catch (error: any) {
+    setAlert({
+      type: "error",
+      title: "Something went wrong",
+      message: error?.message || "Please try again.",
+    });
+  } finally {
+    setLoading(false);
+  }
+}
+
 
   /* =========================
      UI
   ========================= */
   return (
     <div className="flex flex-col w-full items-center px-10">
- 
-     {alert && (
-      <Alert 
-         type={alert?.type || "success"}
-         title={alert?.title || ""}
-         message={alert?.message}
-         onClose={() => setAlert(null)}
-      />
-     )}
+      {alert && (
+        <Alert
+          type={alert.type}
+          title={alert.title}
+          message={alert.message}
+          onClose={() => setAlert(null)}
+        />
+      )}
+
       <form
         onSubmit={handleSubmit}
-        className="max-w-xl w-full rounded-xl border border-gray-300 bg-white px-8 py-18"
+        className="max-w-xl w-full rounded-xl border border-gray-300 bg-white px-8 py-8"
       >
         <div className="space-y-6">
+          <ProfileImageUpload
+            value={initialData?.profile}
+            onChange={(file) => setProfileFile(file)}
+          />
+
           <input
             name="name"
             value={form.name}
@@ -119,7 +158,7 @@ export default function UserForm({
             onChange={handleChange}
             placeholder="Email"
             required
-            className="w-full rounded border border-gray-300 px-3 py-2 disabled:bg-gray-100"
+            className="w-full rounded border border-gray-300 px-3 py-2"
           />
 
           {mode === "create" && (
@@ -136,19 +175,41 @@ export default function UserForm({
 
           <select
             name="role"
-            value={form.role}
-            onChange={handleChange}
+            value={form.role ?? ""}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                role: e.target.value as UserRole,
+              }))
+            }
             className="w-full rounded border border-gray-300 px-3 py-2"
           >
+            <option value="">Select role</option>
             <option value="super_admin">Super Admin</option>
             <option value="admin">Admin</option>
-            <option value="user">User</option>
           </select>
+
+          <SelectField
+            label="Account Status"
+            name="status"
+            value={form.status}
+            onChange={(e) =>
+              setForm((prev) => ({
+                ...prev,
+                status: e.target.value as UserStatus,
+              }))
+            }
+            options={[
+              { label: "Active", value: "active" },
+              { label: "Inactive", value: "inactive" },
+              { label: "Blocked", value: "blocked" },
+            ]}
+          />
         </div>
 
         <button
           disabled={loading}
-          className="mt-6 w-full rounded bg-bg-primary text-white py-2"
+          className="mt-6 w-full rounded bg-bg-primary text-white py-2 disabled:opacity-60"
         >
           {mode === "create" ? "Create User" : "Update User"}
         </button>
