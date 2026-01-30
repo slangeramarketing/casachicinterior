@@ -11,7 +11,7 @@ import EditorToolbar from "./EditorToolbar";
 interface RichTextEditorProps {
   value?: string;
   onChange?: (content: string) => void;
-  readOnly?: boolean; // ✅ added
+  readOnly?: boolean;
 }
 
 export default function RichTextEditor({
@@ -25,7 +25,7 @@ export default function RichTextEditor({
       Underline,
       Image.configure({
         inline: false,
-        allowBase64: true,
+        allowBase64: false, // ✅ FIXED
       }),
       Placeholder.configure({
         placeholder: "Start writing your blog...",
@@ -46,7 +46,6 @@ export default function RichTextEditor({
     immediatelyRender: false,
   });
 
-  // 🔥 toggle editability
   useEffect(() => {
     if (editor) {
       editor.setEditable(!readOnly);

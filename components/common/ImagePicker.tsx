@@ -8,7 +8,10 @@ interface ImagePickerProps {
   onChange: (val: File | string | null) => void;
   label?: string;
   disabled?: boolean;
-  className?:string;
+  className?: string;
+
+  /** 🔥 NEW (optional) */
+  autoOpen?: boolean;
 }
 
 export default function ImagePicker({
@@ -16,11 +19,19 @@ export default function ImagePicker({
   onChange,
   label = "Image",
   disabled = false,
-  className=""
+  className = "",
+  autoOpen = false,
 }: ImagePickerProps) {
   const [open, setOpen] = useState(false);
   const [tempSelection, setTempSelection] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 🔥 AUTO OPEN SUPPORT
+  useEffect(() => {
+    if (autoOpen) {
+      setOpen(true);
+    }
+  }, [autoOpen]);
 
   const preview =
     value instanceof File
@@ -32,28 +43,40 @@ export default function ImagePicker({
   return (
     <div className={`space-y-2 ${className}`}>
       {/* LABEL */}
-      <label className="text-sm font-medium text-gray-700">{label}</label>
+      {!autoOpen && (
+        <label className="text-sm font-medium text-gray-700">
+          {label}
+        </label>
+      )}
 
-      {/* PREVIEW + OPEN MODAL */}
-      
-      <div className={`w-full flex-col border border-gray-300 rounded-lg p-3 flex  bg-gray-50 hover:bg-gray-100 transition gap-4 ${
-                disabled ? "opacity-50 cursor-not-allowed" : ""
-                }`}>
-            <button
-                type="button"
-                disabled={disabled}
-                onClick={() => setOpen(true)}
-                className="border border-gray-300 rounded bg-bg-primary text-white px-4 w-fit text-sm py-1"
+      {/* PREVIEW + OPEN BUTTON (OLD USAGE SAFE) */}
+      {!autoOpen && (
+        <div
+          className={`w-full flex flex-col border border-gray-300 rounded-lg p-3 bg-gray-50 gap-4 ${
+            disabled ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+        >
+          <button
+            type="button"
+            disabled={disabled}
+            onClick={() => setOpen(true)}
+            className="border border-gray-300 rounded bg-bg-primary text-white px-4 w-fit text-sm py-1"
+          >
+            Choose Image
+          </button>
 
-            >
-                Choose Image
-            </button>
-          {preview ? (
+          {preview && (
             <div className="relative h-40">
-                <OptimizedImage src={preview} alt="Preview" fill className="object-cover rounded-md" />
+              <OptimizedImage
+                src={preview}
+                alt="Preview"
+                fill
+                className="object-cover rounded-md"
+              />
             </div>
-            ) : ""}
-      </div>
+          )}
+        </div>
+      )}
 
       {/* MODAL */}
       {open && (
@@ -62,7 +85,12 @@ export default function ImagePicker({
             {/* HEADER */}
             <div className="flex justify-between items-center border-b pb-3">
               <h3 className="font-bold text-gray-800">Select Image</h3>
-              <button onClick={() => setOpen(false)} className="text-gray-400 hover:text-black">✕</button>
+              <button
+                onClick={() => setOpen(false)}
+                className="text-gray-400 hover:text-black"
+              >
+                ✕
+              </button>
             </div>
 
             {/* ACTIONS */}
@@ -125,6 +153,7 @@ export default function ImagePicker({
   );
 }
 
+/* ------------------------------------- */
 
 function ServerImageLibrary({
   selected,
@@ -143,7 +172,11 @@ function ServerImageLibrary({
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <p className="text-xs text-gray-400">Loading images…</p>;
+  if (loading) {
+    return (
+      <p className="text-xs text-gray-400">Loading images…</p>
+    );
+  }
 
   return (
     <div className="grid grid-cols-3 md:grid-cols-4 gap-3 max-h-[300px] overflow-auto border border-gray-300 rounded-lg p-3">
@@ -153,10 +186,15 @@ function ServerImageLibrary({
           type="button"
           onClick={() => onSelect(img)}
           className={`relative aspect-square rounded overflow-hidden border border-gray-300 ${
-            selected === img ? "ring-3 ring-orange-500" : ""
+            selected === img ? "ring-2 ring-orange-500" : ""
           }`}
         >
-          <OptimizedImage src={img} alt="" fill className="object-cover" />
+          <OptimizedImage
+            src={img}
+            alt=""
+            fill
+            className="object-cover"
+          />
         </button>
       ))}
     </div>

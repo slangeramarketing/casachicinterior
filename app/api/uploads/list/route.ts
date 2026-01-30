@@ -12,7 +12,6 @@ const UPLOAD_ROOT =
     ? process.env.UPLOAD_ROOT
     : path.join(process.cwd(), "public", "uploads");
   
-  console.log("UPLOAD_ROOT: ",UPLOAD_ROOT);
 
 /**
  * Public URL prefix
@@ -59,8 +58,6 @@ export async function GET() {
         .replace(UPLOAD_ROOT, PUBLIC_PREFIX)
         .replace(/\\/g, "/") // Windows safety
     );
-
-    console.log("Converted Image as URL: ",images);
 
     return NextResponse.json({
       success: true,

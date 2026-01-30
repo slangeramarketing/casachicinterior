@@ -1,43 +1,25 @@
-"use client";
-import { useEffect, useState } from "react";
-import { getFeaturedServicesAction } from "./actions/public.service.action";
-import { ServiceResponseDTO } from "@/modules/services/service.dto";
+
 import Header from "@/components/public/layouts/Header";
 import Footer from "@/components/public/layouts/Footer";
+import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 
 
-export default  function ClientLayout({
+export default async  function ClientLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-const [featuredServiceList, setFeaturedServiceList]=useState<ServiceResponseDTO[]>([]);
-
-  /* ===============================
-     Fetched Featured Services
-     ================================== */
-  useEffect(()=>{
-    async function loadService(){
-      try{
-        const services=await getFeaturedServicesAction();
-        setFeaturedServiceList(services);
-      }catch(err){
-        console.error("Error fetching featured services:", err);
-      }
-    }
-
-    loadService();
-  },[]);
+   
+  const mainServiceCategoryList=await serviceCategoryServer.getByParent(null);
 
   return (
     <>
         <div>
-         <Header featuredServiceList={featuredServiceList} />
+         <Header mainServiceCategoryList={mainServiceCategoryList} />
         </div>
         <main>{children}</main>
        <div>
-         <Footer featuredServiceList={featuredServiceList} />
+         <Footer mainServiceCategoryList={mainServiceCategoryList} />
        </div>
     </>
   );

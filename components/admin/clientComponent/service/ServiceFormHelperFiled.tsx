@@ -8,11 +8,10 @@ import {  FiInstagram,
   FiYoutube,
   FiPlus,
   FiTrash2,
-  FiExternalLink 
 } from "react-icons/fi";
 import { TextAreaField, TextField } from "@/components/common/FormField";
-import ImageUpload from "@/components/common/ImageUpload";
 import ImagePicker from "@/components/common/ImagePicker";
+import { OptimizedImage } from "@/components/common/OptimizedImage";
 
 
 // Agar aapne ServiceFormState ko kahin define kiya hai to use import karein
@@ -21,95 +20,161 @@ import ImagePicker from "@/components/common/ImagePicker";
 /* =====================================================
     Gallery Manager (V3) - Added Export
 ===================================================== */
-export function GalleryManager({ 
-  newImages, 
-  existingItems, 
-  onAdd, 
+export function GalleryManager({
+  newImages,
+  existingItems,
+  onAdd,
   onUpdateExisting,
   onUpdateNew,
   onRemoveNew,
-  onRemoveExisting 
-}: { 
-  newImages: { file: File; alt: string; caption: string }[], 
-  existingItems: { url: string; alt?: string; caption?: string }[], 
-  onAdd: (files: File[]) => void, 
-  onUpdateExisting: (index: number, field: 'alt' | 'caption', value: string) => void,
-  onUpdateNew: (index: number, field: 'alt' | 'caption', value: string) => void,
-  onRemoveNew: (index: number) => void,
-  onRemoveExisting: (url: string) => void 
+  onRemoveExisting,
+}: {
+  newImages: {
+    value: File | string;
+    alt: string;
+    caption: string;
+  }[];
+  existingItems: {
+    url: string;
+    alt?: string;
+    caption?: string;
+  }[];
+  onAdd: (item: { value: File | string; alt: string; caption: string }) => void;
+  onUpdateExisting: (
+    index: number,
+    field: "alt" | "caption",
+    value: string
+  ) => void;
+  onUpdateNew: (
+    index: number,
+    field: "alt" | "caption",
+    value: string
+  ) => void;
+  onRemoveNew: (index: number) => void;
+  onRemoveExisting: (url: string) => void;
 }) {
-    return (
+  return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-6">
-        
-        {/* --- 1. EXISTING IMAGES --- */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        {/* ================= EXISTING IMAGES ================= */}
         {existingItems.map((item, idx) => (
-          <div key={item.url} className="w-full h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-green-100">
+          <div
+            key={item.url}
+            className="w-full h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-green-100"
+          >
             <div className="relative aspect-video bg-gray-100">
-              <img src={item.url} className="object-cover w-full h-full" />
-              <button onClick={() => onRemoveExisting(item.url)} className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full shadow-lg text-xs">✕</button>
-              <span className="absolute bottom-2 left-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded shadow">Live</span>
+              <OptimizedImage
+                src={item.url}
+                alt={item.alt || ""}
+                fill
+                className="object-cover"
+              />
+              <button
+                onClick={() => onRemoveExisting(item.url)}
+                className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full text-xs"
+              >
+                ✕
+              </button>
+              <span className="absolute bottom-2 left-2 bg-green-500 text-white text-[10px] px-2 py-0.5 rounded">
+                Live
+              </span>
             </div>
+
             <div className="p-3 space-y-2 bg-gray-50/50">
-              <input 
+              <input
                 placeholder="Alt Text"
-                className="w-full text-xs border-b border-gray-200 bg-transparent outline-none focus:border-orange-500 p-1"
+                className="w-full text-xs border-b outline-none"
                 value={item.alt || ""}
-                onChange={(e) => onUpdateExisting(idx, 'alt', e.target.value)}
+                onChange={(e) =>
+                  onUpdateExisting(idx, "alt", e.target.value)
+                }
               />
-              <input 
+              <input
                 placeholder="Caption"
-                className="w-full text-xs border-b border-gray-200 bg-transparent outline-none focus:border-orange-500 p-1"
+                className="w-full text-xs border-b outline-none"
                 value={item.caption || ""}
-                onChange={(e) => onUpdateExisting(idx, 'caption', e.target.value)}
+                onChange={(e) =>
+                  onUpdateExisting(idx, "caption", e.target.value)
+                }
               />
             </div>
           </div>
         ))}
 
-        {/* --- 2. NEW SELECTED IMAGES (With Inputs) --- */}
-        {newImages.map((item, idx) => (
-          <div key={idx} className="w-full h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-orange-200 ring-1 ring-orange-100">
-            <div className="relative aspect-video bg-gray-100">
-              <img src={URL.createObjectURL(item.file)} className="object-cover w-full h-full" />
-              <button onClick={() => onRemoveNew(idx)} className="absolute top-2 right-2 bg-gray-800 text-white p-1 rounded-full shadow-lg text-xs">✕</button>
-              <span className="absolute bottom-2 left-2 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded shadow">New</span>
-            </div>
-            <div className="p-3 space-y-2">
-              <input 
-                placeholder="Alt Text (SEO)"
-                className="w-full text-xs border-b border-gray-200 outline-none focus:border-orange-500 p-1"
-                value={item.alt}
-                onChange={(e) => onUpdateNew(idx, 'alt', e.target.value)}
-              />
-              <input 
-                placeholder="Add Caption..."
-                className="w-full text-xs border-b border-gray-200 outline-none focus:border-orange-500 p-1"
-                value={item.caption}
-                onChange={(e) => onUpdateNew(idx, 'caption', e.target.value)}
-              />
-            </div>
-          </div>
-        ))}
+        {/* ================= NEW IMAGES ================= */}
+        {newImages.map((item, idx) => {
+          const preview =
+            item.value instanceof File
+              ? URL.createObjectURL(item.value)
+              : item.value;
 
-        {/* --- 3. ADD BUTTON --- */}
-        <label className="w-full h-80 aspect-video border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-orange-50 hover:border-orange-400 transition-all group">
-          <span className="text-3xl text-gray-400 group-hover:text-orange-500 group-hover:scale-110 transition-transform">+</span>
-          <span className="text-xs font-semibold text-gray-500 group-hover:text-orange-500">Upload Images</span>
-          <input 
-            type="file" 
-            multiple 
-            className="hidden" 
-            onChange={(e) => {
-              if (e.target.files) onAdd(Array.from(e.target.files));
-              e.target.value = ""; // Clear for same file re-upload
-            }} 
+          return (
+            <div
+              key={idx}
+              className="w-full h-80 flex flex-col border rounded-lg overflow-hidden bg-white shadow-sm border-orange-200"
+            >
+              <div className="relative aspect-video bg-gray-100">
+                <OptimizedImage
+                  src={preview}
+                  alt={item.alt}
+                  fill
+                  className="object-cover"
+                />
+                <button
+                  onClick={() => onRemoveNew(idx)}
+                  className="absolute top-2 right-2 bg-gray-800 text-white p-1 rounded-full text-xs"
+                >
+                  ✕
+                </button>
+                <span className="absolute bottom-2 left-2 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded">
+                  New
+                </span>
+              </div>
+
+              <div className="p-3 space-y-2">
+                <input
+                  placeholder="Alt Text (SEO)"
+                  className="w-full text-xs border-b outline-none"
+                  value={item.alt}
+                  onChange={(e) =>
+                    onUpdateNew(idx, "alt", e.target.value)
+                  }
+                />
+                <input
+                  placeholder="Caption"
+                  className="w-full text-xs border-b outline-none"
+                  value={item.caption}
+                  onChange={(e) =>
+                    onUpdateNew(idx, "caption", e.target.value)
+                  }
+                />
+              </div>
+            </div>
+          );
+        })}
+
+        {/* ================= ADD IMAGE (ImagePicker) ================= */}
+        <div className="w-full h-80 border-2 border-dashed rounded-lg flex items-center justify-center">
+          <ImagePicker
+            autoOpen={false}
+            label=""
+            value={null}
+            onChange={(val) => {
+              if (!val) return;
+              onAdd({
+                value: val,
+                alt: "",
+                caption: "",
+              });
+            }}
           />
-        </label>
+        </div>
       </div>
     </div>
   );
 }
+
 
 /* =====================================================
     Highlights Manager - Added Export
@@ -322,6 +387,7 @@ export default function VideoManager({ form, setForm }: any) {
             order: 0,
           }
         : {
+            url:"",
             embedId: "",
             title: "",
             description: "",
@@ -462,7 +528,7 @@ export default function VideoManager({ form, setForm }: any) {
           </button>
         </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols md:grid-cols-2 gap-6">
         {form.videoShowcase.youtube.map((yt: any, idx: number) => (
           <div
             key={idx}
@@ -514,16 +580,16 @@ export default function VideoManager({ form, setForm }: any) {
             <TextField
               label="YouTube Video URL"
               placeholder="https://youtube.com/watch?v=xxxx"
-              value={yt.embedId ? `https://youtube.com/watch?v=${yt.embedId}` : ""}
-              onChange={(e) =>
-                updateItem(
-                  "youtube",
-                  idx,
-                  "embedId",
-                  extractYoutubeEmbedId(e.target.value)
-                )
-              }
+              value={yt.url}
+              onChange={(e) => {
+                const url = e.target.value;
+                updateItem("youtube", idx, "url", url);
+
+                const embedId = extractYoutubeEmbedId(url);
+                updateItem("youtube", idx, "embedId", embedId);
+              }}
             />
+
 
             {/* TITLE */}
             <TextField

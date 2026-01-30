@@ -29,6 +29,7 @@ import {
   updateServiceCategory,
   deleteServiceCategory,
   getServiceCategoryById,
+  getServiceCategoryBySlug,
 } from "./service-category.service";
 import { serviceCategoryMapper } from "./service-category.mapper";
 import {
@@ -78,6 +79,15 @@ export const serviceCategoryServer = {
     if (!record) return null;
     return serviceCategoryMapper.toResponse(record);
   },
+
+    async getBySlug(
+    slug: string
+  ): Promise<ServiceCategoryResponseDTO | null> {
+    const record = await getServiceCategoryBySlug(slug);
+    if (!record) return null;
+    return serviceCategoryMapper.toResponse(record);
+  },
+
 
   async getByParent(
     parentId: string | null

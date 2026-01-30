@@ -1,100 +1,79 @@
-import { Metadata } from "next";
+/*******************************************************
+ * Server Page | Public Side
+ * app/services/[slug]/page.tsx
+ *******************************************************/
+
 import { notFound } from "next/navigation";
+import { Metadata } from "next";
+import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 import { serviceServer } from "@/modules/services/service.server";
-import PublicServiceDetail from "@/components/public/service-page/PublicServiceDetail";
+import PublicServicesList from "@/components/public/service-page/PublicServiceList";
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 /* -----------------------------------------------------------
-   DYNAMIC SEO METADATA
+   DYNAMIC SEO METADATA (MULTI-DOMAIN SAFE)
 ----------------------------------------------------------- */
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata(
+  { params }: PageProps
+): Promise<Metadata> {
   const { slug } = await params;
-  const service = await serviceServer.getBySlug(slug);
+  const baseUrl = await getBaseUrl();
 
-  if (!service) {
-    return { title: "Service Not Found | Casachicinterior" };
+  const category = await serviceCategoryServer.getBySlug(slug);
+
+  if (!category) {
+    return {
+      title: "Services | Casa Chic Interior",
+      robots: {
+        index: false,
+        follow: false,
+      },
+    };
   }
 
+  const canonicalUrl = `${baseUrl}/services/${category.slug}`;
+
   return {
-    title: service.seo?.title || `${service.title} | Casachicinterior`,
-    description: service.seo?.description || service.shortDescription,
-    keywords: service.seo?.keywords || [],
-    openGraph: {
-      title: service.title,
-      description: service.shortDescription,
-      url: `https://casachicinterior.com/services/${slug}`,
-      siteName: "Casachicinterior",
-      images: [
-        {
-          url: service.seo?.ogImage || service.coverImage,
-          width: 1200,
-          height: 630,
-          alt: service.title,
-        },
-      ],
-      type: "website",
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: service.title,
-      description: service.shortDescription,
-      images: [service.seo?.ogImage || service.coverImage],
-    },
+    title: `${category.name} Services | Casa Chic Interior`,
+    description:
+      category.seo?.description ||
+      `Explore our ${category.name} interior design services tailored to your needs.`,
     alternates: {
-      canonical: `https://casachicinterior.com/services/${slug}`,
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${category.name} Services`,
+      description:
+        category.seo?.description ||
+        `Explore our ${category.name} interior design services.`,
+      url: canonicalUrl,
+      siteName: "Casa Chic Interior",
+      type: "website",
     },
   };
 }
 
-/* -------------------------------------
-    PAGE COMPONENT
-------------------------------------- */
-export default async function ServiceDetailPage({ params }: PageProps) {
+/* -----------------------------------------------------------
+   PAGE
+----------------------------------------------------------- */
+export default async function ServiceCategoryPage(
+  { params }: PageProps
+) {
   const { slug } = await params;
-  
-  // Direct Server Facade Call
-  const rawService = await serviceServer.getBySlug(slug);
-  
-  // Serialization Fix for Mongoose internal objects
-  if (!rawService) return notFound();
-  const service = JSON.parse(JSON.stringify(rawService));
 
-  // JSON-LD Schema for Google (SEO Enhancement)
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": service.title,
-    "description": service.shortDescription,
-    "provider": {
-      "@type": "LocalBusiness",
-      "name": "Casachicinterior"
-    },
-    "areaServed": "Patna", // Apni city add karein
-    "hasOfferCatalog": {
-      "@type": "OfferCatalog",
-      "name": service.category?.name,
-    },
-    "offers": {
-      "@type": "Offer",
-      "priceCurrency": "INR",
-      "price": service.startingPrice,
-      "description": `Starting from ₹${service.startingPrice} per ${service.priceUnit}`
-    },
-    "image": service.coverImage
-  };
+  const category = await serviceCategoryServer.getBySlug(slug);
+  if (!category) return notFound();
+
+  // ✅ Public services under category
+  const services = await serviceServer.getByCategory(category.id);
 
   return (
-    <div className="w-full">
-      {/* Schema Script for SEO */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      
-      <PublicServiceDetail service={service} />
-    </div>
+    <main className="w-full">
+      <PublicServicesList services={services} />
+    </main>
   );
 }

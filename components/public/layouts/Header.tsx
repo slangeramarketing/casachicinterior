@@ -7,12 +7,13 @@ import { FiMenu, FiX, FiChevronDown } from "react-icons/fi";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import logoTransparent from "@/public/assets/logoTransparent.png";
 import Image from "next/image";
+import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 
 interface HeaderProps {
-  featuredServiceList:ServiceResponseDTO[];
+  mainServiceCategoryList:ServiceCategoryResponseDTO[];
 }
 
-export default function Header({featuredServiceList}:HeaderProps) {
+export default function Header({mainServiceCategoryList}:HeaderProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const router=useRouter();
@@ -127,9 +128,9 @@ export default function Header({featuredServiceList}:HeaderProps) {
                 }
               `}
             >
-              {featuredServiceList?.map((service) => (
-                <Link key={service.id} href={`/services/${service.slug}`} className="block px-4 py-2 hover:bg-gray-100">
-                {service.title}
+              {mainServiceCategoryList?.map((cat) => (
+                <Link key={cat.id} href={`/services/${cat.slug}`} className="block px-4 py-2 hover:bg-gray-100">
+                {cat.name}
               </Link>
               ))}
               
@@ -187,16 +188,16 @@ export default function Header({featuredServiceList}:HeaderProps) {
           </summary>
 
           <div className="ml-4 mt-2 space-y-2 text-sm">
-            {featuredServiceList?.map((service) => (
+            {mainServiceCategoryList?.map((cat) => (
               <button
-                  key={service.id}
+                  key={cat.id}
                   onClick={() => {
                     setMenuOpen(false),
-                    router.push(`/services/${service.slug}`)
+                    router.push(`/services/${cat.slug}`)
                   }}
                   className="block text-left w-full"
                 >
-                {service.title}
+                {cat.name}
               </button>
               ))}
 

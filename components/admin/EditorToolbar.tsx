@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Editor } from "@tiptap/react";
 import {
   FaBold,
@@ -14,17 +15,16 @@ import {
   FaRedo,
 } from "react-icons/fa";
 
+import ImagePicker from "@/components/common/ImagePicker";
+import { uploadImage } from "@/lib/uploadImage";
+
 interface ToolbarProps {
   editor: Editor;
 }
 
 export default function EditorToolbar({ editor }: ToolbarProps) {
-  const addImage = () => {
-    const url = window.prompt("Enter image URL");
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
-    }
-  };
+  const [openImagePicker, setOpenImagePicker] =
+    useState(false);
 
   const Button = ({
     onClick,
@@ -47,69 +47,116 @@ export default function EditorToolbar({ editor }: ToolbarProps) {
   );
 
   return (
-    <div className="flex flex-wrap gap-1 bg-gray-50 p-2 border-b border-gray-300 rounded-tl-md rounded-tr-md">
-      <Button onClick={() => editor.chain().focus().undo().run()}>
-        <FaUndo size={14} />
-      </Button>
+    <>
+      {/* TOOLBAR */}
+      <div className="flex flex-wrap gap-1 bg-gray-50 p-2 border-b border-gray-300 rounded-t-md">
+        <Button onClick={() => editor.chain().focus().undo().run()}>
+          <FaUndo size={14} />
+        </Button>
 
-      <Button onClick={() => editor.chain().focus().redo().run()}>
-        <FaRedo size={14} />
-      </Button>
+        <Button onClick={() => editor.chain().focus().redo().run()}>
+          <FaRedo size={14} />
+        </Button>
 
-      <Button
-        onClick={() => editor.chain().focus().toggleBold().run()}
-        active={editor.isActive("bold")}
-      >
-        <FaBold size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor.chain().focus().toggleBold().run()
+          }
+          active={editor.isActive("bold")}
+        >
+          <FaBold size={14} />
+        </Button>
 
-      <Button
-        onClick={() => editor.chain().focus().toggleItalic().run()}
-        active={editor.isActive("italic")}
-      >
-        <FaItalic size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor.chain().focus().toggleItalic().run()
+          }
+          active={editor.isActive("italic")}
+        >
+          <FaItalic size={14} />
+        </Button>
 
-      <Button
-        onClick={() => editor.chain().focus().toggleUnderline().run()}
-        active={editor.isActive("underline")}
-      >
-        <FaUnderline size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor.chain().focus().toggleUnderline().run()
+          }
+          active={editor.isActive("underline")}
+        >
+          <FaUnderline size={14} />
+        </Button>
 
-      <Button
-        onClick={() =>
-          editor.chain().focus().toggleHeading({ level: 2 }).run()
-        }
-        active={editor.isActive("heading", { level: 2 })}
-      >
-        <FaHeading size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor
+              .chain()
+              .focus()
+              .toggleHeading({ level: 2 })
+              .run()
+          }
+          active={editor.isActive("heading", { level: 2 })}
+        >
+          <FaHeading size={14} />
+        </Button>
 
-      <Button
-        onClick={() => editor.chain().focus().toggleBulletList().run()}
-        active={editor.isActive("bulletList")}
-      >
-        <FaListUl size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor.chain().focus().toggleBulletList().run()
+          }
+          active={editor.isActive("bulletList")}
+        >
+          <FaListUl size={14} />
+        </Button>
 
-      <Button
-        onClick={() => editor.chain().focus().toggleOrderedList().run()}
-        active={editor.isActive("orderedList")}
-      >
-        <FaListOl size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor.chain().focus().toggleOrderedList().run()
+          }
+          active={editor.isActive("orderedList")}
+        >
+          <FaListOl size={14} />
+        </Button>
 
-      <Button
-        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-        active={editor.isActive("codeBlock")}
-      >
-        <FaCode size={14} />
-      </Button>
+        <Button
+          onClick={() =>
+            editor.chain().focus().toggleCodeBlock().run()
+          }
+          active={editor.isActive("codeBlock")}
+        >
+          <FaCode size={14} />
+        </Button>
 
-      <Button onClick={addImage}>
-        <FaImage size={14} />
-      </Button>
-    </div>
+        {/* 🔥 IMAGE BUTTON */}
+        <Button onClick={() => setOpenImagePicker(true)}>
+          <FaImage size={14} />
+        </Button>
+      </div>
+
+      {/* IMAGE PICKER */}
+      {openImagePicker && (
+        <ImagePicker
+          autoOpen
+          value={null}
+          onChange={async (val) => {
+            if (!val) return;
+
+            let imageUrl: string;
+
+            if (val instanceof File) {
+              imageUrl = await uploadImage(val, "blogs");
+            } else {
+              imageUrl = val;
+            }
+
+            editor
+              .chain()
+              .focus()
+              .setImage({ src: imageUrl })
+              .run();
+
+            setOpenImagePicker(false);
+          }}
+        />
+      )}
+    </>
   );
 }

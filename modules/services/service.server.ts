@@ -106,6 +106,18 @@ export const serviceServer = {
     }
   },
 
+  async getByCategory(
+    categoryId: string
+  ): Promise<ServiceResponseDTO[]> {
+    const records = await listServices({
+      categoryId,
+      publicOnly: true,
+    });
+
+    return serviceMapper.toResponseList(records);
+  },
+
+
   /* =============================
       WRITE OPERATIONS (ADMIN)
   ============================= */

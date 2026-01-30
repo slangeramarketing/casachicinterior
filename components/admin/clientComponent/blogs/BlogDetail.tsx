@@ -2,12 +2,13 @@
 import Link from "next/link";
 import { BsArrowLeft, BsEye } from "react-icons/bs";
 import { FiEdit3 } from "react-icons/fi";
-import { BiCalendar, BiGlobe, BiTag } from "react-icons/bi";
+import { BiCalendar, BiGlobe, BiTag, BiUser } from "react-icons/bi";
 import { CgLock } from "react-icons/cg";
+import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
 
 // Types based on your model
 interface BlogDetailProps {
-  blog: any; // Replace with your BlogResponseDTO
+  blog:BlogResponseDTO; 
 }
 
 export default function BlogDetail({ blog }: BlogDetailProps) {
@@ -15,14 +16,7 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
     <div className="lg:max-w-7xl mx-auto p-2 lg:p-8 bg-gray-50 min-h-screen">
       
       {/* TOP HEADER */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-        <div>
-          <Link href="/admin/blogs" className="flex items-center gap-2 text-sm text-gray-500 hover:text-blue-600 mb-2 transition-colors">
-            <BsArrowLeft size={16} /> Back to Blogs
-          </Link>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">{blog.title}</h1>
-        </div>
-        
+      <div className="flex flex-col gap-4 mb-8">
         <div className="flex items-center gap-3">
           <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${
             blog.status === "published" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"
@@ -35,6 +29,9 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
           >
             <FiEdit3 size={18} /> Edit Post
           </Link>
+        </div>
+        <div className="w-full">
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">{blog.title}</h1>
         </div>
       </div>
 
@@ -126,6 +123,12 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
                   {blog.publishedAt ? new Date(blog.publishedAt).toLocaleDateString() : "N/A"}
                 </span>
               </div>
+              <div className="flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2 text-gray-500"><BiUser size={16} /> Uther</span>
+                <span className="font-bold text-gray-800">
+                  {blog.author?.name}
+                </span>
+              </div>
             </div>
           </div>
 
@@ -136,7 +139,7 @@ export default function BlogDetail({ blog }: BlogDetailProps) {
               <div>
                 <label className="text-xs font-bold text-gray-400 uppercase mb-2 block">Category</label>
                 <div className="bg-blue-50 text-blue-700 px-3 py-2 rounded-xl text-sm font-semibold">
-                  {blog.categoryId?.name || "Uncategorized"}
+                  {blog.category?.name || "Uncategorized"}
                 </div>
               </div>
               <div>

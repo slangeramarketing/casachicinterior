@@ -12,12 +12,13 @@ import {
   FiFacebook,
   FiInstagram,
 } from "react-icons/fi";
+import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 
   interface HeaderProps {
-    featuredServiceList:ServiceResponseDTO[];
+    mainServiceCategoryList:ServiceCategoryResponseDTO[];
   }
 
-export default function Footer({featuredServiceList}:HeaderProps) {
+export default function Footer({mainServiceCategoryList}:HeaderProps) {
 
   return (
     <footer className="bg-gradient-to-b from-[#0B1220] to-[#070C16] text-gray-300">
@@ -54,12 +55,12 @@ export default function Footer({featuredServiceList}:HeaderProps) {
               Design Solutions
             </h3>
             <ul className="space-y-3 text-sm">
-              {featuredServiceList?.map((service) => (
-                <li key={service.id}>
-                <Link key={service.id} href={`/services/${service.slug}`} >
-                {service.title}
-              </Link>
-              </li>
+              {mainServiceCategoryList?.map((cat) => (
+                <li key={cat.id}>
+                <Link key={cat.id} href={`/services/${cat.slug}`} >
+                {cat.name}
+                </Link>
+                </li>
               ))}
             </ul>
           </div>

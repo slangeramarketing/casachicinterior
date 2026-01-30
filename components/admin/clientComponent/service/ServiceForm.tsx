@@ -33,7 +33,7 @@ export interface ServiceFormState {
   // Media
   coverImage: File |string | null;
 
-  newGalleryFiles: { file: File; alt: string; caption: string }[];
+  newGalleryFiles: { value: File |string; alt: string; caption: string }[];
   existingGallery: { url: string; alt?: string; caption?: string }[];
 
   videoShowcase: {
@@ -160,14 +160,22 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
       // 3. Upload new gallery files with metadata
       const newGalleryUrls = await Promise.all(
         form.newGalleryFiles.map(async (item) => {
-          const url = await uploadImage(item.file);
-          return { 
-            url, 
-            alt: item.alt || form.title, 
-            caption: item.caption 
+          let url: string;
+
+          if (item.value instanceof File) {
+            url = await uploadImage(item.value, "services");
+          } else {
+            url = item.value; // already server image
+          }
+
+          return {
+            url,
+            alt: item.alt || form.title,
+            caption: item.caption,
           };
         })
       );
+
       setProgress(70);
 
       // 4. Combine existing items with newly uploaded ones
@@ -364,10 +372,19 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
               <GalleryManager 
                 newImages={form.newGalleryFiles} 
                 existingItems={form.existingGallery}
-                onAdd={(files) => {
-                  const newItems = files.map(f => ({ file: f, alt: form.title, caption: "" }));
-                  setForm({ ...form, newGalleryFiles: [...form.newGalleryFiles, ...newItems] });
+                onAdd={(item) => {
+                  const newItem = {
+                    value: item.value,          // 🔥 File OR string
+                    alt: form.title,
+                    caption: "",
+                  };
+
+                  setForm({
+                    ...form,
+                    newGalleryFiles: [...form.newGalleryFiles, newItem],
+                  });
                 }}
+
                 onUpdateNew={(idx, field, val) => {
                   const updated = [...form.newGalleryFiles];
                   updated[idx] = { ...updated[idx], [field]: val };

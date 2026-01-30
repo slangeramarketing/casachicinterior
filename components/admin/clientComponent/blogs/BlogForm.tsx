@@ -194,10 +194,15 @@ export default function BlogForm({ mode, categories, initialData,currentUserId }
             <div>
               <TextField
                 label="Canonical URL"
-                value={form.seo?.canonicalUrl || ""}
-                onChange={(e) => setForm({ ...form, seo: { ...form.seo!, canonicalUrl: e.target.value } })}
+                value={
+                  form.slug
+                    ? `${window.location.origin}/blogs/${form.slug}`
+                    : ""
+                }
+                disabled
               />
-              <FieldDescription text="Original content ka URL dalein taaki search engines duplicate content se confuse na hon." />
+              <FieldDescription text="Canonical URL automatically generated using blog slug." />
+
             </div>
             
             <ChipInputField

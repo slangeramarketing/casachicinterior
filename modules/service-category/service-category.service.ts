@@ -97,6 +97,20 @@ export async function getServiceCategoryById(
 }
 
 /* =====================================================
+   GET BY SLUG
+===================================================== */
+export async function getServiceCategoryBySlug(
+  slug: string
+): Promise<ServiceCategoryRecord | null> {
+  await db();
+
+  if (!slug) return null;
+
+  return serviceCategoryRepository.findBySlug(slug);
+}
+
+
+/* =====================================================
    LIST CATEGORIES
 ===================================================== */
 export async function listServiceCategories(options?: {

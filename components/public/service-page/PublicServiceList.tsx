@@ -69,7 +69,7 @@ export default function PublicServicesList({ services }: { services: ServiceResp
                 </p>
                 
                 <Link 
-                  href={`/services/${service.slug}`}
+                  href={`/services/detail/${service.slug}`}
                   className="flex items-center justify-between group-hover:text-[#F97316] transition-colors"
                 >
                   <span className="text-sm font-bold">LEARN MORE</span>
