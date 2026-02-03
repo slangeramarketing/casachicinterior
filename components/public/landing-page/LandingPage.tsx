@@ -16,6 +16,7 @@ import WhyChooseUsSection from '@/components/public/landing-page/WhyChooseUsSect
 import ReviewSection from '@/components/public/landing-page/ReviewSection'
 import { ReviewResponseDTO } from '@/modules/review/review.dto'
 import { getFeaturedServicesAction } from '@/app/(public)/actions/public.service.action'
+import StatsSection from './StatsSection'
 
 interface Props{
     reviews:ReviewResponseDTO[];
@@ -50,6 +51,7 @@ export default function LandingPage({reviews}:Props) {
      <FeaturedProjectsSection/>
      <DesignSolutionsSection featuredServiceList={featuredServiceList} />
      <WhyChooseUsSection/>
+     <StatsSection/>
      <DesignProcessSection/>
      <ReviewSection reviews={reviews} />
      <ContactSection/>

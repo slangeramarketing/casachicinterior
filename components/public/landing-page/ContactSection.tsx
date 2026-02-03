@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import cities from "@/lib/data/indian-cities.json";
 import { useState } from "react";
 import { submitContactAction } from "@/app/(public)/actions/public.message.action";
+import Alert, { AlertType } from "@/components/common/Alert";
 
 export default function ContactSection() {
   const [form, setForm] = useState({
@@ -15,6 +16,9 @@ export default function ContactSection() {
     customCity: "",
     message: "",
   });
+
+  const [alert, setAlert] = useState<AlertType | null>(null);
+
 
   const [status, setStatus] = useState<{
     loading: boolean;
@@ -33,35 +37,83 @@ export default function ContactSection() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setStatus({ loading: true, error: null, success: false });
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setAlert(null);
+  setStatus({ loading: true, error: null, success: false });
 
-    const finalCity = form.city === "Other" ? form.customCity : form.city;
+  const finalCity = form.city === "Other" ? form.customCity : form.city;
 
-    if (!form.name || !form.email || !form.phone || !finalCity || !form.message) {
-      setStatus({ loading: false, error: "Please fill all required fields.", success: false });
-      return;
-    }
+  // REQUIRED FIELD CHECK
+  if (!form.name || !form.phone || !finalCity || !form.message) {
+    setStatus({ loading: false, error: null, success: false });
+    setAlert({
+      type: "error",
+      title: "Missing required fields",
+      message: "Please fill all required fields before submitting.",
+    });
+    return;
+  }
 
-    try {
-      await submitContactAction({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        city: finalCity,
-        message: form.message,
-      });
+  // PHONE VALIDATION
+  if (!isValidPhone(form.phone)) {
+    setStatus({ loading: false, error: null, success: false });
+    setAlert({
+      type: "error",
+      title: "Invalid phone number",
+      message: "Phone number must contain exactly 10 digits.",
+    });
+    return;
+  }
 
-      setForm({ name: "", email: "", phone: "", city: "", customCity: "", message: "" });
-      setStatus({ loading: false, error: null, success: true });
-      
-      // Reset success message after 5 seconds
-      setTimeout(() => setStatus(s => ({ ...s, success: false })), 5000);
-    } catch (err) {
-      setStatus({ loading: false, error: "Something went wrong. Please try again.", success: false });
-    }
-  };
+  // EMAIL VALIDATION (OPTIONAL)
+  if (form.email && !isValidEmail(form.email)) {
+    setStatus({ loading: false, error: null, success: false });
+    setAlert({
+      type: "error",
+      title: "Invalid email address",
+      message: "Please enter a valid email address or leave it blank.",
+    });
+    return;
+  }
+
+  try {
+    await submitContactAction({
+      name: form.name,
+      email: form.email,
+      phone: form.phone,
+      city: finalCity,
+      message: form.message,
+    });
+
+    setForm({
+      name: "",
+      email: "",
+      phone: "",
+      city: "",
+      customCity: "",
+      message: "",
+    });
+
+    setAlert({
+      type: "success",
+      title: "Inquiry submitted successfully",
+      message:
+        "Thank you for reaching out. Our team will contact you shortly.",
+    });
+
+    setStatus({ loading: false, error: null, success: true });
+  } catch {
+    setStatus({ loading: false, error: null, success: false });
+    setAlert({
+      type: "error",
+      title: "Submission failed",
+      message: "Something went wrong. Please try again later.",
+    });
+  }
+};
+
+
 
   return (
     <section className="w-full py-34 bg-[#F2F2F2] overflow-hidden" id="contact">
@@ -95,7 +147,7 @@ export default function ContactSection() {
             className="space-y-6"
           >
             <ContactInfo icon={<FiMail />} title="Email Us" value="contact@casachicinterior.com" href="mailto:contact@casachicinterior.com" />
-            <ContactInfo icon={<FiPhone />} title="Call Us" value="+91 9123456789" href="tel:+918740990990" />
+            <ContactInfo icon={<FiPhone />} title="Call Us" value="+91 87409 90990" href="tel:+918740990990" />
             <ContactInfo icon={<FiMapPin />} title="Visit Us" value="Delhi NCR, Noida Sector 62" />
             
             {/* Design Element */}
@@ -128,7 +180,17 @@ export default function ContactSection() {
                 </motion.div>
               )}
             </AnimatePresence>
-
+            <div>
+              {alert && (
+                <div className="mb-6">
+                  <Alert
+                    type={alert.type}
+                    title={alert.title}
+                    message={alert.message}
+                    onClose={() => setAlert(null)}
+                  />
+                </div>
+              )}
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Full Name</label>
@@ -139,13 +201,26 @@ export default function ContactSection() {
               <div className="space-y-2">
                 <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Email Address</label>
                 <input type="email" name="email" value={form.email} onChange={updateField} placeholder="john@example.com"
-                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
+                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" />
               </div>
 
               <div className="space-y-2 md:col-span-2">
                 <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Phone Number</label>
-                <input type="tel" name="phone" value={form.phone} onChange={updateField} placeholder="+91 XXXXX XXXXX"
-                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={form.phone}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "");
+                    if (val.length <= 10) {
+                      setForm((prev) => ({ ...prev, phone: val }));
+                    }
+                  }}
+                  placeholder="10 digit mobile number"
+                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none"
+                  required
+                />
+
               </div>
 
               <div className="space-y-2 md:col-span-2">
@@ -179,6 +254,8 @@ export default function ContactSection() {
                 {status.loading ? "Processing..." : "Submit Inquiry"}
               </button>
             </form>
+            </div>
+
           </motion.div>
         </div>
       </div>
@@ -200,4 +277,13 @@ function ContactInfo({ icon, title, value, href }: { icon: React.ReactNode; titl
   );
 
   return href ? <a href={href} className="block">{Content}</a> : Content;
+}
+
+
+function isValidPhone(phone: string): boolean {
+  return /^[0-9]{10}$/.test(phone);
+}
+
+function isValidEmail(email: string): boolean {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }

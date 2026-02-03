@@ -14,6 +14,8 @@ import md5 from "md5";
 
 import Alert from "@/components/common/Alert";
 import { formatDateTime } from "@/lib/utils/formatDateTime";
+import { IoIosCall } from "react-icons/io";
+import Link from "next/link";
 
 /* =========================
    HELPERS
@@ -35,6 +37,7 @@ interface MessageReply {
 interface MessageThread {
   id: string;
   name: string;
+  phone: string;
   email: string;
   createdAt: string;
   message: string;
@@ -130,10 +133,18 @@ export default function MessageThreadCard({
             </h4>
 
             <div className="flex flex-wrap gap-3">
-              <p className="text-xs text-gray-500 flex items-center gap-1">
+              <Link href={`tel:+91 ${data.phone}`}>
+                <p className="text-xs text-gray-500 flex items-center gap-1">
+                <IoIosCall size={14} />
+                {data.phone}
+              </p>
+              </Link>
+              <Link href={`mailto:${data.email}`}>
+                <p className="text-xs text-gray-500 flex items-center gap-1">
                 <MdOutlineMail size={14} />
                 {data.email}
               </p>
+              </Link>
               <span className="text-xs text-gray-400 flex items-center gap-1">
                 <MdOutlineDateRange size={14} />
                 {formatDateTime(data.createdAt)}
