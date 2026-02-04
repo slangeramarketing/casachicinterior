@@ -11,6 +11,7 @@ export default async function UpdateReviewPage({ params }: PageProps) {
   const { reviewId } = await params;
  
   const review = await reviewServer.findById(reviewId);
+  console.log("Review by ID: ",review);
 
 
   // ✅ REQUIRED NULL GUARD
@@ -35,6 +36,9 @@ export default async function UpdateReviewPage({ params }: PageProps) {
         status: review.status,
         isFeatured: review.isFeatured,
         adminResponse: review.adminResponse,
+        clientAvatar:review.clientAvatar,
+        clientEmail:review.clientEmail,
+        message:review.message
       }}
     />
   );

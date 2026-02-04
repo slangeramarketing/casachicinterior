@@ -32,6 +32,7 @@ export const reviewRepository = {
   async createTokenRecord(data: {
     clientName: string;
     clientEmail?: string;
+    clientAvatar?:string;
     serviceId: Types.ObjectId;
     submissionSource: "email" | "direct_link";
     reviewToken: string;
@@ -41,6 +42,7 @@ export const reviewRepository = {
     const doc = await ReviewModel.create({
       clientName: data.clientName,
       clientEmail: data.clientEmail,
+      clientAvatar:data.clientAvatar,
       serviceId: data.serviceId,
       submissionSource: data.submissionSource,
       reviewToken: data.reviewToken,
@@ -155,6 +157,12 @@ export const reviewRepository = {
       }),
       ...(update.clientLocation !== undefined && {
         clientLocation: update.clientLocation,
+      }),
+      ...(update.clientAvatar !== undefined && {
+        clientAvatar: update.clientAvatar,
+      }),
+      ...(update.clientEmail !== undefined && {
+        clientEmail: update.clientEmail,
       }),
     },
     { new: true }

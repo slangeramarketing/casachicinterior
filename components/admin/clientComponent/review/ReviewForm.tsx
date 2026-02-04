@@ -2,19 +2,6 @@
 
 /***************************************************
  * File: components/admin/clientComponent/review/ReviewForm.tsx
- * Layer: Client Component
- *
- * Purpose:
- * - Generate review link (admin)
- * - Update / moderate review (admin)
- *
- * Responsibilities:
- * - Collect input
- * - Validate input
- * - Trigger server actions
- *
- * Restrictions:
- * - Must NOT fetch data
  ***************************************************/
 
 import { useState } from "react";
@@ -30,10 +17,12 @@ import {
   createReviewLink,
   moderateReviewAction,
 } from "@/app/actions/review.action";
+import ProfileImageUpload from "@/components/common/ProfileImageUpload";
+import { uploadImage } from "@/lib/uploadImage";
 
 /* ===============================================
    Types
-   =============================================== */
+=============================================== */
 
 type ReviewFormMode = "create" | "update";
 
@@ -46,19 +35,21 @@ interface ReviewFormProps {
   mode: ReviewFormMode;
   services?: ServiceOption[];
 
-  // only for update mode
   reviewData?: {
     id: string;
     status: "pending" | "approved" | "rejected";
     isFeatured: boolean;
     adminResponse?: string;
     clientLocation?: string;
+    clientAvatar?: string;
+    clientEmail?:string;
+    message?:string;
   };
 }
 
 /* ===============================================
    Component
-   =============================================== */
+=============================================== */
 
 export default function ReviewForm({
   mode,
@@ -67,6 +58,14 @@ export default function ReviewForm({
 }: ReviewFormProps) {
   const [alert, setAlert] = useState<AlertType | null>(null);
   const [loading, setLoading] = useState(false);
+
+  console.log("Single Review Data: ",reviewData);
+
+  /* ---------- AVATAR STATE ---------- */
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>(
+    reviewData?.clientAvatar || ""
+  );
 
   /* ---------- CREATE MODE STATE ---------- */
   const [createData, setCreateData] = useState({
@@ -86,11 +85,12 @@ export default function ReviewForm({
     isFeatured: reviewData?.isFeatured ?? false,
     adminResponse: reviewData?.adminResponse ?? "",
     clientLocation: reviewData?.clientLocation ?? "",
+    clientEmail:reviewData?.clientEmail ?? ""
   });
 
   /* ===============================================
      Submit Handler
-     =============================================== */
+  =============================================== */
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,6 +98,12 @@ export default function ReviewForm({
 
     try {
       setLoading(true);
+
+      let uploadedAvatarUrl = avatarUrl;
+
+      if (avatarFile) {
+        uploadedAvatarUrl = await uploadImage(avatarFile, "profile");
+      }
 
       /* ---------- CREATE MODE ---------- */
       if (mode === "create") {
@@ -109,7 +115,8 @@ export default function ReviewForm({
               : undefined,
           serviceId: createData.serviceId,
           submissionSource: createData.submissionSource,
-          clientLocation:createData.clientLocation,
+          clientLocation: createData.clientLocation,
+          clientAvatar: uploadedAvatarUrl || undefined,
         });
 
         if (!res.emailed) {
@@ -132,6 +139,8 @@ export default function ReviewForm({
           isFeatured: updateData.isFeatured,
           adminResponse: updateData.adminResponse,
           clientLocation: updateData.clientLocation,
+          clientAvatar: uploadedAvatarUrl || undefined,
+          clientEmail: updateData.clientEmail
         });
 
         setAlert({
@@ -153,10 +162,10 @@ export default function ReviewForm({
 
   /* ===============================================
      UI
-     =============================================== */
+  =============================================== */
 
   return (
-    <div className="grid grid-cols-1 md:flex md:flex-col py-6">
+    <div className="py-6 px-4">
       <PageRouteHeader />
       <PageTitle
         title={mode === "create" ? "Generate Review Link" : "Update Review"}
@@ -167,7 +176,7 @@ export default function ReviewForm({
         }
       />
 
-      <div className="w-full md:max-w-2xl w-full mx-auto space-y-6">
+      <div className="max-w-2xl mx-auto space-y-6">
         {alert && (
           <Alert
             type={alert.type}
@@ -179,8 +188,14 @@ export default function ReviewForm({
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white border border-gray-300 rounded-xl p-6 space-y-6 shadow-sm w-full"
+          className="bg-white border border-gray-300 rounded-xl p-6 space-y-6 shadow-sm"
         >
+          {/* ---------- AVATAR ---------- */}
+          <ProfileImageUpload
+            value={avatarUrl}
+            onChange={(file) => setAvatarFile(file)}
+          />
+
           {/* ================= CREATE MODE ================= */}
           {mode === "create" && (
             <>
@@ -193,7 +208,6 @@ export default function ReviewForm({
                     clientName: e.target.value,
                   })
                 }
-                placeholder="Aman Sharma"
               />
 
               <TextField
@@ -205,7 +219,6 @@ export default function ReviewForm({
                     clientLocation: e.target.value,
                   })
                 }
-                placeholder="Mumbai, Andheri West"
               />
 
               <SelectField
@@ -249,7 +262,6 @@ export default function ReviewForm({
                       clientEmail: e.target.value,
                     })
                   }
-                  placeholder="aman@example.com"
                 />
               )}
             </>
@@ -298,7 +310,17 @@ export default function ReviewForm({
                     clientLocation: e.target.value,
                   })
                 }
-                placeholder="Mumbai, Andheri West"
+              />
+              <TextField
+                label="Client Email (optional)"
+                type="email"
+                value={updateData.clientEmail}
+                onChange={(e) =>
+                  setUpdateData({
+                    ...updateData,
+                    clientEmail: e.target.value,
+                  })
+                }
               />
 
               <TextAreaField
@@ -315,7 +337,7 @@ export default function ReviewForm({
             </>
           )}
 
-          {/* ================= SUBMIT ================= */}
+          {/* ---------- SUBMIT ---------- */}
           <button
             type="submit"
             disabled={loading}
@@ -329,32 +351,30 @@ export default function ReviewForm({
               : "Update Review"}
           </button>
 
-          {/* ================= COPY LINK ================= */}
+          {/* ---------- COPY LINK ---------- */}
           {generatedLink && (
             <div className="border border-gray-300 rounded-md p-4 bg-gray-50 space-y-2">
-              <div className="grid grid-cols-2 justify-between gap-2 items-center">
-                <p className="text-sm md:text-ls font-medium text-gray-600">
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-medium text-gray-600">
                   Generated Review Link
                 </p>
-                <div className="md:w-auto w-full flex justify-end">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      navigator.clipboard.writeText(generatedLink);
-                      setCopied(true);
-                      setTimeout(() => setCopied(false), 1500);
-                    }}
-                    className="p-3   border border-gray-300 rounded-md text-sm"
-                  >
-                    {copied ? <FiCheck /> : <FiCopy />}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(generatedLink);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 1500);
+                  }}
+                  className="p-2 border border-gray-300 rounded-md text-sm"
+                >
+                  {copied ? <FiCheck /> : <FiCopy />}
+                </button>
               </div>
-                <input
-                  readOnly
-                  value={generatedLink}
-                  className="grid grid-cols-1 w-full text-xs px-3 py-2 border border-gray-300 rounded-md bg-white"
-                />
+              <input
+                readOnly
+                value={generatedLink}
+                className="w-full text-xs px-3 py-2 border border-gray-300 rounded-md bg-white"
+              />
             </div>
           )}
         </form>

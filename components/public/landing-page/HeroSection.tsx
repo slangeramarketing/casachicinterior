@@ -32,7 +32,7 @@ export default function HeroSection() {
         <div className="relative z-10 max-w-7xl mx-auto px-6 mt-32">
           <div className="max-w-[700px]  bg-[#f9741614]  backdrop-blur-sm p-8 md:p-10 rounded-md">
             
-            <h1 className="text-6xl md:text-5xl font-bold text-white leading-tight">
+            <h1 className="text-5xl font-bold text-white leading-tight">
               Beautiful Homes Made
               <br />
               For You

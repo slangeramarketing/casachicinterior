@@ -83,7 +83,7 @@ export default function StatsSection() {
         </motion.div>
 
         {/* STATS GRID */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8">
           
           <StatCard
             icon={<FiHome />}
@@ -137,17 +137,17 @@ function StatCard({
   return (
     <div
       ref={innerRef}
-      className="bg-[#F9FAFB] rounded-lg p-8 text-center border border-gray-100 hover:border-[#F97316]/40 transition"
+      className="bg-[#F9FAFB] rounded-lg p-4 md:p-8 text-center border border-gray-100 hover:border-[#F97316]/40 transition"
     >
       <div className="w-12 h-12 mx-auto mb-4 rounded-md bg-[#F97316]/10 flex items-center justify-center text-[#F97316] text-xl">
         {icon}
       </div>
 
-      <div className="text-3xl md:text-4xl font-bold text-[#090F1A]">
+      <div className="text-2xl md:text-4xl font-bold text-[#090F1A]">
         {value}+
       </div>
 
-      <p className="mt-2 text-sm text-gray-500 font-medium">
+      <p className="mt-2 text-xs text-gray-500 font-medium">
         {label}
       </p>
     </div>

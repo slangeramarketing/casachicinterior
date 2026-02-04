@@ -83,7 +83,7 @@ export default function WhyChooseUsSection() {
         <div className="lg:hidden w-full">
           <div className="text-center mb-12">
             <OptimizedImage
-              src="/media/static/why-choose-men.png"
+              src="/assets/why-choose-men.png"
               alt="Why Choose Us"
               width={140}
               height={140}

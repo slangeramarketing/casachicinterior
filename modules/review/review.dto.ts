@@ -22,6 +22,7 @@
 export interface CreateReviewLinkDTO {
   clientName: string;
   clientEmail?: string; // Optional for direct link flow
+  clientAvatar?:string;
   serviceId: string;
   submissionSource: "email" | "direct_link";
   clientLocation?:string;
@@ -49,7 +50,8 @@ export interface UpdateReviewModerationDTO {
   isFeatured?: boolean;
   adminResponse?: string;
   clientLocation?:string;
-  
+  clientAvatar?:string;
+  clientEmail?:string;
 }
 
 

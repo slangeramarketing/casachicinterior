@@ -50,6 +50,7 @@ export async function generateReviewLink(
   await reviewRepository.createTokenRecord({
     clientName: dto.clientName,
     clientEmail: dto.clientEmail,
+    clientAvatar:dto.clientAvatar,
     serviceId: new Types.ObjectId(dto.serviceId),
     submissionSource: dto.submissionSource,
     reviewToken: token,
