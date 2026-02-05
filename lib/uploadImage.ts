@@ -1,3 +1,6 @@
+// local or production dono ke liye same uploadImage.ts file code
+
+
 export async function uploadImage(
   file: File,
   type: "blogs" | "projects" | "services" |"profile"| "common" = "common"

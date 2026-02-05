@@ -1,20 +1,18 @@
-// app/admin/review/update/[id]/page.tsx
+// app/(pwa)/admin/review/update/[reviewId]/page.tsx
 
 import { reviewServer } from "@/modules/review/review.server";
 import ReviewForm from "@/components/admin/clientComponent/review/ReviewForm";
 
-interface PageProps {
-  params: { reviewId: string };
-}
-
-export default async function UpdateReviewPage({ params }: PageProps) {
+export default async function UpdateReviewPage({
+  params,
+}: {
+  params: Promise<{ reviewId: string }>;
+}) {
   const { reviewId } = await params;
- 
+
   const review = await reviewServer.findById(reviewId);
-  console.log("Review by ID: ",review);
+  console.log("Review by ID:", review);
 
-
-  // ✅ REQUIRED NULL GUARD
   if (!review) {
     return (
       <div className="max-w-xl mx-auto mt-20 text-center">
@@ -36,9 +34,8 @@ export default async function UpdateReviewPage({ params }: PageProps) {
         status: review.status,
         isFeatured: review.isFeatured,
         adminResponse: review.adminResponse,
-        clientAvatar:review.clientAvatar,
-        clientEmail:review.clientEmail,
-        message:review.message
+        clientAvatar: review.clientAvatar,
+        clientLocation: review.clientLocation,
       }}
     />
   );

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import path from "path";
 import fs from "fs/promises";
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,14 +23,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 📁 uploads/blogs | uploads/projects
-    const uploadDir = path.join(
-      process.cwd(),
-      "public",
-      "uploads",
-      type
-    );
+    // 📁 Upload directory
+    const UPLOAD_ROOT =
+      process.env.UPLOAD_ROOT ??
+      path.join(process.cwd(), "public", "uploads");
 
+    const uploadDir = path.join(UPLOAD_ROOT, type);
     await fs.mkdir(uploadDir, { recursive: true });
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -39,15 +38,22 @@ export async function POST(req: NextRequest) {
 
     await fs.writeFile(filePath, buffer);
 
-    const fileUrl = `/uploads/${type}/${fileName}`;
+    // ✅ IMPORTANT PART
+    const baseUrl = await getBaseUrl();
+    const fileUrl = `${baseUrl}/uploads/${type}/${fileName}`;
 
     return NextResponse.json({
       success: true,
       url: fileUrl,
     });
   } catch (error) {
+    console.error("UPLOAD ERROR:", error);
     return NextResponse.json(
-      { success: false, message: "Upload failed" },
+      {
+        success: false,
+        message:
+          error instanceof Error ? error.message : "Upload failed",
+      },
       { status: 500 }
     );
   }

@@ -20,7 +20,6 @@ import { reviewServer } from "@/modules/review/review.server";
 export default async function ReviewServerPage() {
   // Fetch ALL reviews (pending + approved + rejected)
   const reviews = await reviewServer.getAdminReviews();
-  console.log("Reviewa-Data: ",reviews);
   return (
     <div className="p-4 md:p-0">
       <ReviewList reviews={reviews} />
