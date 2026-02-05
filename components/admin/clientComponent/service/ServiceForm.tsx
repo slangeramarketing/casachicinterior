@@ -352,10 +352,11 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
                 label="Cover Image (Primary)*" 
                 value={form.coverImage}
                 onChange={(file) => setForm({ ...form, coverImage: file })} 
-                className="sm:w-full border-0"
+                className="w-full md:w-1/2 border-0"
+                preset="thumbnail"
               />
               {!form.coverImage && initialData?.coverImage && (
-                <div className="mt-3 p-2 bg-gray-50 rounded-lg flex items-center gap-3">
+                <div className="mt-3 p-2 bg-gray-50 rounded-lg flex items-center gap-3 border border-red-600">
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Current</span>
                   <img 
                     src={initialData.coverImage} 
@@ -403,6 +404,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
                 onRemoveExisting={(url) => {
                   setForm({ ...form, existingGallery: form.existingGallery.filter(u => u.url !== url) });
                 }}
+              
               />
             </div>
 

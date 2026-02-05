@@ -168,6 +168,7 @@ export function GalleryManager({
                 caption: "",
               });
             }}
+            preset="banner"
           />
         </div>
       </div>
@@ -583,12 +584,26 @@ export default function VideoManager({ form, setForm }: any) {
               value={yt.url}
               onChange={(e) => {
                 const url = e.target.value;
-                updateItem("youtube", idx, "url", url);
-
                 const embedId = extractYoutubeEmbedId(url);
-                updateItem("youtube", idx, "embedId", embedId);
+
+                // ✅ SINGLE update (IMPORTANT)
+                const list = [...form.videoShowcase.youtube];
+                list[idx] = {
+                  ...list[idx],
+                  url,
+                  embedId,
+                };
+
+                setForm({
+                  ...form,
+                  videoShowcase: {
+                    ...form.videoShowcase,
+                    youtube: list,
+                  },
+                });
               }}
             />
+
 
 
             {/* TITLE */}

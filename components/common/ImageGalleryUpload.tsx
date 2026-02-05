@@ -3,9 +3,11 @@
 import { useEffect, useState, ChangeEvent } from "react";
 import defaultImg from "@/public/assets/default.jpg";
 import { OptimizedImage } from "./OptimizedImage";
+import { processImage } from "@/lib/utils/processImage";
+import { IMAGE_PRESETS } from "@/lib/config/imagePresets";
 
 /***************************************************
- * ImageGalleryUpload
+ * ImageGalleryUpload (UPDATED)
  *
  * Purpose:
  * - Reusable multi-image upload with preview gallery
@@ -13,29 +15,31 @@ import { OptimizedImage } from "./OptimizedImage";
  * Features:
  * - Supports existing image URLs (edit mode)
  * - Supports new file previews (create / replace)
+ * - Optional client-side resize & compression
+ * - File type + size validation
  * - Grid-based gallery preview
  * - Remove individual images
  *
  * Rules:
  * - File previews override URL previews
- * - UI-only (no upload logic)
+ * - Server images are NOT re-processed
  ***************************************************/
 
 /* *****************************************
-   How to Used this component 
-  -----------------------------
+   Example Usage
 
-  const [images, setImages] = useState<File[]>([]);
-
-    <ImageGalleryUpload
-        label="Project Gallery"
-        value={images}
-        initialPreviews={initialData?.images || []}
-        onChange={setImages}
-        maxFiles={8}
-    />
+  <ImageGalleryUpload
+    label="Service Gallery"
+    value={files}
+    initialPreviews={service.gallery}
+    onChange={setFiles}
+    maxFiles={8}
+    preset="gallery"
+  />
 
 *************************************************/
+
+type ImagePresetKey = keyof typeof IMAGE_PRESETS;
 
 interface ImageGalleryUploadProps {
   label?: string;
@@ -51,6 +55,10 @@ interface ImageGalleryUploadProps {
   id?: string;
   accept?: string;
   maxFiles?: number;
+
+  /** 🔥 NEW */
+  preset?: ImagePresetKey;
+  maxFileSizeMB?: number;
 
   wrapperClassName?: string;
   labelClassName?: string;
@@ -69,6 +77,9 @@ export default function ImageGalleryUpload({
   accept = "image/*",
   maxFiles = 6,
 
+  preset,
+  maxFileSizeMB = 2,
+
   wrapperClassName = "",
   labelClassName = "",
   buttonClassName = "",
@@ -76,26 +87,68 @@ export default function ImageGalleryUpload({
   imageClassName = "",
 }: ImageGalleryUploadProps) {
   const [previews, setPreviews] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleChange(e: ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files || []).filter((file) =>
-      file.type.startsWith("image/")
-    );
+  const MAX_BYTES = maxFileSizeMB * 1024 * 1024;
 
+  /* ===============================
+     File Select
+     =============================== */
+  async function handleChange(e: ChangeEvent<HTMLInputElement>) {
+    setError(null);
+
+    const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    const merged = [...value, ...files].slice(0, maxFiles);
+    const processedFiles: File[] = [];
+
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        setError("Only image files are allowed");
+        continue;
+      }
+
+      if (file.size > MAX_BYTES) {
+        setError(`Each image must be under ${maxFileSizeMB} MB`);
+        continue;
+      }
+
+      let finalFile = file;
+
+      // 🔥 Only process local files when preset is provided
+      if (preset) {
+        finalFile = await processImage(
+          file,
+          IMAGE_PRESETS[preset]
+        );
+      }
+
+      processedFiles.push(finalFile);
+    }
+
+    if (!processedFiles.length) return;
+
+    const merged = [...value, ...processedFiles].slice(
+      0,
+      maxFiles
+    );
+
     onChange(merged);
+    e.target.value = "";
   }
 
+  /* ===============================
+     Remove
+     =============================== */
   function handleRemove(index: number) {
     const updated = value.filter((_, i) => i !== index);
     onChange(updated);
   }
 
-  /* 🔁 Handle preview sources */
+  /* ===============================
+     Preview handling
+     =============================== */
   useEffect(() => {
-    // If new files exist → generate previews
     if (value.length) {
       const urls = value.map((file) =>
         URL.createObjectURL(file)
@@ -107,10 +160,12 @@ export default function ImageGalleryUpload({
       };
     }
 
-    // Fallback to initial URLs
     setPreviews(initialPreviews);
   }, [value, initialPreviews]);
 
+  /* ===============================
+     UI
+     =============================== */
   return (
     <div className={`border rounded-md ${wrapperClassName}`}>
       {/* HEADER */}
@@ -137,6 +192,12 @@ export default function ImageGalleryUpload({
         </span>
       </div>
 
+      {error && (
+        <p className="text-xs text-red-500 px-3 pt-2">
+          {error}
+        </p>
+      )}
+
       {/* GALLERY */}
       <div
         className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 p-4 ${gridClassName}`}
@@ -161,7 +222,6 @@ export default function ImageGalleryUpload({
               className={`object-cover rounded border ${imageClassName}`}
             />
 
-            {/* REMOVE BUTTON */}
             <button
               type="button"
               onClick={() => handleRemove(index)}

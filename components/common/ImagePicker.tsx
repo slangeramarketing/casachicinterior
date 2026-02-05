@@ -1,7 +1,35 @@
 "use client";
 
+/*************************************
+ * ------- How to used ---------
+    <ImagePicker
+      label="Blog Thumbnail"
+      value={thumbnail}
+      onChange={setThumbnail}
+      preset="blogThumbnail"
+    />
+
+    <ImagePicker
+      label="Banner"
+      value={banner}
+      onChange={setBanner}
+      preset="banner"
+    />
+
+    <ImagePicker
+      label="Gallery Image"
+      value={image}
+      onChange={setImage}
+    />
+
+ *************************************/
+
 import { useEffect, useState, useRef } from "react";
 import { OptimizedImage } from "@/components/common/OptimizedImage";
+import { processImage } from "@/lib/utils/processImage";
+import { IMAGE_PRESETS } from "@/lib/config/imagePresets";
+
+type ImagePresetKey = keyof typeof IMAGE_PRESETS;
 
 interface ImagePickerProps {
   value: File | string | null;
@@ -10,8 +38,11 @@ interface ImagePickerProps {
   disabled?: boolean;
   className?: string;
 
-  /** 🔥 NEW (optional) */
+  /** optional */
   autoOpen?: boolean;
+
+  /** 🔥 OPTIONAL image processing preset (only for device uploads) */
+  preset?: ImagePresetKey;
 }
 
 export default function ImagePicker({
@@ -21,16 +52,14 @@ export default function ImagePicker({
   disabled = false,
   className = "",
   autoOpen = false,
+  preset,
 }: ImagePickerProps) {
   const [open, setOpen] = useState(false);
   const [tempSelection, setTempSelection] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 🔥 AUTO OPEN SUPPORT
   useEffect(() => {
-    if (autoOpen) {
-      setOpen(true);
-    }
+    if (autoOpen) setOpen(true);
   }, [autoOpen]);
 
   const preview =
@@ -40,16 +69,33 @@ export default function ImagePicker({
       ? value
       : null;
 
+  /* ===============================================
+     DEVICE FILE HANDLING (ONLY HERE WE COMPRESS)
+     =============================================== */
+  async function handleDeviceFile(file: File) {
+    let finalFile: File = file;
+
+    // 🔒 compress ONLY if preset exists
+    if (preset) {
+      finalFile = await processImage(file, IMAGE_PRESETS[preset]);
+    }
+
+    onChange(finalFile);
+    setOpen(false);
+  }
+
+  /* ===============================================
+     UI
+     =============================================== */
+
   return (
     <div className={`space-y-2 ${className}`}>
-      {/* LABEL */}
       {!autoOpen && (
         <label className="text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
 
-      {/* PREVIEW + OPEN BUTTON (OLD USAGE SAFE) */}
       {!autoOpen && (
         <div
           className={`w-full flex flex-col border border-gray-300 rounded-lg p-3 bg-gray-50 gap-4 ${
@@ -78,7 +124,7 @@ export default function ImagePicker({
         </div>
       )}
 
-      {/* MODAL */}
+      {/* ================= MODAL ================= */}
       {open && (
         <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center">
           <div className="bg-white w-full max-w-4xl rounded-xl shadow-xl p-6 space-y-4">
@@ -108,16 +154,15 @@ export default function ImagePicker({
                 type="file"
                 accept="image/*"
                 className="hidden"
-                onChange={(e) => {
+                onChange={async (e) => {
                   const file = e.target.files?.[0];
                   if (!file) return;
-                  onChange(file);
-                  setOpen(false);
+                  await handleDeviceFile(file);
                 }}
               />
             </div>
 
-            {/* SERVER LIBRARY */}
+            {/* SERVER IMAGE LIBRARY (NO COMPRESSION HERE) */}
             <ServerImageLibrary
               selected={tempSelection}
               onSelect={(url) => setTempSelection(url)}
@@ -138,6 +183,8 @@ export default function ImagePicker({
                 disabled={!tempSelection}
                 onClick={() => {
                   if (!tempSelection) return;
+
+                  // 🔒 server image → NO processing
                   onChange(tempSelection);
                   setOpen(false);
                 }}
@@ -173,9 +220,7 @@ function ServerImageLibrary({
   }, []);
 
   if (loading) {
-    return (
-      <p className="text-xs text-gray-400">Loading images…</p>
-    );
+    return <p className="text-xs text-gray-400">Loading images…</p>;
   }
 
   return (

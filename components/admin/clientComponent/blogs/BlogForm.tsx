@@ -303,6 +303,7 @@ export default function BlogForm({ mode, categories, initialData,currentUserId }
               label="Thumbnail"
               defaultValue={form.thumbnail}
               onChange={(file) => setThumbnailFile(file)}
+              preset="thumbnail"
             />
             <FieldDescription text="Blog card image (600x400px)." />
           </div>
@@ -312,6 +313,7 @@ export default function BlogForm({ mode, categories, initialData,currentUserId }
               label="Banner"
               defaultValue={form.bannerImage}
               onChange={(file) => setBannerFile(file)}
+              preset="banner"
             />
             <FieldDescription text="Top header high-res image." />
           </div>
