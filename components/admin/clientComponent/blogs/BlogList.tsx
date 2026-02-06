@@ -12,19 +12,21 @@ import BlogCard from "@/components/admin/clientComponent/blogs/BlogCard";
 import { timeAgo } from "@/lib/utils/timeAgo";
 import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
 import { getGravatarUrl } from "@/lib/utils/gravatar";
-import ConfirmActionDialog from "../../ConfirmActionDialogProps";
-import { RiDeleteBin6Line } from "react-icons/ri";
 import { deleteBlogPostAction } from "@/app/actions/blog.action";
+import { UserRole } from "@/modules/users/user.dto";
 
 interface BlogListProps {
   blogs: BlogResponseDTO[];
+  actorRole:UserRole;
 }
 
-export default function BlogList({ blogs }: BlogListProps) {
+export default function BlogList({ blogs,actorRole }: BlogListProps) {
   const router = useRouter();
   const [filter, setFilter] = useState<"az" | "za" | "new" | "old">("new");
   const [search, setSearch] = useState("");
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const isSuperAdmin = actorRole === "super_admin";
+
 
   /* --- Search + Filter Logic --- */
   const filteredBlogs = useMemo(() => {
@@ -65,18 +67,25 @@ export default function BlogList({ blogs }: BlogListProps) {
             placeholder="Search blogs by title..." 
           />
           <div className="w-full flex gap-2 md:justify-end justify-items-start ">
+            {/* 📂 Category button — only super_admin */}
+          {isSuperAdmin && (
             <CreateButton
-                label=""
-                onClick={() => router.push("/admin/blogs/categories")}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 border-none py-4"
-                icon={<MdCategory size={18} />}
+              label=""
+              onClick={() => router.push("/admin/blogs/categories")}
+              className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-4"
+              icon={<MdCategory size={18} />}
             />
+          )}
+
+          {/* ➕ Create Blog — only super_admin */}
+          {isSuperAdmin && (
             <CreateButton
-                label=""
-                onClick={() => router.push("/admin/blogs/create")}
-                className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-200 py-4"
-                icon={<MdPostAdd size={18} />}
+              label=""
+              onClick={() => router.push("/admin/blogs/create")}
+              className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-200 py-4"
+              icon={<MdPostAdd size={18} />}
             />
+          )}
             <FilterDropdown
               value={filter}
               onChange={setFilter}
@@ -103,7 +112,7 @@ export default function BlogList({ blogs }: BlogListProps) {
               key={blog.id}
               showAuthor={true}
               authorName={blog.author?.name}
-              showActions={true}
+              showActions={isSuperAdmin}
               // Agar email available hai toh use karein, nahi toh ID se identicon banayein
               authorAvatar={blog.author?.image || getGravatarUrl(blog.author?.id || "default")}
               thumbnail={blog.thumbnail || ""}

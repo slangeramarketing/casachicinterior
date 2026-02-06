@@ -46,6 +46,7 @@ import {
 } from "./blog.service";
 import { BlogResponseDTO, CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
 import { BlogMapper } from "./blog.mapper";
+import { requireRole } from "@/lib/auth";
 
 /**
  * Blog Server Facade Object
@@ -112,13 +113,18 @@ export const blogServer = {
 
   async create(data: CreateBlogDTO) {
     try {
-      const record = await createBlog(data);
-      
+      // 🔐 AUTH + RBAC
+      const auth = await requireRole(["super_admin"]);
+
+      const record = await createBlog(auth.role, data);
+
       revalidatePath("/blogs");
       revalidatePath("/admin/blogs");
-      
-      // Type casting to any to bypass strict IPopulatedBlogRecord check
-      return { success: true, data: BlogMapper.toResponse(record as any) };
+
+      return {
+        success: true,
+        data: BlogMapper.toResponse(record as any),
+      };
     } catch (error: any) {
       console.error("[BLOG_SERVER_CREATE_ERROR]:", error);
       return { success: false, error: error.message };
@@ -127,33 +133,41 @@ export const blogServer = {
 
   async update(id: string, data: UpdateBlogDTO) {
     try {
-      const record = await updateBlog(id, data);
-      
+      const auth = await requireRole(["super_admin"]);
+
+      const record = await updateBlog(auth.role, id, data);
+
       revalidatePath("/blogs");
-      revalidatePath(`/blogs/${record.slug}`); 
+      revalidatePath(`/blogs/${record.slug}`);
       revalidatePath("/admin/blogs");
-      
-      // Type casting to any
-      return { success: true, data: BlogMapper.toResponse(record as any) };
+
+      return {
+        success: true,
+        data: BlogMapper.toResponse(record as any),
+      };
     } catch (error: any) {
       console.error("[BLOG_SERVER_UPDATE_ERROR]:", error);
       return { success: false, error: error.message };
     }
   },
+
   /**
    * Purpose: Delete blog and cleanup cache
    */
   async delete(id: string) {
     try {
-      await deleteBlog(id);
-      
+      const auth = await requireRole(["super_admin"]);
+
+      await deleteBlog(auth.role, id);
+
       revalidatePath("/blogs");
       revalidatePath("/admin/blogs");
-      
+
       return { success: true };
     } catch (error: any) {
       console.error("[BLOG_SERVER_DELETE_ERROR]:", error);
-      return { success: false, error: error.message || "Delete operation failed" };
+      return { success: false, error: error.message };
     }
   }
+
 };

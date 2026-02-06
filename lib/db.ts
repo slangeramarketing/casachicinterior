@@ -29,7 +29,7 @@ async function db(): Promise<void> {
 
     if (!cached.promise) {
         const opts = {
-            dbName: "casachic_db",
+            dbName: "casachic_staging_db",
             bufferCommands: false,
             serverSelectionTimeoutMS: 5000, // 30s बहुत ज़्यादा है, 5s में फेल होने दें
             family: 4,                      // फोर्स करें कि सिर्फ IPv4 (127.0.0.1) ही यूज़ हो

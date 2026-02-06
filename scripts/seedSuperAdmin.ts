@@ -1,47 +1,56 @@
-/***************************************************
- * File: scripts/seed-super-admin.ts
- *
- * Purpose:
- * - Seeds the first Super Admin user into the database
- * - Used only once during initial project setup
- *
- * Responsibilities:
- * - Connect to database
- * - Check if super admin already exists
- * - Create super admin with ACTIVE status
- *
- * Restrictions:
- * - Must NOT contain business logic
- * - Must NOT be reused for runtime operations
- ***************************************************/
-
-import "dotenv/config"; // ✅ REQUIRED
+import "dotenv/config";
 import db from "@/lib/db";
 import User from "@/modules/users/user.model";
+import { sendMail } from "@/lib/email/mailer"; // ✅ Import mailer
+import { getWelcomeEmailTemplate } from "@/lib/email/templates/welcomeEmail"; // ✅ Import template
 
 async function seedSuperAdmin() {
   await db();
 
-  console.log("MONGO URI =", process.env.MONGODB_URI);
+  const adminEmail = "427rohitkumar@gmail.com";
+  const adminPass = "Teamnoida@1234";
+  
+  // Seed script ke liye manual base URL (Development ya Production ke hisaab se)
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-  const exists = await User.findOne({
-    email: "427rohitkumar@gmail.com",
-  });
+  console.log("Checking for Super Admin...");
+
+  const exists = await User.findOne({ email: adminEmail });
 
   if (exists) {
     console.log("Super admin already exists");
     process.exit(0);
   }
 
-  await User.create({
+  // 1. Create the Super Admin
+  const newUser = await User.create({
     name: "Rohit Kumar",
-    email: "427rohitkumar@gmail.com",
-    password: "Teamnoida@1234", // auto-hashed by schema
+    email: adminEmail,
+    password: adminPass, // Schema automatically hashes this
     role: "super_admin",
-    status: "active", // ✅ REQUIRED (new model)
+    status: "active",
   });
 
-  console.log("Super admin created successfully");
+  console.log("Super admin created in database.");
+
+  // 2. Send Welcome Email
+  try {
+    await sendMail({
+      to: adminEmail,
+      subject: "CasaChic - Super Admin Access Granted",
+      html: getWelcomeEmailTemplate({
+        name: "Rohit Kumar",
+        email: adminEmail,
+        password: adminPass, // Sending the plain password for reference
+        role: "super_admin",
+        baseUrl: baseUrl,
+      }),
+    });
+    console.log("Welcome email sent to Super Admin successfully.");
+  } catch (emailError) {
+    console.error("User created, but email failed:", emailError);
+  }
+
   process.exit(0);
 }
 

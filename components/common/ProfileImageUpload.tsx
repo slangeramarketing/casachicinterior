@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, ChangeEvent, useEffect } from "react";
-import Image from "next/image";
 import defaultAvatar from "@/public/assets/default.jpg";
+import { OptimizedImage } from "./OptimizedImage";
 
 interface ProfileImageUploadProps {
   value?: string;
@@ -52,7 +52,7 @@ export default function ProfileImageUpload({
   return (
     <div className="flex flex-col items-center gap-3">
       <div className="relative w-28 h-28">
-        <Image
+        <OptimizedImage
           src={preview || defaultAvatar}
           alt="Profile"
           fill

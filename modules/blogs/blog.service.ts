@@ -24,6 +24,7 @@ import { blogRepository } from "./blog.repository";
 import { IBlogRecord, IPopulatedBlogRecord } from "./blog.types";
 import { CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
 import { AppError } from "@/lib/errors/AppError";
+import { UserRole } from "../users/user.typs";
 
 /* =====================================================
    INTERNAL HELPERS
@@ -34,6 +35,18 @@ function calculateReadingTime(content: string): number {
   const words = content.trim().split(/\s+/).length;
   return Math.ceil(words / wordsPerMinute);
 }
+
+function assertSuperAdmin(role: UserRole) {
+  if (role !== "super_admin") {
+    throw new AppError({
+      message: "Only super_admin can perform this action",
+      code: "FORBIDDEN",
+      statusCode: 403,
+    });
+  }
+}
+
+
 
 /* =====================================================
    READ
@@ -87,15 +100,17 @@ export async function getBlogById(
 ===================================================== */
 
 export async function createBlog(
+  actorRole: UserRole,
   data: CreateBlogDTO
 ): Promise<IBlogRecord> {
+  assertSuperAdmin(actorRole);
+
   const existing = await blogRepository.findBySlug(data.slug);
   if (existing) {
     throw new AppError({
       message: "Blog slug already exists",
       code: "BLOG_SLUG_CONFLICT",
       statusCode: 409,
-      context: { slug: data.slug },
     });
   }
 
@@ -108,28 +123,27 @@ export async function createBlog(
     content: data.content,
     thumbnail: data.thumbnail,
     bannerImage: data.bannerImage,
-
-    // 🔥 FIX: string → ObjectId
     categoryId: new Types.ObjectId(data.categoryId),
     authorId: new Types.ObjectId(data.authorId),
-
     tags: data.tags ?? [],
     status: data.status,
     featured: data.featured ?? false,
     readingTime,
     seo: data.seo as any,
-
-    publishedAt:
-      data.status === "published" ? new Date() : undefined,
+    publishedAt: data.status === "published" ? new Date() : undefined,
   };
 
   return blogRepository.create(payload);
 }
 
+
 export async function updateBlog(
+  actorRole: UserRole,
   id: string,
   data: UpdateBlogDTO
 ): Promise<IBlogRecord> {
+  assertSuperAdmin(actorRole);
+
   if (data.slug) {
     const existing = await blogRepository.findBySlug(data.slug);
     if (existing && existing._id.toString() !== id) {
@@ -137,7 +151,6 @@ export async function updateBlog(
         message: "Slug already used by another blog",
         code: "BLOG_SLUG_CONFLICT",
         statusCode: 409,
-        context: { id, slug: data.slug },
       });
     }
   }
@@ -154,18 +167,12 @@ export async function updateBlog(
 
   if (data.thumbnail !== undefined) payload.thumbnail = data.thumbnail;
   if (data.bannerImage !== undefined) payload.bannerImage = data.bannerImage;
-
-  if (data.categoryId) {
-    payload.categoryId = new Types.ObjectId(data.categoryId);
-  }
-
-  if (data.authorId) {
-    payload.authorId = new Types.ObjectId(data.authorId);
-  }
-
+  if (data.categoryId) payload.categoryId = new Types.ObjectId(data.categoryId);
+  if (data.authorId) payload.authorId = new Types.ObjectId(data.authorId);
   if (data.tags) payload.tags = data.tags;
   if (data.seo) payload.seo = data.seo as any;
   if (data.featured !== undefined) payload.featured = data.featured;
+
   if (data.status) {
     payload.status = data.status;
     if (data.status === "published") {
@@ -174,13 +181,11 @@ export async function updateBlog(
   }
 
   const updated = await blogRepository.updateById(id, payload);
-
   if (!updated) {
     throw new AppError({
       message: "Blog not found",
       code: "BLOG_NOT_FOUND",
       statusCode: 404,
-      context: { id },
     });
   }
 
@@ -190,17 +195,22 @@ export async function updateBlog(
 
 
 
-export async function deleteBlog(id: string): Promise<boolean> {
-  const deleted = await blogRepository.deleteById(id);
 
+export async function deleteBlog(
+  actorRole: UserRole,
+  id: string
+): Promise<boolean> {
+  assertSuperAdmin(actorRole);
+
+  const deleted = await blogRepository.deleteById(id);
   if (!deleted) {
     throw new AppError({
       message: "Blog not found",
       code: "BLOG_NOT_FOUND",
       statusCode: 404,
-      context: { id },
     });
   }
 
   return true;
 }
+

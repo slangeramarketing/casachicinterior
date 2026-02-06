@@ -25,6 +25,9 @@ import {
 } from "./user.dto";
 import { UserRecord, UserRole, UserStatus } from "./user.typs";
 import db from "@/lib/db";
+import { sendMail } from "@/lib/email/mailer";
+import { getWelcomeEmailTemplate } from "@/lib/email/templates/welcomeEmail";
+import { getBaseUrl } from "@/lib/utils/getBaseUrl";
 
 /* =================================================
    INTERNAL RBAC HELPERS (DOMAIN RULES)
@@ -53,7 +56,7 @@ function assertAdminOrSuperAdmin(role: UserRole) {
 ================================================= */
 
 /**
- * Create a new user
+ * Create a new user and send welcome email
  *
  * Rules:
  * - ONLY super_admin can create users
@@ -66,6 +69,7 @@ export async function createUser(
 ): Promise<UserRecord> {
   await db();
 
+  // Rule: ONLY super_admin can create users
   assertSuperAdmin(actorRole);
 
   if (!data.name || !data.email || !data.password) {
@@ -77,10 +81,37 @@ export async function createUser(
     throw new Error("Email already exists");
   }
 
-  return userRepository.create({
+  // 1. Fetch the dynamic base URL based on the current request domain
+  const baseUrl = await getBaseUrl();
+
+  // 2. Create the user in Database
+  const newUser = await userRepository.create({
     ...data,
     status: "active",
   });
+
+  // 3. Send Welcome Email (Non-blocking preference)
+  // Hum ise await kar sakte hain ya background mein chalne de sakte hain.
+  // Success hone par hi email bhejna better hai.
+  try {
+    await sendMail({
+      to: data.email,
+      subject: "Welcome to CasaChic - Account Created",
+      html: getWelcomeEmailTemplate({
+        name: data.name,
+        email: data.email,
+        password: data.password, // Original password from DTO
+        role: data.role,
+        baseUrl: baseUrl, // Passing the dynamic domain URL
+      }),
+    });
+    console.log(`Welcome email sent to: ${data.email}`);
+  } catch (emailError) {
+    // We don't want to crash the whole process if only email fails
+    console.error("Email sending failed:", emailError);
+  }
+
+  return newUser;
 }
 
 /* =================================================
