@@ -3,12 +3,14 @@
 import { useRef } from "react";
 import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import { OptimizedImage } from "@/components/common/OptimizedImage";
+import { useRouter } from "next/navigation";
 
 interface HeaderProps {
   featuredServiceList:ServiceResponseDTO[];
 }
 export default function DesignSolutionsSection({featuredServiceList}:HeaderProps) {
   const sliderRef = useRef<HTMLDivElement>(null);
+  const router=useRouter();
 
   const scrollLeft = () => {
     sliderRef.current?.scrollBy({
@@ -67,6 +69,7 @@ export default function DesignSolutionsSection({featuredServiceList}:HeaderProps
             <div
               key={item.id}
               className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition"
+              onClick={()=>router.push(`services/${item.slug}`)}
             >
               <div className="relative w-full h-48">
                 <OptimizedImage

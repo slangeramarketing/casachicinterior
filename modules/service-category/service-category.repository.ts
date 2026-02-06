@@ -164,4 +164,23 @@ export const serviceCategoryRepository = {
 
     return count > 0;
   },
+
+
+  /* ============================
+      FIND TOP SUB-CATEGORIES
+  ============================ */
+async findTopSubCategories(
+  limit: number = 5
+): Promise<ServiceCategoryRecord[]> {
+  return ServiceCategoryModel.find({ 
+        parentId: { $ne: null }, // Sirf sub-categories uthayega
+        status: "active" 
+      })
+      .sort({ displayOrder: 1, name: 1 })
+      .limit(limit)
+      .lean<ServiceCategoryRecord[]>()
+      .exec();
+  },
 };
+
+

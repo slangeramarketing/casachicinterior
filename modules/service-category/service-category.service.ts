@@ -133,6 +133,15 @@ export async function listServiceCategories(options?: {
 }
 
 /* =====================================================
+    GET TOP 5 SUB-CATEGORIES
+===================================================== */
+export async function getTopSubCategories(): Promise<ServiceCategoryRecord[]> {
+  await db();
+  // Hum repository se top 5 global sub-categories mangwa rahe hain
+  return serviceCategoryRepository.findTopSubCategories(5);
+}
+
+/* =====================================================
    UPDATE CATEGORY
 ===================================================== */
 export async function updateServiceCategory(

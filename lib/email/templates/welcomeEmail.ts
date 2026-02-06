@@ -39,7 +39,7 @@ export const getWelcomeEmailTemplate = (data: {
           </a>
         </div>
 
-        <p style="color: #888; font-size: 12px; font-style: italic;">Note: Please change your password after your first login for security purposes.</p>
+        <p style="color: #888; font-size: 12px; font-style: italic;">Note: Please don't share your password to any one!  </p>
       </div>
 
       <div style="background-color: #f9f9f9; padding: 20px; text-align: center; border-top: 1px solid #eee; color: #aaa; font-size: 11px;">

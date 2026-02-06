@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FaReply, FaPaperPlane } from "react-icons/fa";
+import { FaReply, FaPaperPlane, FaWhatsapp } from "react-icons/fa";
 import {
   MdOutlineMail,
   MdOutlineDateRange,
@@ -70,6 +70,14 @@ export default function MessageThreadCard({
 
   const hasReplies = data.replies.length > 0;
 
+  {/* Starter text ko variable me rakhte hain taaki manage karna easy ho */}
+  const queryMessage = encodeURIComponent(
+    `Hi ${data.name || 'there'}, I'm reaching out regarding the interior design query you submitted on our website. I would love to discuss your project requirements in detail. Are you free for a quick chat?`
+  );
+
+  {/* Phone number se spaces remove karne ke liye regex use kiya hai */}
+  const phoneNumber = data.phone.replace(/\s+/g, '');
+
   /* =========================
      HANDLERS
   ========================= */
@@ -133,9 +141,19 @@ export default function MessageThreadCard({
             </h4>
 
             <div className="flex flex-wrap gap-3">
+              <Link 
+                href={`https://wa.me/${phoneNumber}4?text=${queryMessage}`}
+                target="_blank" // Naye tab me kholne ke liye
+                rel="noopener noreferrer" // Security ke liye
+              >
+                <p className="text-xs text-gray-500 flex items-center gap-1 hover:text-green-500 transition-colors cursor-pointer">
+                  <FaWhatsapp size={14} color="green"/>
+                  Whatsapp
+                </p>
+              </Link>
               <Link href={`tel:+91 ${data.phone}`}>
                 <p className="text-xs text-gray-500 flex items-center gap-1">
-                <IoIosCall size={14} />
+                <IoIosCall size={14} color="green" />
                 {data.phone}
               </p>
               </Link>

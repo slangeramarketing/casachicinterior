@@ -22,7 +22,7 @@ interface Props{
     reviews:ReviewResponseDTO[];
 }
 export default function LandingPage({reviews}:Props) {
-  const [open, setOpen] = useState(false);
+  
   const [featuredServiceList, setFeaturedServiceList]=useState<ServiceResponseDTO[]>([]);
 
 
@@ -56,12 +56,7 @@ export default function LandingPage({reviews}:Props) {
      <ReviewSection reviews={reviews} />
      <ContactSection/>
      <FAQSection/>
-     <ContactFAB/>
-        <EnquiryStickyTab onClick={() => setOpen(true)} />
-        {/* Modal */}
-      <EnquiryModal open={open} onClose={() => setOpen(false)}>
-        <ContactSection />
-      </EnquiryModal>
+     
     </div>
   )
 }

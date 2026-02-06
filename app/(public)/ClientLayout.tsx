@@ -11,6 +11,9 @@ export default async  function ClientLayout({
 }>) {
    
   const mainServiceCategoryList=await serviceCategoryServer.getByParent(null);
+  // Ab ye perfectly kaam karega!
+  const topServiceSubCatList = await serviceCategoryServer.getTopFiveSubCategories();
+
 
   return (
     <>
@@ -18,8 +21,9 @@ export default async  function ClientLayout({
          <Header mainServiceCategoryList={mainServiceCategoryList} />
         </div>
         <main>{children}</main>
+
        <div>
-         <Footer mainServiceCategoryList={mainServiceCategoryList} />
+         <Footer mainServiceCategoryList={mainServiceCategoryList} topServiceSubCatList={topServiceSubCatList} />
        </div>
     </>
   );

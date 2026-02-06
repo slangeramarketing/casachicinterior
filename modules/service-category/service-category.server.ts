@@ -30,6 +30,7 @@ import {
   deleteServiceCategory,
   getServiceCategoryById,
   getServiceCategoryBySlug,
+  getTopSubCategories,
 } from "./service-category.service";
 import { serviceCategoryMapper } from "./service-category.mapper";
 import {
@@ -98,6 +99,15 @@ export const serviceCategoryServer = {
 
   async getActive(): Promise<ServiceCategoryResponseDTO[]> {
     const records = await listServiceCategories({ publicOnly: true });
+    return serviceCategoryMapper.toResponseList(records);
+  },
+
+  /**
+   * ✅ GET TOP 5 SUB-CATEGORIES
+   * Purpose: Fetch only top 5 active sub-categories for a given parent
+   */
+  async getTopFiveSubCategories(): Promise<ServiceCategoryResponseDTO[]> {
+    const records = await getTopSubCategories();
     return serviceCategoryMapper.toResponseList(records);
   },
 

@@ -16,9 +16,10 @@ import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-c
 
   interface HeaderProps {
     mainServiceCategoryList:ServiceCategoryResponseDTO[];
+    topServiceSubCatList:ServiceCategoryResponseDTO[];
   }
 
-export default function Footer({mainServiceCategoryList}:HeaderProps) {
+export default function Footer({mainServiceCategoryList,topServiceSubCatList}:HeaderProps) {
 
   return (
     <footer className="bg-gradient-to-b from-[#0B1220] to-[#070C16] text-gray-300">
@@ -71,11 +72,13 @@ export default function Footer({mainServiceCategoryList}:HeaderProps) {
               Design Ideas
             </h3>
             <ul className="space-y-3 text-sm">
-              <li><Link href="#">Living Room</Link></li>
-              <li><Link href="#">Bedroom</Link></li>
-              <li><Link href="#">Kitchen</Link></li>
-              <li><Link href="#">Bathroom</Link></li>
-              <li><Link href="#">Wardrobe</Link></li>
+              {topServiceSubCatList?.map((subCat) => (
+                <li key={subCat.id}>
+                <Link key={subCat.id} href={`/services/${subCat.slug}`} >
+                {subCat.name}
+                </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

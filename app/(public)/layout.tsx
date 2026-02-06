@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import ClientLayout from "./ClientLayout";
 import PwaSuppressor from "../pwa-suppress";
+import ContactIcons from "@/components/public/layouts/ContactIcons";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default async function PublicLayout({
       > 
         <PwaSuppressor />
         <ClientLayout>{children}</ClientLayout>
+        <ContactIcons/>
       </body>
     </html>
   );
