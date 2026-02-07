@@ -142,7 +142,7 @@ export default function MessageThreadCard({
 
             <div className="flex flex-wrap gap-3">
               <Link 
-                href={`https://wa.me/${phoneNumber}4?text=${queryMessage}`}
+                href={`https://wa.me/${phoneNumber}?text=${queryMessage}`}
                 target="_blank" // Naye tab me kholne ke liye
                 rel="noopener noreferrer" // Security ke liye
               >

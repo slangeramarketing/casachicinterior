@@ -43,3 +43,8 @@ next-env.d.ts
 
 # Google Analytics API Keys
 keys/
+
+
+# Ignore everything inside uploads but keep the folder (Optional)
+public/uploads/*
+!public/uploads/.gitkeep

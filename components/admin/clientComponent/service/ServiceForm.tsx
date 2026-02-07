@@ -480,6 +480,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
                     { label: "per Unit", value: "unit" },
                     { label: "per Room", value: "room" },
                     { label: "Fixed Price", value: "fixed" },
+                    { label: "Starting Price", value: "starting price" },
                   ]}
                 />
               </div>
