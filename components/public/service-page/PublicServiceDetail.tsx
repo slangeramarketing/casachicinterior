@@ -73,6 +73,8 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
           <OptimizedImage 
             src={service.coverImage} 
             alt={service.title} 
+            width={100}
+            height={100}
             fill 
             priority
             className="object-cover" 
@@ -159,7 +161,7 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
             </div>
           </div>
           <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
-            <OptimizedImage src={service.gallery[0]?.url || service.coverImage} alt="Detail view" fill className="object-cover" />
+            <OptimizedImage src={service.gallery[0]?.url || service.coverImage} alt="Detail view" width={100} height={100} fill className="object-cover" />
           </div>
         </motion.section>
 

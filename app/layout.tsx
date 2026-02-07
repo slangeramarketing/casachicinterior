@@ -1,7 +1,7 @@
 
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
-import { GoogleAnalytics } from '@next/third-parties/google'
+import GoogleTagManager from "@/lib/GoogleTagManager";
 
 export default function PublicLayout({
   children,
@@ -9,9 +9,15 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
 
+  const gtmId = process.env.NEXT_PUBLIC_GTM_ID || "";
+  console.log("GTM ID: ",gtmId);
 
   return (
     <html lang="en">
+      <head>
+        {/* GTM Script Component */}
+        <GoogleTagManager gtmId={gtmId} />
+      </head>
       <body>
         <NextTopLoader  
           color="#F97316"        // brand color
@@ -21,10 +27,18 @@ export default function PublicLayout({
           easing="ease"
           speed={200}
         />
+
+        {/* GTM Noscript (Backup for disabled JS) */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          ></iframe>
+        </noscript>
        {children}
       </body>
-      {/* Aapka Measurement ID yahan aayega */}
-      <GoogleAnalytics gaId="G-NPBJ9H7JCR" />
     </html>
   );
 }

@@ -49,7 +49,7 @@ export default function ImageUpload({
   defaultValue = "",
 
   preset,
-  maxFileSizeMB = 2,
+  maxFileSizeMB = 5,
 
   wrapperClassName = "",
   labelClassName = "",

@@ -69,7 +69,7 @@ export default function DesignSolutionsSection({featuredServiceList}:HeaderProps
             <div
               key={item.id}
               className="w-[350px]  lg:w-[300px] bg-orange-500 rounded-xl overflow-hidden text-white flex-shrink-0 hover:shadow-lg transition"
-              onClick={()=>router.push(`services/${item.slug}`)}
+              onClick={()=>router.push(`services/detail/${item.slug}`)}
             >
               <div className="relative w-full h-48">
                 <OptimizedImage

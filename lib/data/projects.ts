@@ -1,5 +1,8 @@
+// this file location: @/lib/data/projects.ts
+
 export type Project = {
   id: number;
+  slug:string;
   title: string;
   shortDescription: string;
   overview: string;
@@ -34,6 +37,7 @@ export type Project = {
 export const projects: Project[] = [
   {
     id: 1,
+    slug:"modern-3bhk-apartment-patna",
     title: "Modern 3BHK Apartment – Patna",
     shortDescription:
       "Contemporary residential interior focused on comfort and smart space utilization.",
@@ -80,6 +84,7 @@ export const projects: Project[] = [
 
   {
     id: 2,
+    slug:"luxury-office-interior-delhi",
     title: "Luxury Office Interior – Delhi",
     shortDescription:
       "Premium workspace designed for productivity, comfort, and brand identity.",
@@ -127,6 +132,7 @@ export const projects: Project[] = [
 
   {
     id: 3,
+    slug:"minimalist-villa-interior-noida",
     title: "Minimalist Villa Interior – Noida",
     shortDescription:
       "Luxury villa interior with minimalist design and natural light focus.",
@@ -171,6 +177,7 @@ export const projects: Project[] = [
 
   {
     id: 4,
+    slug:"startup-office-interior-bangalore",
     title: "Startup Office Interior – Bangalore",
     shortDescription:
       "Modern startup workspace designed for collaboration and flexibility.",

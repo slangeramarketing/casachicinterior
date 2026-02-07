@@ -1,17 +1,14 @@
 "use client";
 
-import { useParams, notFound } from "next/navigation";
-import { projects } from "@/lib/data/projects";
 import * as Fi from "react-icons/fi";
 import ProjectGallery from "@/components/public/ProjectGallery";
 import Link from "next/link";
+import { Project } from "@/lib/data/projects";
 
-export default function ProjectDetailPage() {
-  const { id } = useParams<{ id: string }>();
-
-  // ID check for both string and number safety
-  const project = projects.find(p => p.id === Number(id));
-  if (!project) notFound();
+interface ProjectsProps{
+    project:Project
+}
+export default function PublicDetailProject({project}:ProjectsProps) {
 
   return (
     <div className="bg-[#fcfcfc] min-h-screen">

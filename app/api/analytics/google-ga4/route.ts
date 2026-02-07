@@ -1,3 +1,5 @@
+// this file location : @/api/analytics/google-ga4/route.ts
+
 import { fetchGa4DashboardData } from "@/lib/googleGa4";
 
 

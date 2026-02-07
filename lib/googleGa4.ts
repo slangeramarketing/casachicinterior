@@ -1,3 +1,5 @@
+// @/lib/googleGa4.ts
+
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { protos } from "@google-analytics/data";
 

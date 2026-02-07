@@ -125,7 +125,7 @@ export default function Footer({mainServiceCategoryList,topServiceSubCatList}:He
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
             <Link href="terms-and-conditions" className="hover:text-white">Terms of Service</Link>
-            <Link href="/sitemap" className="hover:text-white">Sitemap</Link>
+            <Link href="/site-map" className="hover:text-white">Sitemap</Link>
           </div>
         </div>
       </div>
