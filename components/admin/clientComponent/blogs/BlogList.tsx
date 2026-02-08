@@ -17,10 +17,10 @@ import { UserRole } from "@/modules/users/user.dto";
 
 interface BlogListProps {
   blogs: BlogResponseDTO[];
-  actorRole:UserRole;
+  actorRole: UserRole;
 }
 
-export default function BlogList({ blogs,actorRole }: BlogListProps) {
+export default function BlogList({ blogs, actorRole }: BlogListProps) {
   const router = useRouter();
   const [filter, setFilter] = useState<"az" | "za" | "new" | "old">("new");
   const [search, setSearch] = useState("");
@@ -48,7 +48,7 @@ export default function BlogList({ blogs,actorRole }: BlogListProps) {
     return data;
   }, [blogs, filter, search]);
 
-  async function  handleDelete(id:string){
+  async function handleDelete(id: string) {
     return await deleteBlogPostAction(id);
   };
 
@@ -56,36 +56,36 @@ export default function BlogList({ blogs,actorRole }: BlogListProps) {
     <div className="space-y-6 lg:px-8 py-6">
       {/* --- Header Section --- */}
       <div className="flex flex-col pb-4">
-          <PageTitle
-            title="Blog Management"
-            description={`Showing ${filteredBlogs.length} posts`}
-          />
+        <PageTitle
+          title="Blog Management"
+          description={`Showing ${filteredBlogs.length} posts`}
+        />
         <div className="flex flex-col md:flex-row gap-4 items-center justify-between bg-white py-4 md:p-4 md:rounded-xl md:shadow-sm md:border md:border-gray-100 border-b">
-          <SearchInput 
-            onChange={setSearch} 
-            className="w-full md:w-1/2" 
-            placeholder="Search blogs by title..." 
+          <SearchInput
+            onChange={setSearch}
+            className="w-full md:w-1/2"
+            placeholder="Search blogs by title..."
           />
           <div className="w-full flex gap-2 md:justify-end justify-items-start ">
             {/* 📂 Category button — only super_admin */}
-          {isSuperAdmin && (
-            <CreateButton
-              label=""
-              onClick={() => router.push("/admin/blogs/categories")}
-              className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-4"
-              icon={<MdCategory size={18} />}
-            />
-          )}
+            {isSuperAdmin && (
+              <CreateButton
+                label=""
+                onClick={() => router.push("/admin/blogs/categories")}
+                className="bg-gray-100 hover:bg-gray-200 text-gray-800 py-4"
+                icon={<MdCategory size={18} />}
+              />
+            )}
 
-          {/* ➕ Create Blog — only super_admin */}
-          {isSuperAdmin && (
-            <CreateButton
-              label=""
-              onClick={() => router.push("/admin/blogs/create")}
-              className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-200 py-4"
-              icon={<MdPostAdd size={18} />}
-            />
-          )}
+            {/* ➕ Create Blog — only super_admin */}
+            {isSuperAdmin && (
+              <CreateButton
+                label=""
+                onClick={() => router.push("/admin/blogs/create")}
+                className="bg-orange-600 hover:bg-orange-700 text-white shadow-lg shadow-orange-200 py-4"
+                icon={<MdPostAdd size={18} />}
+              />
+            )}
             <FilterDropdown
               value={filter}
               onChange={setFilter}
@@ -123,8 +123,8 @@ export default function BlogList({ blogs,actorRole }: BlogListProps) {
               createdAt={timeAgo(blog.createdAt)}
               updatedAt={timeAgo(blog.updatedAt)}
               href={`/admin/blogs/view/${blog.slug}`}
-              onEdit={()=>router.push(`/admin/blogs/${blog.id}`)}
-              onDelete={()=>handleDelete(blog.id)}
+              onEdit={() => router.push(`/admin/blogs/${blog.id}`)}
+              onDelete={() => handleDelete(blog.id)}
 
 
 

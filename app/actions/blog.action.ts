@@ -7,10 +7,14 @@ import { revalidatePath } from "next/cache";
 
 export async function createBlogPostAction(data: CreateBlogDTO) {
   try {
+    console.log("[ACTION] createBlogPostAction started", { slug: data.slug, title: data.title });
     const result = await blogServer.create(data);
+    console.log("[ACTION] blogServer.create finished", { success: result.success });
     revalidatePath("/admin/blogs/posts");
+    console.log("[ACTION] revalidatePath finished");
     return { success: true, data: result, message: "Blog published!", error: null };
   } catch (error: any) {
+    console.error("[ACTION] createBlogPostAction error", error);
     return { success: false, error: error.message, message: null };
   }
 }

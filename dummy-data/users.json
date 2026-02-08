@@ -1,0 +1,12 @@
+[
+    {
+        "id": "user-123",
+        "name": "Admin User",
+        "email": "admin@casachic.com",
+        "role": "super_admin",
+        "status": "active",
+        "profile": "",
+        "createdAt": "2024-01-01T10:00:00.000Z",
+        "updatedAt": "2024-01-01T10:00:00.000Z"
+    }
+]

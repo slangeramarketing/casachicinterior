@@ -1,3 +1,5 @@
+// file location: components/admin/EditorToolbar.tsx
+
 "use client";
 
 import { useState } from "react";
@@ -38,9 +40,8 @@ export default function EditorToolbar({ editor }: ToolbarProps) {
     <button
       type="button"
       onClick={onClick}
-      className={`p-2 rounded transition ${
-        active ? "bg-gray-300" : "hover:bg-gray-200"
-      }`}
+      className={`p-2 rounded transition ${active ? "bg-gray-300" : "hover:bg-gray-200"
+        }`}
     >
       {children}
     </button>
@@ -85,18 +86,22 @@ export default function EditorToolbar({ editor }: ToolbarProps) {
           <FaUnderline size={14} />
         </Button>
 
-        <Button
-          onClick={() =>
-            editor
-              .chain()
-              .focus()
-              .toggleHeading({ level: 2 })
-              .run()
-          }
-          active={editor.isActive("heading", { level: 2 })}
-        >
-          <FaHeading size={14} />
-        </Button>
+        {/* HEADINGS H1 - H6 */}
+        {[1, 2, 3, 4, 5, 6].map((level) => (
+          <Button
+            key={level}
+            onClick={() =>
+              editor
+                .chain()
+                .focus()
+                .toggleHeading({ level: level as 1 | 2 | 3 | 4 | 5 | 6 })
+                .run()
+            }
+            active={editor.isActive("heading", { level })}
+          >
+            <span className="font-bold text-xs">H{level}</span>
+          </Button>
+        ))}
 
         <Button
           onClick={() =>

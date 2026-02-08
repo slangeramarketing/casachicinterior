@@ -36,12 +36,12 @@
  ***************************************************/
 
 import { revalidatePath } from "next/cache";
-import { 
-  getAllBlogs, 
-  getBlogBySlug, 
-  createBlog, 
-  updateBlog, 
-  deleteBlog, 
+import {
+  getAllBlogs,
+  getBlogBySlug,
+  createBlog,
+  updateBlog,
+  deleteBlog,
   getBlogById
 } from "./blog.service";
 import { BlogResponseDTO, CreateBlogDTO, UpdateBlogDTO } from "./blog.dto";
@@ -55,15 +55,15 @@ export const blogServer = {
   /**
    * Purpose: Fetch all blogs for Admin/Public list
    */
-  async getAll(filters: any = {}):Promise<
-  | { success: true; data: BlogResponseDTO[] }
-  | { success: false; error: string }> {
+  async getAll(filters: any = {}): Promise<
+    | { success: true; data: BlogResponseDTO[] }
+    | { success: false; error: string }> {
     try {
       const records = await getAllBlogs(filters);
-      
+
       // Boundary Mapping: IPopulatedBlogRecord[] -> BlogResponseDTO[]
       const data = BlogMapper.toResponseList(records);
-      
+
       return { success: true, data };
     } catch (error: any) {
       console.error("[BLOG_SERVER_GETALL_ERROR]:", error);
@@ -77,10 +77,10 @@ export const blogServer = {
   async getBySlug(slug: string) {
     try {
       const record = await getBlogBySlug(slug);
-      
+
       // Boundary Mapping: IPopulatedBlogRecord -> BlogResponseDTO
       const data = BlogMapper.toResponse(record);
-      
+
       return { success: true, data };
     } catch (error: any) {
       console.error("[BLOG_SERVER_GETSLUG_ERROR]:", error);
@@ -95,7 +95,7 @@ export const blogServer = {
   async getById(id: string) {
     try {
       const record = await getBlogById(id); // Service layer call
-      
+
       if (!record) {
         return { success: false, error: "Blog not found" };
       }
@@ -103,7 +103,7 @@ export const blogServer = {
       // Boundary Mapping: IBlogRecord/IPopulatedBlogRecord -> BlogResponseDTO
       // 'as any' casting to handle potential population mismatch in TypeScript
       const data = BlogMapper.toResponse(record as any);
-      
+
       return { success: true, data };
     } catch (error: any) {
       console.error("[BLOG_SERVER_GETBYID_ERROR]:", error);
@@ -113,18 +113,24 @@ export const blogServer = {
 
   async create(data: CreateBlogDTO) {
     try {
+      console.log("[SERVER] blogServer.create called");
       // 🔐 AUTH + RBAC
       const auth = await requireRole(["super_admin"]);
+      console.log("[SERVER] role checked");
 
       const record = await createBlog(auth.role, data);
+      console.log("[SERVER] createBlog service finished", { id: record._id });
 
       revalidatePath("/blogs");
       revalidatePath("/admin/blogs");
 
-      return {
+      const response = {
         success: true,
         data: BlogMapper.toResponse(record as any),
       };
+
+      console.log("[SERVER] returning response");
+      return response;
     } catch (error: any) {
       console.error("[BLOG_SERVER_CREATE_ERROR]:", error);
       return { success: false, error: error.message };

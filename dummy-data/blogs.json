@@ -1,0 +1,38 @@
+[
+    {
+        "id": "blog-1",
+        "title": "Top 5 Modular Kitchen Trends for 2025",
+        "slug": "top-5-modular-kitchen-trends-2025",
+        "summary": "Discover the latest trends in modular kitchen designs that combine functionality with aesthetics.",
+        "content": "<h2>1. Open Shelving</h2><p>Open shelving is making a comeback...</p><h2>2. Smart Appliances</h2><p>Integration of smart technology...</p>",
+        "thumbnail": "",
+        "bannerImage": "",
+        "categoryId": "cat-kitchen-interior",
+        "authorId": "user-123",
+        "tags": [
+            "kitchen",
+            "modular",
+            "2025",
+            "trends"
+        ],
+        "status": "published",
+        "featured": true,
+        "readingTime": 5,
+        "viewCount": 0,
+        "seo": {
+            "metaTitle": "Top 5 Modular Kitchen Trends 2025",
+            "metaDescription": "Explore top modular kitchen trends for 2025.",
+            "keywords": [
+                "kitchen",
+                "trends",
+                "2025"
+            ],
+            "ogImage": "",
+            "canonicalUrl": "",
+            "metaRobots": "index, follow"
+        },
+        "publishedAt": "2024-02-15T10:00:00.000Z",
+        "createdAt": "2024-02-15T10:00:00.000Z",
+        "updatedAt": "2024-02-15T10:00:00.000Z"
+    }
+]

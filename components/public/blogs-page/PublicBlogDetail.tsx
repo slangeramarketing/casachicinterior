@@ -3,9 +3,9 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
-import { 
-  FiCalendar, FiUser, FiTag, FiSearch, 
-  FiFacebook, FiTwitter, FiLinkedin 
+import {
+  FiCalendar, FiUser, FiTag, FiSearch,
+  FiFacebook, FiTwitter, FiLinkedin
 } from "react-icons/fi";
 import defaultImg from "@/public/assets/default.jpg";
 import { useRouter } from "next/navigation";
@@ -19,7 +19,7 @@ interface Props {
 
 export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
-  const router=useRouter()
+  const router = useRouter()
 
   // Date formatting
   const formattedDate = new Date(blog.createdAt || "").toLocaleDateString("en-US", {
@@ -28,14 +28,14 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
     year: "numeric",
   });
 
-    // PublicBlogDetail.tsx ke andar handleSearch function
-    const handleSearch = (e: React.FormEvent) => {
+  // PublicBlogDetail.tsx ke andar handleSearch function
+  const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-        // Ye user ko blogs list page par le jayega query ke saath
-        router.push(`/blogs?search=${encodeURIComponent(searchQuery)}`);
+      // Ye user ko blogs list page par le jayega query ke saath
+      router.push(`/blogs?search=${encodeURIComponent(searchQuery)}`);
     }
-    };
+  };
 
   return (
     <div className="bg-white min-h-screen">
@@ -80,8 +80,9 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
           </div>
 
           {/* Post Content (Rich Text) */}
-          <article 
+          <article
             className="prose prose-lg max-w-none prose-orange 
+              whitespace-pre-wrap prose-img:my-10 prose-p:my-4
               prose-headings:font-black prose-headings:text-gray-900 
               prose-p:text-gray-700 prose-p:leading-loose 
               prose-img:rounded-2xl prose-blockquote:border-orange-500"

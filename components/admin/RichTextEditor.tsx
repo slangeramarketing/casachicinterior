@@ -1,3 +1,6 @@
+// file location: components/admin/RichTextEditor.tsx
+
+
 "use client";
 
 import { useEffect } from "react";
@@ -35,7 +38,7 @@ export default function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose max-w-none focus:outline-none min-h-[300px]",
+          "prose max-w-none focus:outline-none min-h-[300px] prose-img:my-8 prose-p:my-4",
       },
     },
     onUpdate({ editor }) {

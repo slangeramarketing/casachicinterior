@@ -1,0 +1,49 @@
+[
+    {
+        "id": "cat-home-interior",
+        "name": "Home Interior",
+        "slug": "home-interior",
+        "description": "All about home interiors.",
+        "parentId": null,
+        "status": "active",
+        "displayOrder": 1,
+        "icon": "",
+        "coverImage": "",
+        "seo": {
+            "metaTitle": "Home Interior",
+            "metaDescription": "Home Interior Designs",
+            "keywords": [
+                "home",
+                "interior"
+            ],
+            "metaRobots": "index, follow",
+            "canonicalUrl": ""
+        },
+        "createdAt": "2024-01-01T10:00:00.000Z",
+        "updatedAt": "2024-01-01T10:00:00.000Z"
+    },
+    {
+        "id": "cat-kitchen-interior",
+        "name": "Kitchen Interior",
+        "slug": "kitchen-interior",
+        "description": "Modern and classic kitchen designs.",
+        "parentId": "cat-home-interior",
+        "status": "active",
+        "displayOrder": 1,
+        "icon": "",
+        "coverImage": "",
+        "seo": {
+            "metaTitle": "Kitchen Interior",
+            "metaDescription": "Kitchen Interior Designs",
+            "keywords": [
+                "kitchen",
+                "interior",
+                "cooking"
+            ],
+            "metaRobots": "index, follow",
+            "canonicalUrl": ""
+        },
+        "createdAt": "2024-01-01T10:00:00.000Z",
+        "updatedAt": "2024-01-01T10:00:00.000Z"
+    }
+]

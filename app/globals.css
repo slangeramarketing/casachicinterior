@@ -72,6 +72,19 @@ body {
   border-radius: 4px;
 }
 
+.ProseMirror h3 { font-size: 1.25rem; font-weight: 600; }
+.ProseMirror h4 { font-size: 1.1rem; font-weight: 600; }
+.ProseMirror h5 { font-size: 1rem; font-weight: 600; }
+.ProseMirror h6 { font-size: 0.875rem; font-weight: 600; }
+
+/* Custom Prose Headings for Public Display */
+.prose h1 { font-size: 2.25rem; font-weight: 800; margin-bottom: 1rem; line-height: 1.2; }
+.prose h2 { font-size: 1.875rem; font-weight: 700; margin-top: 2rem; margin-bottom: 1rem; line-height: 1.3; }
+.prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.75rem; line-height: 1.4; }
+.prose h4 { font-size: 1.25rem; font-weight: 600; margin-top: 1.25rem; margin-bottom: 0.5rem; }
+.prose h5 { font-size: 1.125rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+.prose h6 { font-size: 1rem; font-weight: 600; margin-top: 1rem; margin-bottom: 0.5rem; }
+
 /* globals.css */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
