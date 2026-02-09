@@ -3,7 +3,11 @@
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 import { protos } from "@google-analytics/data";
 
-const propertyId = process.env.GA_PROPERTY_ID;
+const propertyId =
+  process.env.NODE_ENV === "production"
+    ? process.env.GA_PROPERTY_ID_PROD
+    : process.env.GA_PROPERTY_ID_STAGING;
+
 
 const analyticsClient = new BetaAnalyticsDataClient({
   credentials: {

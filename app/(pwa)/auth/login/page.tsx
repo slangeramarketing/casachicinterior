@@ -7,7 +7,7 @@
  * - PWA install entry point
  ***************************************************/
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   FiMail,
@@ -38,6 +38,20 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const [isStandalone, setIsStandalone] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const standalone =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone === true;
+
+    setIsStandalone(standalone);
+  }, []);
+
+
 
   /* -----------------------------
      Submit Handler
@@ -165,7 +179,7 @@ export default function AdminLoginPage() {
         </form>
 
         {/* PWA INSTALL (ONLY WHEN AVAILABLE) */}
-        {canInstall && (
+        {canInstall && !isStandalone && (
           <div className="mt-6 pt-6 border-t text-center">
             <button
               onClick={install}

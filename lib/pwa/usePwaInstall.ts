@@ -1,4 +1,6 @@
 "use client";
+
+// file location : lib/pwa/usePwaInstall.ts
 import { useEffect, useState } from "react";
 
 let deferredPrompt: any = null;

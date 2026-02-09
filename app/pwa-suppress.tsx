@@ -1,5 +1,7 @@
 "use client";
 
+// file location: app/pwa-suppress.tsx
+
 import { useEffect } from "react";
 
 export default function PwaSuppressor() {
