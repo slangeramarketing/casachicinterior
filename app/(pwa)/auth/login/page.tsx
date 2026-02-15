@@ -15,7 +15,6 @@ import {
   FiLogIn,
 } from "react-icons/fi";
 
-import InstallButton from "@/components/pwa/InstallButton";
 
 import type {
   LoginDTO,
@@ -162,8 +161,7 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* PWA INSTALL BUTTON */}
-        <InstallButton />
+        {/* PWA INSTALL ENTRY POINT - Native browser prompt will handle this */}
       </div>
     </div>
   );

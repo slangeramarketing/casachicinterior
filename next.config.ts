@@ -43,6 +43,6 @@ export default withPWA({
   // 🔥 CRITICAL: stop auto-activation popup loop
   skipWaiting: false,
 
-  // ✅ SW only in production
+  // ✅ Disabled in development to stop the auto-compile loop
   disable: process.env.NODE_ENV !== "production",
 })(nextConfig);

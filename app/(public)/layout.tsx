@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "../globals.css";
 import ClientLayout from "./ClientLayout";
-import PwaSuppressor from "../pwa-suppress";
 import ContactIcons from "@/components/public/layouts/ContactIcons";
 
 const geistSans = Geist({
@@ -18,7 +17,6 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Casachicinterior",
   description: "Interior Design and Decoration Services",
-  manifest: "/manifest.json",
 };
 
 export const dynamic = "force-dynamic";
@@ -34,10 +32,9 @@ export default async function PublicLayout({
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      > 
-        <PwaSuppressor />
+      >
         <ClientLayout>{children}</ClientLayout>
-        <ContactIcons/>
+        <ContactIcons />
       </body>
     </html>
   );

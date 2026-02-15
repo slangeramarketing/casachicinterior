@@ -1,7 +1,9 @@
-
 import NextTopLoader from "nextjs-toploader";
 import "./globals.css";
 import GoogleTagManager from "@/lib/GoogleTagManager";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {};
 
 export default function PublicLayout({
   children,
@@ -10,7 +12,7 @@ export default function PublicLayout({
 }>) {
 
   const gtmId = process.env.NEXT_PUBLIC_GTM_ID || "";
-  console.log("GTM ID: ",gtmId);
+  console.log("GTM ID: ", gtmId);
 
   return (
     <html lang="en">
@@ -19,7 +21,7 @@ export default function PublicLayout({
         <GoogleTagManager gtmId={gtmId} />
       </head>
       <body>
-        <NextTopLoader  
+        <NextTopLoader
           color="#F97316"        // brand color
           height={3}
           showSpinner={false}
@@ -37,7 +39,7 @@ export default function PublicLayout({
             style={{ display: "none", visibility: "hidden" }}
           ></iframe>
         </noscript>
-       {children}
+        {children}
       </body>
     </html>
   );

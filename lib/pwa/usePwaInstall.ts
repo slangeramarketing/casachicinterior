@@ -1,48 +1,66 @@
 "use client";
 
-// file location : lib/pwa/usePwaInstall.ts
 import { useEffect, useState } from "react";
 
-let deferredPrompt: any = null;
-
+/**
+ * source of truth is window.deferredPrompt (set by layout head script)
+ */
 export function usePwaInstall() {
-  const [canInstall, setCanInstall] = useState(false);
-  const [isIOS, setIsIOS] = useState(false);
-  const [isStandalone, setIsStandalone] = useState(false);
+    const [canInstall, setCanInstall] = useState(false);
+    const [isIOS, setIsIOS] = useState(false);
+    const [isStandalone, setIsStandalone] = useState(false);
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
+    useEffect(() => {
+        if (typeof window === "undefined") return;
 
-    // Detect iOS
-    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    setIsIOS(ios);
+        const checkPrompt = () => {
+            if ((window as any).deferredPrompt) {
+                setCanInstall(true);
+                return true;
+            }
+            return false;
+        };
 
-    // Detect if already installed
-    const standalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
-    setIsStandalone(standalone);
+        // 1. Detect environment
+        const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+        setIsIOS(ios);
 
-    const handler = (e: any) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      setCanInstall(true);
+        const standalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+        setIsStandalone(standalone);
+
+        // 2. Continuous check for prompt
+        checkPrompt();
+        const interval = setInterval(checkPrompt, 1000);
+
+        const handleBeforeInstallPrompt = (e: any) => {
+            e.preventDefault();
+            (window as any).deferredPrompt = e;
+            setCanInstall(true);
+        };
+
+        window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+
+        return () => {
+            clearInterval(interval);
+            window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+        };
+    }, []);
+
+    const install = async () => {
+        const promptObj = (window as any).deferredPrompt;
+        if (!promptObj) return;
+
+        try {
+            await promptObj.prompt();
+            const { outcome } = await promptObj.userChoice;
+            if (outcome === "accepted") {
+                (window as any).deferredPrompt = null;
+                setCanInstall(false);
+            }
+        } catch (error) {
+            console.error("PWA-LOG: Error during installation prompt:", error);
+        }
     };
 
-    window.addEventListener("beforeinstallprompt", handler);
-
-    return () => {
-      window.removeEventListener("beforeinstallprompt", handler);
-    };
-  }, []);
-
-  const install = async () => {
-    if (!deferredPrompt) return;
-
-    deferredPrompt.prompt();
-    await deferredPrompt.userChoice;
-
-    deferredPrompt = null;
-    setCanInstall(false);
-  };
-
-  return { canInstall, install, isIOS, isStandalone };
+    return { canInstall, install, isIOS, isStandalone };
 }
