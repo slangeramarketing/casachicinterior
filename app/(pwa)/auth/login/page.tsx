@@ -7,16 +7,15 @@
  * - PWA install entry point
  ***************************************************/
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   FiMail,
   FiLock,
   FiLogIn,
 } from "react-icons/fi";
-import { MdInstallDesktop } from "react-icons/md";
 
-import { usePwaInstall } from "@/lib/pwa/usePwaInstall";
+import InstallButton from "@/components/pwa/InstallButton";
 
 import type {
   LoginDTO,
@@ -28,7 +27,6 @@ type LoginAPIResponse = LoginResponseDTO | AuthErrorDTO;
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { canInstall, install } = usePwaInstall();
 
   const [form, setForm] = useState<LoginDTO>({
     email: "",
@@ -38,20 +36,6 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  const [isStandalone, setIsStandalone] = useState(false);
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const standalone =
-      window.matchMedia("(display-mode: standalone)").matches ||
-      (window.navigator as any).standalone === true;
-
-    setIsStandalone(standalone);
-  }, []);
-
-
 
   /* -----------------------------
      Submit Handler
@@ -178,19 +162,8 @@ export default function AdminLoginPage() {
           </button>
         </form>
 
-        {/* PWA INSTALL (ONLY WHEN AVAILABLE) */}
-        {canInstall && !isStandalone && (
-          <div className="mt-6 pt-6 border-t text-center">
-            <button
-              onClick={install}
-              className="inline-flex items-center gap-2 text-sm font-semibold
-                text-orange-600 hover:text-orange-700 transition"
-            >
-              <MdInstallDesktop className="text-lg" />
-              Install Admin App
-            </button>
-          </div>
-        )}
+        {/* PWA INSTALL BUTTON */}
+        <InstallButton />
       </div>
     </div>
   );

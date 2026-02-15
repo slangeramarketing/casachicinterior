@@ -7,9 +7,19 @@ let deferredPrompt: any = null;
 
 export function usePwaInstall() {
   const [canInstall, setCanInstall] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
+  const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
+
+    // Detect iOS
+    const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(ios);
+
+    // Detect if already installed
+    const standalone = window.matchMedia("(display-mode: standalone)").matches || (window.navigator as any).standalone === true;
+    setIsStandalone(standalone);
 
     const handler = (e: any) => {
       e.preventDefault();
@@ -34,5 +44,5 @@ export function usePwaInstall() {
     setCanInstall(false);
   };
 
-  return { canInstall, install };
+  return { canInstall, install, isIOS, isStandalone };
 }
