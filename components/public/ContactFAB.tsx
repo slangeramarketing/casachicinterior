@@ -14,19 +14,19 @@ export default function ContactFAB() {
 
   return (
     <div className="fixed right-6 bottom-6 z-50 flex flex-col items-center gap-3">
-      
+
       {/* Expanded contact options */}
       <div
-        className={`flex flex-col items-center gap-3 transition-all duration-300 ${
-          open
+        className={`flex flex-col items-center gap-3 transition-all duration-300 ${open
             ? "opacity-100 translate-y-0"
             : "opacity-0 translate-y-4 pointer-events-none"
-        }`}
+          }`}
       >
         {/* WhatsApp */}
         <a
           href="https://wa.me/918740990990"
           target="_blank"
+          rel="noopener noreferrer"
           aria-label="Chat on WhatsApp"
           className="fab-item"
         >
@@ -36,7 +36,7 @@ export default function ContactFAB() {
         {/* Phone */}
         <a
           href="tel:+918740990990"
-          aria-label="Call Now"
+          aria-label="Call Casa Chic Interior"
           className="fab-item"
         >
           <OptimizedImage src={phone} alt="Call" width={20} height={20} />
@@ -63,9 +63,8 @@ export default function ContactFAB() {
 
         <FaChevronUp
           size={14}
-          className={`transition-transform duration-300 ${
-            open ? "rotate-180" : "rotate-0"
-          }`}
+          className={`transition-transform duration-300 ${open ? "rotate-180" : "rotate-0"
+            }`}
         />
       </button>
     </div>

@@ -10,6 +10,7 @@ type OptimizedImageProps = {
   fill?: boolean;
   sizes?: string;
   priority?: boolean;
+  fetchPriority?: "high" | "low" | "auto";
   className?: string;
 };
 
@@ -21,6 +22,7 @@ export function OptimizedImage({
   fill = false,
   sizes,
   priority = false,
+  fetchPriority,
   className,
 }: OptimizedImageProps) {
   const resolvedSrc =
@@ -35,7 +37,7 @@ export function OptimizedImage({
       src={resolvedSrc}
       alt={alt || ""}
       loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
+      fetchPriority={fetchPriority || (priority ? "high" : "auto")}
       decoding="async"
       width={!fill ? width : undefined}
       height={!fill ? height : undefined}
@@ -44,14 +46,14 @@ export function OptimizedImage({
       style={
         fill
           ? {
-              position: "absolute",
-              inset: 0,
-              width: "100%",
-              height: "100%",
-            }
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+          }
           : width && height
-          ? { aspectRatio: `${width} / ${height}` }
-          : undefined
+            ? { aspectRatio: `${width} / ${height}` }
+            : undefined
       }
       onError={(e) => {
         const img = e.currentTarget as HTMLImageElement;

@@ -37,90 +37,90 @@ export default function ContactSection() {
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setAlert(null);
-  setStatus({ loading: true, error: null, success: false });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAlert(null);
+    setStatus({ loading: true, error: null, success: false });
 
-  const finalCity = form.city === "Other" ? form.customCity : form.city;
+    const finalCity = form.city === "Other" ? form.customCity : form.city;
 
-  // REQUIRED FIELD CHECK
-  if (!form.name || !form.phone || !finalCity || !form.message) {
-    setStatus({ loading: false, error: null, success: false });
-    setAlert({
-      type: "error",
-      title: "Missing required fields",
-      message: "Please fill all required fields before submitting.",
-    });
-    return;
-  }
+    // REQUIRED FIELD CHECK
+    if (!form.name || !form.phone || !finalCity || !form.message) {
+      setStatus({ loading: false, error: null, success: false });
+      setAlert({
+        type: "error",
+        title: "Missing required fields",
+        message: "Please fill all required fields before submitting.",
+      });
+      return;
+    }
 
-  // PHONE VALIDATION
-  if (!isValidPhone(form.phone)) {
-    setStatus({ loading: false, error: null, success: false });
-    setAlert({
-      type: "error",
-      title: "Invalid phone number",
-      message: "Phone number must contain exactly 10 digits.",
-    });
-    return;
-  }
+    // PHONE VALIDATION
+    if (!isValidPhone(form.phone)) {
+      setStatus({ loading: false, error: null, success: false });
+      setAlert({
+        type: "error",
+        title: "Invalid phone number",
+        message: "Phone number must contain exactly 10 digits.",
+      });
+      return;
+    }
 
-  // EMAIL VALIDATION (OPTIONAL)
-  if (form.email && !isValidEmail(form.email)) {
-    setStatus({ loading: false, error: null, success: false });
-    setAlert({
-      type: "error",
-      title: "Invalid email address",
-      message: "Please enter a valid email address or leave it blank.",
-    });
-    return;
-  }
+    // EMAIL VALIDATION (OPTIONAL)
+    if (form.email && !isValidEmail(form.email)) {
+      setStatus({ loading: false, error: null, success: false });
+      setAlert({
+        type: "error",
+        title: "Invalid email address",
+        message: "Please enter a valid email address or leave it blank.",
+      });
+      return;
+    }
 
-  try {
-    await submitContactAction({
-      name: form.name,
-      email: form.email,
-      phone: form.phone,
-      city: finalCity,
-      message: form.message,
-    });
+    try {
+      await submitContactAction({
+        name: form.name,
+        email: form.email,
+        phone: form.phone,
+        city: finalCity,
+        message: form.message,
+      });
 
-    setForm({
-      name: "",
-      email: "",
-      phone: "",
-      city: "",
-      customCity: "",
-      message: "",
-    });
+      setForm({
+        name: "",
+        email: "",
+        phone: "",
+        city: "",
+        customCity: "",
+        message: "",
+      });
 
-    setAlert({
-      type: "success",
-      title: "Inquiry submitted successfully",
-      message:
-        "Thank you for reaching out. Our team will contact you shortly.",
-    });
+      setAlert({
+        type: "success",
+        title: "Inquiry submitted successfully",
+        message:
+          "Thank you for reaching out. Our team will contact you shortly.",
+      });
 
-    setStatus({ loading: false, error: null, success: true });
-  } catch {
-    setStatus({ loading: false, error: null, success: false });
-    setAlert({
-      type: "error",
-      title: "Submission failed",
-      message: "Something went wrong. Please try again later.",
-    });
-  }
-};
+      setStatus({ loading: false, error: null, success: true });
+    } catch {
+      setStatus({ loading: false, error: null, success: false });
+      setAlert({
+        type: "error",
+        title: "Submission failed",
+        message: "Something went wrong. Please try again later.",
+      });
+    }
+  };
 
 
 
   return (
     <section className="w-full py-34 bg-[#F2F2F2] overflow-hidden" id="contact">
       <div className="max-w-6xl mx-auto md:px-6 px-2">
-        
+
         {/* HEADER - Slide Up Animation */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -138,9 +138,9 @@ const handleSubmit = async (e: React.FormEvent) => {
         </motion.div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-start">
-          
+
           {/* LEFT: CONTACT INFO - Premium Cards */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -149,7 +149,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             <ContactInfo icon={<FiMail />} title="Email Us" value="contact@casachicinterior.com" href="mailto:contact@casachicinterior.com" />
             <ContactInfo icon={<FiPhone />} title="Call Us" value="+91 87409 90990" href="tel:+918740990990" />
             <ContactInfo icon={<FiMapPin />} title="Visit Us" value="Delhi NCR, Noida Sector 62" />
-            
+
             {/* Design Element */}
             <div className="hidden lg:block p-8 bg-[#0c1f43] rounded mt-10 relative overflow-hidden text-white">
               <p className="text-xl font-medium relative z-10">"Design is not just what it looks like, it's how it works."</p>
@@ -158,7 +158,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </motion.div>
 
           {/* RIGHT: THE FORM - Clean Elevated Card */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -175,7 +175,7 @@ const handleSubmit = async (e: React.FormEvent) => {
               {status.success && (
                 <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
                   className="bg-green-50 border-l-4 border-green-500 p-4 mb-8 text-green-800 text-sm flex items-center gap-3">
-                  <FiCheckCircle className="flex-shrink-0" />
+                  <FiCheckCircle className="shrink-0" />
                   <span>Thank you! Your vision is one step closer to reality.</span>
                 </motion.div>
               )}
@@ -191,69 +191,70 @@ const handleSubmit = async (e: React.FormEvent) => {
                   />
                 </div>
               )}
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Full Name</label>
-                <input type="text" name="name" value={form.name} onChange={updateField} placeholder="John Doe" 
-                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Email Address</label>
-                <input type="email" name="email" value={form.email} onChange={updateField} placeholder="john@example.com"
-                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" />
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Phone Number</label>
-                <input
-                  type="tel"
-                  name="phone"
-                  value={form.phone}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "");
-                    if (val.length <= 10) {
-                      setForm((prev) => ({ ...prev, phone: val }));
-                    }
-                  }}
-                  placeholder="10 digit mobile number"
-                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none"
-                  required
-                />
-
-              </div>
-
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Location</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <select name="city" value={form.city} onChange={updateField}
-                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none appearance-none" required >
-                    <option value="" disabled>Select City</option>
-                    {cities.map((cityName) => (<option key={cityName} value={cityName}>{cityName}</option>))}
-                  </select>
-                  {form.city === "Other" && (
-                    <motion.input initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                      type="text" name="customCity" value={form.customCity} onChange={updateField} placeholder="Enter city name"
-                      className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
-                  )}
+              <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <label htmlFor="name" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Full Name</label>
+                  <input id="name" type="text" name="name" value={form.name} onChange={updateField} placeholder="John Doe"
+                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
                 </div>
-              </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <label className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Message</label>
-                <textarea name="message" value={form.message} onChange={updateField} placeholder="Tell us about your space..." rows={4}
-                  className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none resize-none" required />
-              </div>
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Email Address</label>
+                  <input id="email" type="email" name="email" value={form.email} onChange={updateField} placeholder="john@example.com"
+                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" />
+                </div>
 
-              <button
-                type="submit"
-                disabled={status.loading}
-                className="md:col-span-2 w-full bg-[#F97316] text-white font-bold py-3 rounded-md shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:bg-orange-300"
-              >
-                {status.loading ? <FiLoader className="animate-spin" /> : <FiSend />}
-                {status.loading ? "Processing..." : "Submit Inquiry"}
-              </button>
-            </form>
+                <div className="space-y-2 md:col-span-2">
+                  <label htmlFor="phone" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Phone Number</label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value={form.phone}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val.length <= 10) {
+                        setForm((prev) => ({ ...prev, phone: val }));
+                      }
+                    }}
+                    placeholder="10 digit mobile number"
+                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none"
+                    required
+                  />
+
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label htmlFor="city" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Location</label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <select id="city" name="city" value={form.city} onChange={updateField}
+                      className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none appearance-none" required >
+                      <option value="" disabled>Select City</option>
+                      {cities.map((cityName) => (<option key={cityName} value={cityName}>{cityName}</option>))}
+                    </select>
+                    {form.city === "Other" && (
+                      <motion.input initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
+                        id="customCity" type="text" name="customCity" value={form.customCity} onChange={updateField} placeholder="Enter city name"
+                        className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
+                    )}
+                  </div>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label htmlFor="message" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Message</label>
+                  <textarea id="message" name="message" value={form.message} onChange={updateField} placeholder="Tell us about your space..." rows={4}
+                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none resize-none" required />
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={status.loading}
+                  className="md:col-span-2 w-full bg-[#F97316] text-white font-bold py-3 rounded-md shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 disabled:bg-orange-300"
+                >
+                  {status.loading ? <FiLoader className="animate-spin" /> : <FiSend />}
+                  {status.loading ? "Processing..." : "Submit Inquiry"}
+                </button>
+              </form>
             </div>
 
           </motion.div>

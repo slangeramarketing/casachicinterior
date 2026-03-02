@@ -10,13 +10,13 @@ import Image from "next/image";
 import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 
 interface HeaderProps {
-  mainServiceCategoryList:ServiceCategoryResponseDTO[];
+  mainServiceCategoryList: ServiceCategoryResponseDTO[];
 }
 
-export default function Header({mainServiceCategoryList}:HeaderProps) {
+export default function Header({ mainServiceCategoryList }: HeaderProps) {
   const pathname = usePathname();
   const isHome = pathname === "/";
-  const router=useRouter();
+  const router = useRouter();
 
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -55,9 +55,8 @@ export default function Header({mainServiceCategoryList}:HeaderProps) {
         ? pathname === "/"
         : pathname === href || pathname.startsWith(`${href}/`);
 
-    return `font-medium transition ${
-      isActive ? activeClass : "hover:opacity-80"
-    }`;
+    return `font-medium transition ${isActive ? activeClass : "hover:opacity-80"
+      }`;
   };
 
   return (
@@ -72,30 +71,30 @@ export default function Header({mainServiceCategoryList}:HeaderProps) {
     >
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
 
-            {/* LOGO */}
-          <Link href="/" className="flex flex-col items-center text-lg font-bold text-white">
-            {isHome ? (
-              <>
-                {/* Mobile view: show image + text below */}
-                <div className="flex flex-col items-center sm:hidden">
-                  <span className="mt-2">CASA CHIC INTERIOR</span>
-                </div>
+        {/* LOGO */}
+        <Link href="/" aria-label="Casa Chic Interior Home" className="flex flex-col items-center text-lg font-bold text-white">
+          {isHome ? (
+            <>
+              {/* Mobile view: show image + text below */}
+              <div className="flex flex-col items-center sm:hidden">
+                <span className="mt-2">CASA CHIC INTERIOR</span>
+              </div>
 
-                {/* Desktop view: show only image */}
-                <div className="hidden sm:flex">
-                  <Image
-                    src={logoTransparent} 
-                    height={80} 
-                    width={80} 
-                    alt="Casa-Chic-Interior-LOGO"  
-                    className="object-cover"
-                  />
-                </div>
-              </>
-            ) : (
-              <h2>CASA CHIC INTERIOR</h2>
-            )}
-          </Link>
+              {/* Desktop view: show only image */}
+              <div className="hidden sm:flex">
+                <Image
+                  src={logoTransparent}
+                  height={80}
+                  width={80}
+                  alt="Casa-Chic-Interior-LOGO"
+                  className="object-cover"
+                />
+              </div>
+            </>
+          ) : (
+            <h2>CASA CHIC INTERIOR</h2>
+          )}
+        </Link>
 
 
         {/* DESKTOP MENU */}
@@ -121,19 +120,18 @@ export default function Header({mainServiceCategoryList}:HeaderProps) {
                 absolute top-full left-0 mt-2 w-56
                 bg-white text-gray-800 rounded-md shadow-lg
                 transition-all duration-200
-                ${
-                  dropdownOpen
-                    ? "opacity-100 visible translate-y-0"
-                    : "opacity-0 invisible -translate-y-1"
+                ${dropdownOpen
+                  ? "opacity-100 visible translate-y-0"
+                  : "opacity-0 invisible -translate-y-1"
                 }
               `}
             >
               {mainServiceCategoryList?.map((cat) => (
                 <Link key={cat.id} href={`/services/${cat.slug}`} className="block px-4 py-2 hover:bg-gray-100">
-                {cat.name}
-              </Link>
+                  {cat.name}
+                </Link>
               ))}
-              
+
             </div>
           </div>
 
@@ -168,69 +166,70 @@ export default function Header({mainServiceCategoryList}:HeaderProps) {
         {/* MOBILE MENU BUTTON */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Close Menu" : "Open Menu"}
           className="md:hidden text-white text-2xl"
         >
           {menuOpen ? <FiX /> : <FiMenu />}
         </button>
       </div>
 
-    {/* MOBILE MENU */}
-    {menuOpen && (
-      <div className="md:hidden bg-bg-primary text-white px-6 py-6 space-y-4 flex flex-col">
-        
-        <Link href="/" onClick={() => setMenuOpen(false)}>
-          Home
-        </Link>
+      {/* MOBILE MENU */}
+      {menuOpen && (
+        <div className="md:hidden bg-bg-primary text-white px-6 py-6 space-y-4 flex flex-col">
 
-        <details>
-          <summary className="flex justify-between items-center cursor-pointer">
-            Design Solutions <FiChevronDown />
-          </summary>
+          <Link href="/" onClick={() => setMenuOpen(false)}>
+            Home
+          </Link>
 
-          <div className="ml-4 mt-2 space-y-2 text-sm">
-            {mainServiceCategoryList?.map((cat) => (
-              <button
+          <details>
+            <summary className="flex justify-between items-center cursor-pointer">
+              Design Solutions <FiChevronDown />
+            </summary>
+
+            <div className="ml-4 mt-2 space-y-2 text-sm">
+              {mainServiceCategoryList?.map((cat) => (
+                <button
                   key={cat.id}
                   onClick={() => {
                     setMenuOpen(false),
-                    router.push(`/services/${cat.slug}`)
+                      router.push(`/services/${cat.slug}`)
                   }}
                   className="block text-left w-full"
                 >
-                {cat.name}
-              </button>
+                  {cat.name}
+                </button>
               ))}
 
-          </div>
-        </details>
+            </div>
+          </details>
 
-        <Link href="/blogs" onClick={() => setMenuOpen(false)}>
-          Blogs
-        </Link>
+          <Link href="/blogs" onClick={() => setMenuOpen(false)}>
+            Blogs
+          </Link>
 
-        <Link href="/projects" onClick={() => setMenuOpen(false)}>
-          Projects
-        </Link>
+          <Link href="/projects" onClick={() => setMenuOpen(false)}>
+            Projects
+          </Link>
 
-        <Link href="/services" onClick={() => setMenuOpen(false)}>
-          Services
-        </Link>
+          <Link href="/services" onClick={() => setMenuOpen(false)}>
+            Services
+          </Link>
 
-        <Link href="/about" onClick={() => setMenuOpen(false)}>
-          About Us
-        </Link>
+          <Link href="/about" onClick={() => setMenuOpen(false)}>
+            About Us
+          </Link>
 
-        <button
-          onClick={()=>{
-            router.push('/contact'),
-            setMenuOpen(false)
-          }}
-          className="w-full border border-white py-2 rounded-full mt-4"
-        >
-          Book Free Consultation
-        </button>
-      </div>
-    )}
+          <button
+            onClick={() => {
+              router.push('/contact'),
+                setMenuOpen(false)
+            }}
+            className="w-full border border-white py-2 rounded-full mt-4"
+          >
+            Book Free Consultation
+          </button>
+        </div>
+      )}
 
     </header>
   );

@@ -14,15 +14,15 @@ import {
 } from "react-icons/fi";
 import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 
-  interface HeaderProps {
-    mainServiceCategoryList:ServiceCategoryResponseDTO[];
-    topServiceSubCatList:ServiceCategoryResponseDTO[];
-  }
+interface HeaderProps {
+  mainServiceCategoryList: ServiceCategoryResponseDTO[];
+  topServiceSubCatList: ServiceCategoryResponseDTO[];
+}
 
-export default function Footer({mainServiceCategoryList,topServiceSubCatList}:HeaderProps) {
+export default function Footer({ mainServiceCategoryList, topServiceSubCatList }: HeaderProps) {
 
   return (
-    <footer className="bg-gradient-to-b from-[#0B1220] to-[#070C16] text-gray-300">
+    <footer className="bg-linear-to-b from-[#0B1220] to-[#070C16] text-gray-300">
       <div className="max-w-7xl mx-auto px-6 py-16">
 
         {/* TOP GRID */}
@@ -58,9 +58,9 @@ export default function Footer({mainServiceCategoryList,topServiceSubCatList}:He
             <ul className="space-y-3 text-sm">
               {mainServiceCategoryList?.map((cat) => (
                 <li key={cat.id}>
-                <Link key={cat.id} href={`/services/${cat.slug}`} >
-                {cat.name}
-                </Link>
+                  <Link key={cat.id} href={`/services/${cat.slug}`} >
+                    {cat.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -74,9 +74,9 @@ export default function Footer({mainServiceCategoryList,topServiceSubCatList}:He
             <ul className="space-y-3 text-sm">
               {topServiceSubCatList?.map((subCat) => (
                 <li key={subCat.id}>
-                <Link key={subCat.id} href={`/services/${subCat.slug}`} >
-                {subCat.name}
-                </Link>
+                  <Link key={subCat.id} href={`/services/${subCat.slug}`} >
+                    {subCat.name}
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -88,24 +88,24 @@ export default function Footer({mainServiceCategoryList,topServiceSubCatList}:He
               Contact Us
             </h3>
             <ul className="space-y-4 text-sm">
-              <Link href={`tel:+918740990990`} className="flex items-center gap-3">
-                 <li className="flex items-center gap-3">
-                <FiPhone className="text-orange-400" />
-                +91 87409 90990
-              </li>
+              <Link href={`tel:+918740990990`} aria-label="Call Casa Chic Interior" className="flex items-center gap-3">
+                <li className="flex items-center gap-3">
+                  <FiPhone className="text-orange-400" />
+                  +91 87409 90990
+                </li>
               </Link>
               <li className="flex items-center gap-3">
-                <Link href={`mailto:contact@casachicinterior.com`} className="flex items-center gap-3">
-                   <FiMail className="text-orange-400" />
-                contact@casachicinterior.com
+                <Link href={`mailto:contact@casachicinterior.com`} aria-label="Email Contact" className="flex items-center gap-3">
+                  <FiMail className="text-orange-400" />
+                  contact@casachicinterior.com
                 </Link>
-                
+
               </li>
               <li className="flex items-center gap-3">
-                <Link href={`mailto:info@casachicinterior.com`} className="flex items-center gap-3">
-                   <FiMail className="text-orange-400" />
-                info@casachicinterior.com
-                </Link>  
+                <Link href={`mailto:info@casachicinterior.com`} aria-label="Email Info" className="flex items-center gap-3">
+                  <FiMail className="text-orange-400" />
+                  info@casachicinterior.com
+                </Link>
               </li>
               <li className="flex items-center gap-3">
                 <FiMapPin className="text-orange-400" />
