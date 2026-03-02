@@ -13,7 +13,7 @@ export default function GoogleTagManager({ gtmId }: { gtmId: string }) {
       {/* GTM Script in Head */}
       <Script
         id="gtm-script"
-        strategy="afterInteractive"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{
           __html: `
             (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':

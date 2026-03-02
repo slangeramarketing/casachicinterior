@@ -14,9 +14,9 @@ This project, **CasaChic Interior**, is a modern web application built with **Ne
 
 ## 3. Analytics & Tracking Integrations
 ### Google Tag Manager (GTM)
-- **GTM Script in Head**: Injected in `app/layout.tsx` using both the `<Script />` component for client-side execution and a `<noscript>` iframe for fallback.
-- **Config**: The GTM ID is controlled via `NEXT_PUBLIC_GTM_ID` in environment variables.
-- **Current ID**: `GTM-MH747BSN` (as found in `.env.local`).
+- **GTM Script Strategy**: Uses `beforeInteractive` in `lib/GoogleTagManager.tsx` for immediate crawler detection.
+- **Noscript Placement**: Positioned as the first child of `<body>` in `app/layout.tsx` to ensure search console verification succeeds.
+- **Backup Verification**: Meta-tag based verification enabled in `layout.tsx` metadata.
 
 ### Domain Redirection & SEO
 - **Redirection Logic**: Implemented in `next.config.ts` to consolidate traffic.

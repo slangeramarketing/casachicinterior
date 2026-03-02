@@ -7,6 +7,9 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://casachicinterior.com',
   },
+  verification: {
+    google: "YOUR_CODE_HERE", // Backup verification code
+  },
 };
 
 export default function PublicLayout({
@@ -25,6 +28,16 @@ export default function PublicLayout({
         <GoogleTagManager gtmId={gtmId} />
       </head>
       <body>
+        {/* GTM Noscript (Backup for disabled JS) - Must be at the very start of body for GSC verification */}
+        <noscript>
+          <iframe
+            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          ></iframe>
+        </noscript>
+
         <NextTopLoader
           color="#F97316"        // brand color
           height={3}
@@ -34,15 +47,6 @@ export default function PublicLayout({
           speed={200}
         />
 
-        {/* GTM Noscript (Backup for disabled JS) */}
-        <noscript>
-          <iframe
-            src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-            height="0"
-            width="0"
-            style={{ display: "none", visibility: "hidden" }}
-          ></iframe>
-        </noscript>
         {children}
       </body>
     </html>
