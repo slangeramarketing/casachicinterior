@@ -3,7 +3,11 @@ import "./globals.css";
 import GoogleTagManager from "@/lib/GoogleTagManager";
 import { Metadata } from "next";
 
-export const metadata: Metadata = {};
+export const metadata: Metadata = {
+  alternates: {
+    canonical: 'https://casachicinterior.com',
+  },
+};
 
 export default function PublicLayout({
   children,

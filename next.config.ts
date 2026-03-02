@@ -31,6 +31,33 @@ const nextConfig: NextConfig = {
     },
   },
 
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "casachicinterior.in",
+          },
+        ],
+        destination: "https://casachicinterior.com/:path*",
+        permanent: true,
+      },
+      {
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "casachicinterior.online", // Exact match, won't affect staging subdomain
+          },
+        ],
+        destination: "https://casachicinterior.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
+
   turbopack: {},
 };
 
