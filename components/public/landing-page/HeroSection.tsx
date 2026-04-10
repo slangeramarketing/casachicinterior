@@ -35,7 +35,7 @@ export default function HeroSection() {
             <h1 className="text-5xl font-bold text-white leading-tight">
               Beautiful Homes Made
               <br />
-              For You Dear.
+              For You Dear kaise ho.. .
             </h1>
 
             <h2 className="mt-4 text-lg md:text-xl font-semibold text-white">
