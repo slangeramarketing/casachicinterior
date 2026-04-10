@@ -1,0 +1,30 @@
+name: Deploy Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.STAGING_HOST }}
+          username: ${{ secrets.STAGING_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          port: 22
+          script: |
+            # Check if directory exists, if not, this might fail, so we assume it exists as per user's prompt
+            cd ~/casachicinterior-staging
+            git fetch origin staging
+            git reset --hard origin/staging
+            npm install
+            npm run build
+            # Restart or start the process
+            pm2 restart casachic-staging || pm2 start npm --name "casachic-staging" -- start

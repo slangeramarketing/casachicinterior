@@ -7,7 +7,7 @@ import Link from "next/link";
 export default function HeroSection() {
   return (
     <section className="relative w-full min-h-[90vh] flex items-center overflow-hidden">
-      
+
       {/* Hero Image — ONLY Zoom Out on Load */}
       <motion.div
         className="absolute inset-0"
@@ -31,11 +31,11 @@ export default function HeroSection() {
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="relative z-10 max-w-7xl mx-auto px-6 mt-32">
           <div className="max-w-[700px]  bg-[#f9741614]  backdrop-blur-sm p-8 md:p-10 rounded-md">
-            
+
             <h1 className="text-5xl font-bold text-white leading-tight">
               Beautiful Homes Made
               <br />
-              For You
+              For You Dear.
             </h1>
 
             <h2 className="mt-4 text-lg md:text-xl font-semibold text-white">
