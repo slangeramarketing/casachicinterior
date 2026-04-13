@@ -12,8 +12,8 @@
  ***************************************************/
 
 import { motion } from "framer-motion";
-import BeforeAfterSlider from "./BeforeAfterSlider";
-import { PortfolioItemDTO } from "@/modules/services/portfolio/portfolio.dto";
+import HeroBeforeAfterSlider from "./HeroBeforeAfterSlider";
+import { PortfolioItemDTO } from "@/modules/portfolio/portfolio.dto";
 
 interface PortfolioHeroProps {
   featuredProject: PortfolioItemDTO;
@@ -155,15 +155,14 @@ export default function PortfolioHero({ featuredProject }: PortfolioHeroProps) {
           transition={{ duration: 0.65, delay: 0.15 }}
           className="relative w-full"
         >
-          {/* Slider Box with dark border */}
+          {/* Slider Box with dark border and forced aspect-ratio */}
           <div
-            className="w-full rounded-3xl overflow-hidden shadow-2xl"
+            className="w-full rounded-[2.5rem] overflow-hidden shadow-2xl aspect-[16/10] bg-white/5"
             style={{
               border: "4px solid #090F1A",
-              height: "420px",
             }}
           >
-            <BeforeAfterSlider
+            <HeroBeforeAfterSlider
               beforeImg={featuredProject.beforeImg}
               afterImg={featuredProject.afterImg}
               title={featuredProject.title}

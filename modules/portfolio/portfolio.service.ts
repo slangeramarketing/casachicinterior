@@ -35,6 +35,11 @@ class PortfolioService {
     const records = await portfolioRepository.findByRenovationType(type);
     return records.map(mapPortfolioRecordToDTO);
   }
+
+  async getProjectBySlug(slug: string): Promise<PortfolioItemDTO | null> {
+    const record = await portfolioRepository.findBySlug(slug);
+    return record ? mapPortfolioRecordToDTO(record) : null;
+  }
 }
 
 export const portfolioService = new PortfolioService();

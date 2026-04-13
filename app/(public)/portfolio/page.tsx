@@ -8,12 +8,14 @@
  * - Renders Portfolio Footer with "Thank You" section.
  */
 
-import { getPortfolioProjects, getFeaturedPortfolioProjects } from "@/modules/services/portfolio/portfolio.server";
-import PortfolioHero from "@/components/public/services/PortfolioHero";
-import PortfolioGrid from "@/components/public/services/PortfolioGrid";
-import PortfolioGenerator from "@/components/public/services/PortfolioGenerator";
-import PortfolioFooter from "@/components/public/services/PortfolioFooter";
+import { getPortfolioProjects, getFeaturedPortfolioProjects } from "@/modules/portfolio/portfolio.server";
+import PortfolioHero from "@/components/public/portfolio/PortfolioHero";
+import PortfolioGenerator from "@/components/public/portfolio/PortfolioGenerator";
+import BrandTrustStrip from "@/components/public/portfolio/BrandTrustStrip";
+import MeetTheTeam from "@/components/public/portfolio/MeetTheTeam";
+import PortfolioFooter from "@/components/public/portfolio/PortfolioFooter";
 import type { Metadata } from "next";
+import PortfolioGrid from "@/components/public/portfolio/PortfolioGrid";
 
 export const metadata: Metadata = {
   title: "Portfolio | CasaChic Interior Design — Delhi NCR",
@@ -54,7 +56,7 @@ export default async function PortfolioPage() {
               </div>
 
               {/* FIXED HEADING: Using text-balance and careful font sizing */}
-              <h2 className="text-[12px] xs:text-2xl md:text-3xl font-black text-[#090F1A] leading-[1.2] mb-3 text-balance">
+              <h2 className="text-[20px] xs:text-2xl md:text-3xl font-black text-[#090F1A] leading-[1.2] mb-3 text-balance">
                 Download Our <span className="text-[#F97316] inline-block whitespace-nowrap">Business Portfolio</span>
               </h2>
 
@@ -74,10 +76,16 @@ export default async function PortfolioPage() {
         </div>
       </section>
 
-      {/* Section 3: Full Portfolio Grid */}
+      {/* Section 3: Brand Trust & Quality Partners */}
+      <BrandTrustStrip />
+
+      {/* Section 4: Full Portfolio Grid */}
       <PortfolioGrid projects={allProjects} />
 
-      {/* Section 4: Footer — "Thank You So Much" with orange background */}
+      {/* Section 5: Meet Our Leadership — Building Corporate Trust */}
+      <MeetTheTeam />
+
+      {/* Section 6: Footer — "Thank You So Much" with orange background */}
       <PortfolioFooter />
     </main>
   );

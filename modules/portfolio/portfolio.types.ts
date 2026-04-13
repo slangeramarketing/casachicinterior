@@ -24,30 +24,57 @@ export interface MaterialSpec {
   productLine?: string; // e.g., "Century 710"
 }
 
+export interface Milestone {
+  title: string;
+  day: string;
+}
+
+export interface CostBreakdownItem {
+  category: string;
+  amountLabel: string; // e.g., "₹4.5 Lacs"
+}
+
+export interface Testimonial {
+  quote: string;
+  clientName: string;
+  clientPhoto: string;
+}
+
 // Raw record as stored in JSON
 export interface PortfolioRecord {
   id: string;
+  slug: string; // Dynamic URL identifier
   title: string;
   renovationType: RenovationType;
-  location: string; // e.g. "Noida, UP"
+  location: string;
 
   beforeImg: string;
   afterImg: string;
+  gallery: string[]; // Output Images
+  videoUrl?: string; // YouTube/Vimeo link
 
   costEstimate: {
-    min: number; // in INR
+    min: number;
     max: number;
-    unit: string; // e.g. "per sq. ft." or "total"
+    unit: string;
   };
 
+  costBreakdown?: CostBreakdownItem[];
+  milestones?: Milestone[];
+
   timeline: {
-    duration: number; // numeric
+    duration: number;
     unit: "days" | "weeks" | "months";
   };
 
   materialSpecList: MaterialSpec[];
+  highlights: string[];
 
-  highlights: string[]; // short bullet points
+  testimonial?: Testimonial;
+  designReference?: {
+    renderImg: string;
+    finalImg: string;
+  };
 
   featured: boolean;
   order: number;

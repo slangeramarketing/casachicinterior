@@ -41,6 +41,10 @@ class PortfolioRepository {
       .filter((r) => r.renovationType === type)
       .sort((a, b) => a.order - b.order);
   }
+
+  async findBySlug(slug: string): Promise<PortfolioRecord | null> {
+    return this.records.find((r) => r.slug === slug) ?? null;
+  }
 }
 
 // Singleton instance

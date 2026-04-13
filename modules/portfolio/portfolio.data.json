@@ -1,0 +1,355 @@
+[
+  {
+    "id": "proj-001",
+    "slug": "modern-modular-bedroom-noida",
+    "title": "Modern Modular Bedroom – Noida Transformation",
+    "renovationType": "bedroom",
+    "location": "Noida, Uttar Pradesh",
+    "beforeImg": "/assets/interior-assets/befor-bedroom.png",
+    "afterImg": "/assets/interior-assets/after-bedroom.jpg",
+    "gallery": [
+      "/assets/interior-assets/bedroom-1.png",
+      "/assets/interior-assets/bedroom-2.png",
+      "/assets/interior-assets/bedroom-3.png"
+    ],
+    "videoUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "costEstimate": {
+      "min": 1200,
+      "max": 1800,
+      "unit": "per sq. ft."
+    },
+    "costBreakdown": [
+      {
+        "category": "Material Cost",
+        "amountLabel": "₹4.5 Lacs"
+      },
+      {
+        "category": "Labor & Installation",
+        "amountLabel": "₹1.2 Lacs"
+      },
+      {
+        "category": "Styling & Accessories",
+        "amountLabel": "₹0.8 Lacs"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Demolition & Site Prep",
+        "day": "Day 1-3"
+      },
+      {
+        "title": "Electrical & Plumbing",
+        "day": "Day 4-10"
+      },
+      {
+        "title": "Modular Carpentry",
+        "day": "Day 11-35"
+      },
+      {
+        "title": "Finishing & Handover",
+        "day": "Day 36-45"
+      }
+    ],
+    "timeline": {
+      "duration": 45,
+      "unit": "days"
+    },
+    "materialSpecList": [
+      {
+        "brand": "CenturyPly",
+        "category": "Plywood",
+        "productLine": "Century 710 Bwp"
+      },
+      {
+        "brand": "Hettich",
+        "category": "Hardware",
+        "productLine": "Hettich Quadro"
+      },
+      {
+        "brand": "Asian Paints",
+        "category": "Paint",
+        "productLine": "Royale Shyne"
+      },
+      {
+        "brand": "Hafele",
+        "category": "Fittings",
+        "productLine": "Hafele Tandem"
+      }
+    ],
+    "highlights": [
+      "Custom L-shaped wardrobe maximizing space",
+      "Soft-close drawers and sliding shutters",
+      "Integrated floor-to-ceiling lighting",
+      "Anti-scratch premium laminate finish"
+    ],
+    "testimonial": {
+      "quote": "I was skeptical about fitting a full L-shaped wardrobe in such a tight corner, but CasaChic's LiDAR scan was spot on. Every cabinet fits perfectly to the millimeter. The smart lighting they suggested changed the entire vibe of my room. Fast and flawless!",
+      "clientName": "Anjali Sharma",
+      "clientPhoto": "/assets/Anjali-Sharma-bedroom.png"
+    },
+    "designReference": {
+      "renderImg": "/assets/interior-assets/3d-bedroom.png",
+      "finalImg": "/assets/interior-assets/after-bedroom.jpg"
+    },
+    "featured": true,
+    "order": 1
+  },
+  {
+    "id": "proj-002",
+    "slug": "luxury-living-room-south-delhi",
+    "title": "Luxury Living Room Overhaul – South Delhi",
+    "renovationType": "living-room",
+    "location": "South Delhi",
+    "beforeImg": "/assets/interior-assets/living-roo-befor.png",
+    "afterImg": "/assets/interior-assets/living-roo-after.png",
+    "gallery": [
+      "/assets/interior-assets/living-room-1.png",
+      "/assets/interior-assets/living-room-2.png",
+      "/assets/interior-assets/living-room-3.png",
+      "/assets/interior-assets/living-room-4.png"
+    ],
+    "costEstimate": {
+      "min": 800,
+      "max": 1500,
+      "unit": "per sq. ft."
+    },
+    "costBreakdown": [
+      {
+        "category": "False Ceiling",
+        "amountLabel": "₹0.9 Lacs"
+      },
+      {
+        "category": "Custom TV Unit",
+        "amountLabel": "₹1.4 Lacs"
+      },
+      {
+        "category": "Wall Texturing",
+        "amountLabel": "₹0.6 Lacs"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Ceiling Framework",
+        "day": "Day 1-5"
+      },
+      {
+        "title": "Electrical Mood Lighting",
+        "day": "Day 6-9"
+      },
+      {
+        "title": "Furniture Integration",
+        "day": "Day 10-21"
+      }
+    ],
+    "timeline": {
+      "duration": 21,
+      "unit": "days"
+    },
+    "materialSpecList": [
+      {
+        "brand": "Asian Paints",
+        "category": "Paint",
+        "productLine": "Royale Play Vertigo"
+      },
+      {
+        "brand": "Greenlam",
+        "category": "Laminate",
+        "productLine": "Suede Finish 1mm"
+      },
+      {
+        "brand": "Godrej Interio",
+        "category": "Furniture",
+        "productLine": "Sofás Range"
+      }
+    ],
+    "highlights": [
+      "Accent wall with textured paint finish",
+      "Custom TV unit with hidden wire management",
+      "Under-sofa mood lighting (RGB LED)",
+      "False ceiling with cove lighting"
+    ],
+    "testimonial": {
+      "quote": "What I loved most was the transparency. The fixed pricing meant no hidden charges halfway through. The custom TV unit is a design masterpiece, and they hid all the wiring flawlessly. Our living room is finally the luxury lounge we always wanted.",
+      "clientName": "Vikram Malhotra",
+      "clientPhoto": "/assets/vikram-living.jpg"
+    },
+    "designReference": {
+      "renderImg": "/assets/interior-assets/living-room-3d-render.png",
+      "finalImg": "/assets/interior-assets/living-roo-after.png"
+    },
+    "featured": true,
+    "order": 2
+  },
+  {
+    "id": "proj-003",
+    "slug": "master-bedroom-retreat-gurgaon",
+    "title": "Master Bedroom Retreat – Gurgaon",
+    "renovationType": "bedroom",
+    "location": "Gurgaon, Haryana",
+    "beforeImg": "/assets/interior-assets/master-bedroom-before.png",
+    "afterImg": "/assets/interior-assets/master-bedroom-after.png",
+    "gallery": [
+      "/assets/interior-assets/Master-Bedroom-1.png",
+      "/assets/interior-assets/Master-Bedroom-2.png",
+      "/assets/interior-assets/Master-Bedroom-3.png",
+      "/assets/interior-assets/Master-Bedroom-4.png"
+    ],
+    "costEstimate": {
+      "min": 1000,
+      "max": 1600,
+      "unit": "per sq. ft."
+    },
+    "costBreakdown": [
+      {
+        "category": "Custom Wardrobe",
+        "amountLabel": "₹2.2 Lacs"
+      },
+      {
+        "category": "Bed & Headboard",
+        "amountLabel": "₹1.1 Lacs"
+      },
+      {
+        "category": "Lighting & Decor",
+        "amountLabel": "₹0.7 Lacs"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Site Prep & Design",
+        "day": "Day 1-4"
+      },
+      {
+        "title": "Carpentry & Flooring",
+        "day": "Day 5-20"
+      },
+      {
+        "title": "Painting & Finishing",
+        "day": "Day 21-30"
+      }
+    ],
+    "timeline": {
+      "duration": 30,
+      "unit": "days"
+    },
+    "materialSpecList": [
+      {
+        "brand": "CenturyPly",
+        "category": "Plywood",
+        "productLine": "CenturyDoors HD"
+      },
+      {
+        "brand": "Hettich",
+        "category": "Hardware",
+        "productLine": "Innotech Atira"
+      },
+      {
+        "brand": "Jaquar",
+        "category": "Lighting",
+        "productLine": "Lyra Series"
+      }
+    ],
+    "highlights": [
+      "Walk-in wardrobe with full-height mirror",
+      "Built-in headboard with reading lights",
+      "Floating bedside drawer units",
+      "Soundproof window treatment"
+    ],
+    "testimonial": {
+      "quote": "Our master suite now feels like a premium hotel. The walk-in wardrobe is both functional and sleek. The team was professional and stayed exactly within the 30-day timeline. Truly a hassle-free experience with CasaChic!",
+      "clientName": "Sanya Verma",
+      "clientPhoto": "/assets/sanya-bedroom.png"
+    },
+    "designReference": {
+      "renderImg": "/assets/interior-assets/Master-Bedroom-3d-render.png",
+      "finalImg": "/assets/interior-assets/master-bedroom-after.png"
+    },
+    "featured": false,
+    "order": 3
+  },
+  {
+    "id": "proj-004",
+    "slug": "premium-bathroom-spa-faridabad",
+    "title": "Premium Bathroom Spa – Faridabad",
+    "renovationType": "bathroom",
+    "location": "Faridabad, Haryana",
+    "beforeImg": "/assets/interior-assets/premium-bathroom-befro.png",
+    "afterImg": "/assets/interior-assets/premium-bathroom-after.png",
+    "gallery": [
+      "/assets/interior-assets/bathroom-1.png",
+      "/assets/interior-assets/bathroom-2.png",
+      "/assets/interior-assets/bathroom-3.png",
+      "/assets/interior-assets/bathroom-4.png"
+    ],
+    "costEstimate": {
+      "min": 1500,
+      "max": 2500,
+      "unit": "per sq. ft."
+    },
+    "costBreakdown": [
+      {
+        "category": "Plumbing & Fixtures",
+        "amountLabel": "₹0.9 Lacs"
+      },
+      {
+        "category": "Tiling & Flooring",
+        "amountLabel": "₹1.4 Lacs"
+      },
+      {
+        "category": "Vanity & Sensors",
+        "amountLabel": "₹1.2 Lacs"
+      }
+    ],
+    "milestones": [
+      {
+        "title": "Demolition",
+        "day": "Day 1-3"
+      },
+      {
+        "title": "Waterproofing",
+        "day": "Day 4-10"
+      },
+      {
+        "title": "Fixtures & Handover",
+        "day": "Day 11-21"
+      }
+    ],
+    "timeline": {
+      "duration": 21,
+      "unit": "days"
+    },
+    "materialSpecList": [
+      {
+        "brand": "Jaquar",
+        "category": "Sanitaryware",
+        "productLine": "Art Series"
+      },
+      {
+        "brand": "Asian Granito",
+        "category": "Tiles",
+        "productLine": "Marble Series"
+      },
+      {
+        "brand": "Kohler",
+        "category": "Shower Fixtures",
+        "productLine": "Forte Collection"
+      }
+    ],
+    "highlights": [
+      "Rain shower with steam room option",
+      "Italian marble-effect floor tiles",
+      "Anti-fog backlit mirror cabinet",
+      "Sensor-operated faucets"
+    ],
+    "testimonial": {
+      "quote": "Turning a standard bathroom into a high-tech spa was a challenge. CasaChic handled the sensor tech and tiling with incredible precision. They used premium brands as promised, and the handover was on the 21st day as agreed. SPECTACULAR!",
+      "clientName": "Rahul Duggal",
+      "clientPhoto": "/assets/rahul-bathroom.jpeg"
+    },
+    "designReference": {
+      "renderImg": "/assets/interior-assets/bathroom-3d-render.png",
+      "finalImg": "/assets/interior-assets/premium-bathroom-after.png"
+    },
+    "featured": false,
+    "order": 4
+  }
+]

@@ -152,10 +152,28 @@ export default function PortfolioFooter() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: "easeOut" }}
-            className="text-5xl md:text-7xl font-extrabold text-white mb-10 leading-none"
+            className="text-5xl md:text-7xl font-extrabold text-white mb-6 leading-none"
           >
             Thank You So Much
           </motion.h2>
+
+          {/* Primary CTA Button */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mb-12"
+          >
+            <a
+              href="https://wa.me/919999999999"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-block bg-[#F97316] text-white px-10 py-5 rounded-full text-lg md:text-xl font-black shadow-2xl hover:bg-white hover:text-[#F97316] transition-all transform hover:scale-105 active:scale-95 border-2 border-transparent hover:border-[#F97316]"
+            >
+              Book a Free Site Consultation
+            </a>
+          </motion.div>
 
           {/* Contact Badges (Same as Ref 2) */}
           <motion.div

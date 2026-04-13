@@ -10,7 +10,7 @@
  ***************************************************/
 
 import { PortfolioRecord } from "./portfolio.types";
-import { PortfolioItemDTO } from "./portfolio.dto";
+import { PortfolioItemDTO } from "../../portfolio/portfolio.dto";
 
 function formatCostRange(record: PortfolioRecord): string {
   const { min, max, unit } = record.costEstimate;
@@ -32,12 +32,23 @@ function formatTimeline(record: PortfolioRecord): string {
 export function mapPortfolioRecordToDTO(record: PortfolioRecord): PortfolioItemDTO {
   return {
     id: record.id,
+    slug: record.slug,
     title: record.title,
     renovationType: record.renovationType,
     location: record.location,
     beforeImg: record.beforeImg,
     afterImg: record.afterImg,
+    gallery: record.gallery || [],
+    videoUrl: record.videoUrl,
     costRange: formatCostRange(record),
+    costBreakdown: record.costBreakdown?.map((c) => ({
+      category: c.category,
+      amountLabel: c.amountLabel,
+    })),
+    milestones: record.milestones?.map((m) => ({
+      title: m.title,
+      day: m.day,
+    })),
     timelineLabel: formatTimeline(record),
     materialSpecList: record.materialSpecList.map((m) => ({
       brand: m.brand,
@@ -45,6 +56,8 @@ export function mapPortfolioRecordToDTO(record: PortfolioRecord): PortfolioItemD
       productLine: m.productLine,
     })),
     highlights: record.highlights,
+    testimonial: record.testimonial,
+    designReference: record.designReference,
     featured: record.featured,
   };
 }

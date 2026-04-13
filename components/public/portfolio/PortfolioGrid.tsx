@@ -12,8 +12,9 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { PortfolioItemDTO } from "@/modules/services/portfolio/portfolio.dto";
-import BeforeAfterSlider from "./BeforeAfterSlider";
+import Link from "next/link";
+import { PortfolioItemDTO } from "@/modules/portfolio/portfolio.dto";
+import BeforeAfterSlider from "../portfolio/BeforeAfterSlider";
 import { FaVrCardboard, FaMoneyBillWave, FaCertificate } from "react-icons/fa";
 import { MdSensors } from "react-icons/md";
 import { FiClock, FiDollarSign } from "react-icons/fi";
@@ -26,8 +27,8 @@ const TRUST_EDGES = [
   },
   {
     icon: <MdSensors className="w-6 h-6" />,
-    title: "LiDAR Scanning",
-    desc: "Precision 3D measurements.",
+    title: "LiDAR Scanning (Precision Digital Measurement)",
+    desc: "Exact 3D measurements to ensure zero cost-escalations during work.",
   },
   {
     icon: <FaMoneyBillWave className="w-6 h-6" />,
@@ -98,8 +99,8 @@ export default function PortfolioGrid({ projects }: PortfolioGridProps) {
               key={f.value}
               onClick={() => setActiveFilter(f.value)}
               className={`flex-shrink-0 px-4 py-2 rounded-full text-[11px] font-bold transition-all ${activeFilter === f.value
-                  ? "bg-[#F97316] text-white shadow-md"
-                  : "bg-white text-gray-500 border border-gray-200"
+                ? "bg-[#F97316] text-white shadow-md"
+                : "bg-white text-gray-500 border border-gray-200"
                 }`}
             >
               {f.label}
@@ -126,11 +127,6 @@ export default function PortfolioGrid({ projects }: PortfolioGridProps) {
                     afterImg={project.afterImg}
                     title={project.title}
                   />
-                  {project.featured && (
-                    <div className="absolute top-3 left-3 z-20 bg-[#F97316] text-white text-[9px] font-black px-2 py-1 rounded-full shadow-lg uppercase">
-                      Featured
-                    </div>
-                  )}
                 </div>
 
                 {/* Card Content */}
@@ -139,9 +135,11 @@ export default function PortfolioGrid({ projects }: PortfolioGridProps) {
                     <p className="text-[9px] text-[#F97316] font-black uppercase tracking-wider mb-0.5">
                       {project.location}
                     </p>
-                    <h3 className="text-lg font-bold text-[#090F1A] leading-tight truncate">
-                      {project.title}
-                    </h3>
+                    <Link href={`/portfolio/${project.slug}`} className="group/title">
+                      <h3 className="text-lg font-bold text-[#090F1A] leading-tight truncate group-hover/title:text-[#F97316] transition-colors">
+                        {project.title}
+                      </h3>
+                    </Link>
                   </div>
 
                   {/* Budget & Time Grid - Compact */}
@@ -178,14 +176,17 @@ export default function PortfolioGrid({ projects }: PortfolioGridProps) {
                   <div className="mt-auto pt-4 border-t border-gray-50 flex items-center justify-between">
                     <button
                       onClick={() => setExpandedId(expandedId === project.id ? null : project.id)}
-                      className="text-[#F97316] text-[10px] font-black uppercase tracking-tight"
+                      className="text-gray-400 text-[10px] font-black uppercase tracking-tight hover:text-[#090F1A] transition-colors"
                     >
-                      {expandedId === project.id ? "Less" : "Details"}
+                      {expandedId === project.id ? "Close" : "Expand"}
                     </button>
-                    <div className="flex -space-x-1">
-                      {/* Subtle placeholder for CasaChic branding */}
-                      <div className="w-5 h-5 rounded-full bg-[#090F1A] border-2 border-white" />
-                    </div>
+
+                    <Link
+                      href={`/portfolio/${project.slug}`}
+                      className="text-[#F97316] text-[10px] font-black uppercase tracking-tight flex items-center gap-1 hover:gap-2 transition-all ml-auto"
+                    >
+                      View Project <span>→</span>
+                    </Link>
                   </div>
 
                   <AnimatePresence>

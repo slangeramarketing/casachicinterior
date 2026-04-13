@@ -18,23 +18,39 @@ export interface MaterialSpecDTO {
   brand: string;
   category: string;
   productLine?: string;
+  materialType?: string;
 }
 
 export interface PortfolioItemDTO {
   id: string;
+  slug: string;
   title: string;
   renovationType: string;
   location: string;
 
   beforeImg: string;
   afterImg: string;
+  gallery: string[];
+  videoUrl?: string;
 
   // Formatted for display
-  costRange: string;         // e.g. "₹1,200 – ₹1,800 per sq. ft."
-  timelineLabel: string;     // e.g. "45 Days"
+  costRange: string;
+  costBreakdown?: { category: string; amountLabel: string }[];
+  milestones?: { title: string; day: string }[];
+  timelineLabel: string;
 
   materialSpecList: MaterialSpecDTO[];
   highlights: string[];
+
+  testimonial?: {
+    quote: string;
+    clientName: string;
+    clientPhoto: string;
+  };
+  designReference?: {
+    renderImg: string;
+    finalImg: string;
+  };
 
   featured: boolean;
 }
