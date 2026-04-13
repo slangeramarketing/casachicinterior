@@ -10,7 +10,7 @@
  ***************************************************/
 
 import { PortfolioRecord } from "./portfolio.types";
-import { PortfolioItemDTO } from "../../portfolio/portfolio.dto";
+import { PortfolioItemDTO } from "./portfolio.dto";
 
 function formatCostRange(record: PortfolioRecord): string {
   const { min, max, unit } = record.costEstimate;
