@@ -15,8 +15,13 @@
  * - Must NOT return HTTP status codes
  ***************************************************/
 import OpenAI from "openai";
+import fs from "fs";
+import path from "path";
 
-export const CASA_CHIC_SYSTEM_PROMPT = `You are the Lead Design Assistant at CasaChic Interior.
+export const generateSystemPrompt = (businessInfo: any) => `You are CasaChic's Lead Designer. Use the provided business info to answer queries. Be polite, professional, and try to book a site visit.
+
+Business Information:
+${JSON.stringify(businessInfo, null, 2)}
 
 Personality Rules:
 - Identity: You are the Lead Design Assistant at CasaChic Interior.
@@ -27,6 +32,7 @@ Personality Rules:
   2. If they ask for prices or cost, explain that interior design is highly custom, so we need a 'Site Visit' before providing a quote.
   3. Always try to encourage them to book a consultation or site visit.
   4. Keep WhatsApp replies concise (under 100 words).
+  5. Agar user koi complex sawal puche toh use bolo ki hamara expert aapko call karega.
 - Formatting: Use bullet points for design suggestions or steps to make it highly readable on mobile phones.`;
 
 const nvidiaOpenai = new OpenAI({
@@ -51,11 +57,22 @@ export const whatsappService = {
    */
   async processIncomingMessage(phoneNumberId: string, fromNumber: string, originalMessage: string): Promise<void> {
     try {
-      // 1. Send the message to Nvidia DeepSeek-R1
+      console.log(`\n[WhatsApp] Incoming Message from ${fromNumber}: "${originalMessage}"`);
+
+      // Read Business Context
+      const infoPath = path.join(process.cwd(), "data", "casachic-info.json");
+      let businessInfo = {};
+      if (fs.existsSync(infoPath)) {
+        businessInfo = JSON.parse(fs.readFileSync(infoPath, "utf-8"));
+      }
+      
+      const systemPrompt = generateSystemPrompt(businessInfo);
+
+      // 1. Send the message to Nvidia Llama-4
       const completion = await nvidiaOpenai.chat.completions.create({
-        model: "deepseek-ai/deepseek-r1",
+        model: "meta/llama-4-maverick-17b-128e-instruct",
         messages: [
-          { role: "system", content: CASA_CHIC_SYSTEM_PROMPT },
+          { role: "system", content: systemPrompt },
           { role: "user", content: originalMessage }
         ],
         temperature: 0.6,
@@ -67,13 +84,15 @@ export const whatsappService = {
       // 2. Extract Reasoning Process for Internal Logging
       // @ts-ignore - The standard OpenAI SDK typings may not include reasoning_content natively depending on version
       const reasoning = messageResult?.reasoning_content;
-      console.log("AI Thinking Process:", reasoning || "No reasoning content present");
+      console.log("[WhatsApp] AI Thinking Process:", reasoning || "No reasoning content present");
 
       // 3. Extract the Final Response for WhatsApp
       let finalResponse = messageResult?.content;
       if (!finalResponse || finalResponse.trim() === "") {
         finalResponse = "We encountered a momentary issue processing your request. Please try again or contact us directly on our website!";
       }
+
+      console.log(`[WhatsApp] Generated Response for ${fromNumber}: "${finalResponse}"\n`);
 
       // 4. Send the response back to WhatsApp via Meta Cloud API
       const metaApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;

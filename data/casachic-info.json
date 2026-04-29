@@ -1,0 +1,57 @@
+{
+  "business_info": {
+    "name": "CasaChic Interior",
+    "tagline": "Elegant, Functional, and Timeless Living Spaces",
+    "website": "https://casachicinterior.com",
+    "email": [
+      "info@casachicinterior.com",
+      "contact@casachicinterior.com"
+    ],
+    "phone": "+91 87409 90990",
+    "mission": "Transforming spaces into inspiring environments with refined design and attention to detail."
+  },
+  "trust_stats": {
+    "projects_delivered": "150+",
+    "happy_clients": "120+",
+    "years_experience": "5+",
+    "locations_served": "10+ NCR Locations"
+  },
+  "locations": {
+    "primary_hub": "Noida Sector 62, Delhi NCR",
+    "service_areas": [
+      "Noida",
+      "Delhi NCR",
+      "Patna",
+      "Bihar"
+    ]
+  },
+  "core_values": [
+    "Design Excellence: Precision and creativity in every space.",
+    "Client First: Delivering beyond expectations.",
+    "Quality & Transparency: Premium materials and honest communication."
+  ],
+  "services": {
+    "modular_solutions": [
+      "Modular Kitchen",
+      "Modular Wardrobes"
+    ],
+    "interior_design": [
+      "Home Interior",
+      "Commercial Interior",
+      "Bedroom & Living Room Design"
+    ],
+    "renovation": [
+      "Home Renovation",
+      "Space Optimization"
+    ]
+  },
+  "design_process": [
+    "Step 1: Initial Consultation - Understanding requirements, lifestyle, and budget.",
+    "Step 2: Site Visit & Measurements - Accurate space assessment.",
+    "Step 3: Concept & 3D Design - Visualizing the final outcome.",
+    "Step 4: Material Selection - Finalizing premium materials and finishes.",
+    "Step 5: Execution & Management - Strict quality and timeline control.",
+    "Step 6: Quality Check & Handover - Final inspection before handing over."
+  ],
+  "call_to_action": "Invite the user for a professional site visit or a consultation call with our lead designer."
+}
