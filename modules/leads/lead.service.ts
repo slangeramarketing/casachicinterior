@@ -38,9 +38,9 @@ export const leadService = {
 
     // Lead exists: Build update payload for missing/new fields
     const updateData: Partial<ILeadDB> = {};
-    if (input.name) updateData.name = input.name;
-    if (input.location) updateData.location = input.location;
-    if (input.requirement) updateData.requirement = input.requirement;
+    if (input.name && !existingLead.name) updateData.name = input.name;
+    if (input.location && !existingLead.location) updateData.location = input.location;
+    if (input.requirement && !existingLead.requirement) updateData.requirement = input.requirement;
     if (input.intent) updateData.intent = input.intent;
     if (input.portfolioSent !== undefined) updateData.portfolioSent = input.portfolioSent;
     
