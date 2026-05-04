@@ -54,6 +54,9 @@ export const whatsappService = {
       // STEP 1: Detect intent
       const intent = whatsappIntent.detect(originalMessage);
 
+      // Fetch lead early for memory consistency
+      const existingLead = await leadService.getLeadByPhone(fromNumber);
+
       // STEP 1.5: Improve Extraction Logic
       let name: string | undefined;
       let location: string | undefined;
@@ -61,11 +64,14 @@ export const whatsappService = {
 
       const messageLower = originalMessage.toLowerCase().trim();
 
-      if (messageLower.includes("my name is")) {
+      if (messageLower === "hello" || messageLower === "hi") {
+        name = undefined;
+      } else if (messageLower.includes("my name is")) {
         name = originalMessage.toLowerCase().split("is")[1]?.trim();
       } else if (messageLower.startsWith("i am")) {
         name = originalMessage.toLowerCase().replace(/i am/i, "").trim();
       } else if (
+        !existingLead?.name &&
         originalMessage.trim().split(" ").length === 1 &&
         originalMessage.length <= 15 &&
         !["patna", "delhi", "noida", "gurgaon", "kitchen", "bedroom", "office"].includes(messageLower)
@@ -101,13 +107,8 @@ export const whatsappService = {
       // (NEW) Persist lead message & intent to DB
       await leadService.upsertLead(updatePayload);
 
-      // STEP 2: Get lead data
+      // STEP 2: Get updated lead data for flow control
       const lead = await leadService.getLeadByPhone(fromNumber);
-
-      const missingFields: string[] = [];
-      if (!lead?.name) missingFields.push("name");
-      if (!lead?.location) missingFields.push("location");
-      if (!lead?.requirement) missingFields.push("requirement");
 
       const language = whatsappUtils.detectLanguage(originalMessage);
 
@@ -115,30 +116,21 @@ export const whatsappService = {
       whatsappMemory.add(fromNumber, `User: ${originalMessage}`);
       const history = whatsappMemory.get(fromNumber);
 
-      // Apply hard control: If missing name and not first interaction, clear forcing
-      const isFirstInteraction = history.length <= 1;
-      let finalMissingFields = [...missingFields];
-      if (missingFields.includes("name") && !isFirstInteraction) {
-        finalMissingFields = []; // Let AI decide naturally
-      }
-
       let finalResponse = "";
 
       // STEP 4: Handle template shortcut
       if (intent === "pricing") {
         console.log(`[WhatsApp] Intent detected as 'pricing', using template shortcut.`);
         finalResponse = whatsappTemplates.pricing;
-      } else if (finalMissingFields.length > 0) {
-        // STEP 5: SERVICE LEVEL HARD CONTROL (Direct Response Mode)
-        console.log(`[WhatsApp] Hard control triggered for missing fields: ${finalMissingFields.join(", ")}`);
-        
-        if (finalMissingFields.includes("name")) {
-          finalResponse = language === "hinglish" ? "Aapka naam kya hai?" : "May I know your name please?";
-        } else if (finalMissingFields.includes("location")) {
-          finalResponse = language === "hinglish" ? "Aapka location kya hai?" : "What is your location?";
-        } else if (finalMissingFields.includes("requirement")) {
-          finalResponse = language === "hinglish" ? "Aap kis type ka interior plan kar rahe hain?" : "What type of interior are you planning?";
-        }
+      } else if (!lead?.name) {
+        console.log(`[WhatsApp] Strict Flow: Asking for name`);
+        finalResponse = language === "hinglish" ? "Aapka naam kya hai?" : "May I know your name please?";
+      } else if (!lead?.location) {
+        console.log(`[WhatsApp] Strict Flow: Asking for location`);
+        finalResponse = language === "hinglish" ? "Aapka location kya hai?" : "What is your location?";
+      } else if (!lead?.requirement) {
+        console.log(`[WhatsApp] Strict Flow: Asking for requirement`);
+        finalResponse = language === "hinglish" ? "Aap kis type ka interior plan kar rahe hain?" : "What type of interior are you planning?";
       } else {
         // STEP 6: Build dynamic prompt and call AI
         const infoPath = path.join(process.cwd(), "data", "casachic-info.json");
@@ -151,7 +143,7 @@ export const whatsappService = {
           lead,
           history,
           businessInfo,
-          missingFields: finalMissingFields,
+          missingFields: [], // No longer using dynamic missing fields array
           language
         });
 
