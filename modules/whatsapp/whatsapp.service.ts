@@ -87,8 +87,19 @@ export const whatsappService = {
       if (intent === "pricing") {
         console.log(`[WhatsApp] Intent detected as 'pricing', using template shortcut.`);
         finalResponse = whatsappTemplates.pricing;
+      } else if (finalMissingFields.length > 0) {
+        // STEP 5: SERVICE LEVEL HARD CONTROL (Direct Response Mode)
+        console.log(`[WhatsApp] Hard control triggered for missing fields: ${finalMissingFields.join(", ")}`);
+        
+        if (finalMissingFields.includes("name")) {
+          finalResponse = language === "hinglish" ? "Aapka naam kya hai?" : "May I know your name please?";
+        } else if (finalMissingFields.includes("location")) {
+          finalResponse = language === "hinglish" ? "Aapka location kya hai?" : "What is your location?";
+        } else if (finalMissingFields.includes("requirement")) {
+          finalResponse = language === "hinglish" ? "Aap kis type ka interior plan kar rahe hain?" : "What type of interior are you planning?";
+        }
       } else {
-        // STEP 5: Build dynamic prompt
+        // STEP 6: Build dynamic prompt and call AI
         const infoPath = path.join(process.cwd(), "data", "casachic-info.json");
         let businessInfo = {};
         if (fs.existsSync(infoPath)) {
@@ -122,8 +133,14 @@ export const whatsappService = {
           console.log("[WhatsApp] AI Thinking Process:", reasoning || "No reasoning content present");
 
           finalResponse = messageResult?.content || "";
+          
           if (!finalResponse || finalResponse.trim() === "") {
             throw new Error("Empty response from AI");
+          }
+
+          // STEP 7: RESPONSE TRIM SAFETY (EXTRA PROTECTION)
+          if (finalResponse.length > 200) {
+            finalResponse = finalResponse.split(".")[0];
           }
         } catch (aiError) {
           console.error("[WhatsApp] AI Call Error:", aiError);
