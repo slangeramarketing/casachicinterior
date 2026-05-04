@@ -59,9 +59,17 @@ export const whatsappService = {
       let location: string | undefined;
       let requirement: string | undefined;
 
-      const messageLower = originalMessage.toLowerCase();
+      const messageLower = originalMessage.toLowerCase().trim();
 
-      if (originalMessage.length <= 20 && !messageLower.includes("kitchen")) {
+      if (messageLower.includes("my name is")) {
+        name = originalMessage.toLowerCase().split("is")[1]?.trim();
+      } else if (messageLower.startsWith("i am")) {
+        name = originalMessage.toLowerCase().replace(/i am/i, "").trim();
+      } else if (
+        originalMessage.trim().split(" ").length === 1 &&
+        originalMessage.length <= 15 &&
+        !["patna", "delhi", "noida", "gurgaon", "kitchen", "bedroom", "office"].includes(messageLower)
+      ) {
         name = originalMessage.trim();
       }
 
@@ -170,6 +178,9 @@ export const whatsappService = {
           if (!finalResponse || finalResponse.trim() === "") {
             throw new Error("Empty response from AI");
           }
+
+          // HARD FILTER: Remove any AI hallucinated URLs completely
+          finalResponse = finalResponse.replace(/https?:\/\/\S+/g, "");
 
           // STEP 7: RESPONSE TRIM SAFETY (EXTRA PROTECTION)
           if (finalResponse.length > 200) {
