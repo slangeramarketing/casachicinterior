@@ -3,12 +3,13 @@
  * Layer: Service
  *
  * Purpose:
- * - Implements processIncomingMessage using Nvidia DeepSeek-R1 API via OpenAI SDK
+ * - Orchestrates the WhatsApp AI lead conversion engine
  *
  * Responsibilities:
- * - Call DeepSeek-R1 to process incoming WhatsApp messages
- * - Format prompts and parse reasoning
- * - Call Meta Cloud API to send WhatsApp responses back
+ * - Detect intent and handle template shortcuts
+ * - Track user history and lead profile state in-memory
+ * - Dynamically generate prompts and call Nvidia Llama-4
+ * - Send responses back via Meta Cloud API
  *
  * Restrictions:
  * - Must NOT handle Next.js HTTP Request/Response objects directly
@@ -17,23 +18,13 @@
 import OpenAI from "openai";
 import fs from "fs";
 import path from "path";
-
-export const generateSystemPrompt = (businessInfo: any) => `You are CasaChic's Lead Designer. Use the provided business info to answer queries. Be polite, professional, and try to book a site visit.
-
-Business Information:
-${JSON.stringify(businessInfo, null, 2)}
-
-Personality Rules:
-- Identity: You are the Lead Design Assistant at CasaChic Interior.
-- Tone: Professional, creative, and welcoming. Speak in Hinglish (Hindi + English).
-- Expertise: We specialize in Modern, Luxury, and Minimalist styles. Always refer the user to 'casachicinterior.com' for our portfolio.
-- Strategy:
-  1. If the user is new, politely ask for their name and location.
-  2. If they ask for prices or cost, explain that interior design is highly custom, so we need a 'Site Visit' before providing a quote.
-  3. Always try to encourage them to book a consultation or site visit.
-  4. Keep WhatsApp replies concise (under 100 words).
-  5. Agar user koi complex sawal puche toh use bolo ki hamara expert aapko call karega.
-- Formatting: Use bullet points for design suggestions or steps to make it highly readable on mobile phones.`;
+import { whatsappIntent } from "./whatsapp.intent";
+import { whatsappMemory } from "./whatsapp.memory";
+import { whatsappLead } from "./whatsapp.lead";
+import { whatsappTemplates } from "./whatsapp.templates";
+import { whatsappPrompt } from "./whatsapp.prompt";
+import { leadService } from "../leads/lead.service";
+import { whatsappUtils } from "./whatsapp.utils";
 
 const nvidiaOpenai = new OpenAI({
   apiKey: process.env.NVIDIA_API_KEY || "NVIDIA_API_KEY_MISSING",
@@ -59,42 +50,99 @@ export const whatsappService = {
     try {
       console.log(`\n[WhatsApp] Incoming Message from ${fromNumber}: "${originalMessage}"`);
 
-      // Read Business Context
-      const infoPath = path.join(process.cwd(), "data", "casachic-info.json");
-      let businessInfo = {};
-      if (fs.existsSync(infoPath)) {
-        businessInfo = JSON.parse(fs.readFileSync(infoPath, "utf-8"));
-      }
-      
-      const systemPrompt = generateSystemPrompt(businessInfo);
+      // STEP 1: Detect intent
+      const intent = whatsappIntent.detect(originalMessage);
 
-      // 1. Send the message to Nvidia Llama-4
-      const completion = await nvidiaOpenai.chat.completions.create({
-        model: "meta/llama-4-maverick-17b-128e-instruct",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: originalMessage }
-        ],
-        temperature: 0.6,
-        max_tokens: 800,
+      // (NEW) Persist lead message & intent to DB
+      await leadService.upsertLead({
+        phone: fromNumber,
+        message: `User: ${originalMessage}`,
+        intent: intent
       });
 
-      const messageResult = completion.choices[0]?.message;
+      // STEP 2: Get lead data
+      const lead = await leadService.getLeadByPhone(fromNumber);
 
-      // 2. Extract Reasoning Process for Internal Logging
-      // @ts-ignore - The standard OpenAI SDK typings may not include reasoning_content natively depending on version
-      const reasoning = messageResult?.reasoning_content;
-      console.log("[WhatsApp] AI Thinking Process:", reasoning || "No reasoning content present");
+      const missingFields: string[] = [];
+      if (!lead?.name) missingFields.push("name");
+      if (!lead?.location) missingFields.push("location");
+      if (!lead?.requirement) missingFields.push("requirement");
 
-      // 3. Extract the Final Response for WhatsApp
-      let finalResponse = messageResult?.content;
-      if (!finalResponse || finalResponse.trim() === "") {
-        finalResponse = "We encountered a momentary issue processing your request. Please try again or contact us directly on our website!";
+      const language = whatsappUtils.detectLanguage(originalMessage);
+
+      // STEP 3: Save user message in memory
+      whatsappMemory.add(fromNumber, `User: ${originalMessage}`);
+      const history = whatsappMemory.get(fromNumber);
+
+      // Apply hard control: If missing name and not first interaction, clear forcing
+      const isFirstInteraction = history.length <= 1;
+      let finalMissingFields = [...missingFields];
+      if (missingFields.includes("name") && !isFirstInteraction) {
+        finalMissingFields = []; // Let AI decide naturally
       }
 
+      let finalResponse = "";
+
+      // STEP 4: Handle template shortcut
+      if (intent === "pricing") {
+        console.log(`[WhatsApp] Intent detected as 'pricing', using template shortcut.`);
+        finalResponse = whatsappTemplates.pricing;
+      } else {
+        // STEP 5: Build dynamic prompt
+        const infoPath = path.join(process.cwd(), "data", "casachic-info.json");
+        let businessInfo = {};
+        if (fs.existsSync(infoPath)) {
+          businessInfo = JSON.parse(fs.readFileSync(infoPath, "utf-8"));
+        }
+
+        const systemPrompt = whatsappPrompt.build({
+          lead,
+          history,
+          businessInfo,
+          missingFields: finalMissingFields,
+          language
+        });
+
+        // STEP 6: Call AI (USE EXISTING NVIDIA SETUP)
+        try {
+          const completion = await nvidiaOpenai.chat.completions.create({
+            model: "meta/llama-4-maverick-17b-128e-instruct",
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: originalMessage }
+            ],
+            temperature: 0.6,
+            max_tokens: 800,
+          });
+
+          const messageResult = completion.choices[0]?.message;
+
+          // @ts-ignore
+          const reasoning = messageResult?.reasoning_content;
+          console.log("[WhatsApp] AI Thinking Process:", reasoning || "No reasoning content present");
+
+          finalResponse = messageResult?.content || "";
+          if (!finalResponse || finalResponse.trim() === "") {
+            throw new Error("Empty response from AI");
+          }
+        } catch (aiError) {
+          console.error("[WhatsApp] AI Call Error:", aiError);
+          finalResponse = "Thoda issue aa raha hai. Aap apna requirement share karein, team connect karegi.";
+        }
+      }
+
+      // STEP 7: Save AI response to memory
+      whatsappMemory.add(fromNumber, `Bot: ${finalResponse}`);
+      
+      // (NEW) Save bot message to DB
+      await leadService.upsertLead({
+        phone: fromNumber,
+        message: `Bot: ${finalResponse}`
+      });
+      
       console.log(`[WhatsApp] Generated Response for ${fromNumber}: "${finalResponse}"\n`);
 
-      // 4. Send the response back to WhatsApp via Meta Cloud API
+      // STEP 8: Send response via Meta API (existing logic)
       const metaApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
       const whatsappToken = process.env.WHATSAPP_TOKEN;
 
