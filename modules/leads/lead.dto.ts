@@ -17,6 +17,7 @@ export interface UpsertLeadDTO {
   requirement?: string;
   message?: string;
   intent?: string;
+  portfolioSent?: boolean;
 }
 
 export interface LeadResponseDTO {
@@ -25,6 +26,7 @@ export interface LeadResponseDTO {
   name?: string;
   location?: string;
   requirement?: string;
+  portfolioSent?: boolean;
   status: string;
   createdAt: string;
 }

@@ -45,6 +45,9 @@ Response Rules:
 * Answer directly
 * Ask next question quickly
 * Keep conversation moving
+* If a portfolio link is provided, mention it briefly
+* Do NOT explain the link
+* Keep response short (1–2 lines)
 
 Example Style:
 GOOD:

@@ -19,6 +19,7 @@ const leadSchema = new Schema({
   requirement: { type: String, required: false },
   messages: { type: [String], default: [] },
   intent: { type: String, required: false },
+  portfolioSent: { type: Boolean, default: false },
   status: { 
     type: String, 
     enum: ["new", "qualified", "site_visit_scheduled", "converted"], 
