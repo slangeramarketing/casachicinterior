@@ -5,7 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { ReactNode, useState } from "react";
 
 // Icons
-import { FiHome, FiChevronDown } from "react-icons/fi";
+import { FiHome, FiChevronDown, FiUsers } from "react-icons/fi";
 import { FaBlog, FaUser } from "react-icons/fa";
 import { LuBrainCircuit } from "react-icons/lu";
 import { GoGear } from "react-icons/go";
@@ -57,6 +57,7 @@ const menu: MenuItem[] = [
     : []),
 
   { name: "Message", href: "/admin/message", icon: <IoChatboxEllipsesOutline size={18} /> },
+  { name: "Leads", href: "/admin/leads", icon: <FiUsers size={18} /> },
   { name: "Review", href: "/admin/review", icon: <MdOutlineReviews size={18} /> },
 ];
 
