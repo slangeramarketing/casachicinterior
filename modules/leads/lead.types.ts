@@ -18,6 +18,7 @@ export interface ILeadDB {
   requirement?: string;
   messages: string[];
   intent?: string;
+  portfolioSent?: boolean;
   status: "new" | "qualified" | "site_visit_scheduled" | "converted";
   createdAt: Date;
   updatedAt: Date;

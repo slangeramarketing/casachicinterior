@@ -25,6 +25,7 @@ import { whatsappTemplates } from "./whatsapp.templates";
 import { whatsappPrompt } from "./whatsapp.prompt";
 import { leadService } from "../leads/lead.service";
 import { whatsappUtils } from "./whatsapp.utils";
+import { whatsappPortfolio } from "./whatsapp.portfolio";
 
 const nvidiaOpenai = new OpenAI({
   apiKey: process.env.NVIDIA_API_KEY || "NVIDIA_API_KEY_MISSING",
@@ -53,12 +54,44 @@ export const whatsappService = {
       // STEP 1: Detect intent
       const intent = whatsappIntent.detect(originalMessage);
 
-      // (NEW) Persist lead message & intent to DB
-      await leadService.upsertLead({
+      // STEP 1.5: Improve Extraction Logic
+      let name: string | undefined;
+      let location: string | undefined;
+      let requirement: string | undefined;
+
+      const messageLower = originalMessage.toLowerCase();
+
+      if (originalMessage.length <= 20 && !messageLower.includes("kitchen")) {
+        name = originalMessage.trim();
+      }
+
+      const cities = ["noida", "delhi", "gurgaon", "patna"];
+      for (const city of cities) {
+        if (messageLower.includes(city)) {
+          location = city.charAt(0).toUpperCase() + city.slice(1);
+        }
+      }
+
+      if (messageLower.includes("kitchen") || messageLower.includes("wardrobe") || messageLower.includes("interior")) {
+        requirement = originalMessage.trim();
+      }
+
+      // STEP 1.6: Fix Payload Building
+      const updatePayload: any = {
         phone: fromNumber,
         message: `User: ${originalMessage}`,
         intent: intent
-      });
+      };
+
+      if (name) updatePayload.name = name;
+      if (location) updatePayload.location = location;
+      if (requirement) updatePayload.requirement = requirement;
+
+      console.log("Extracted:", { name, location, requirement });
+      console.log("Saving Payload:", updatePayload);
+
+      // (NEW) Persist lead message & intent to DB
+      await leadService.upsertLead(updatePayload);
 
       // STEP 2: Get lead data
       const lead = await leadService.getLeadByPhone(fromNumber);
@@ -148,14 +181,27 @@ export const whatsappService = {
         }
       }
 
-      // STEP 7: Save AI response to memory
+      // STEP 7: Append Portfolio Link if applicable
+      const activeRequirement = requirement || lead?.requirement;
+      const portfolioLink = activeRequirement ? whatsappPortfolio.getLink(activeRequirement) : null;
+      let shouldMarkPortfolioSent = false;
+
+      if (portfolioLink && !lead?.portfolioSent) {
+        finalResponse += `\n\nDesigns dekh lo 👇\n${portfolioLink}`;
+        shouldMarkPortfolioSent = true;
+      }
+
+      // STEP 8: Save AI response to memory
       whatsappMemory.add(fromNumber, `Bot: ${finalResponse}`);
       
       // (NEW) Save bot message to DB
-      await leadService.upsertLead({
+      const botPayload: any = {
         phone: fromNumber,
         message: `Bot: ${finalResponse}`
-      });
+      };
+      if (shouldMarkPortfolioSent) botPayload.portfolioSent = true;
+      
+      await leadService.upsertLead(botPayload);
       
       console.log(`[WhatsApp] Generated Response for ${fromNumber}: "${finalResponse}"\n`);
 
