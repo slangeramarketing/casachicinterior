@@ -15,7 +15,8 @@ import { LeadProfile } from "./whatsapp.lead";
 export interface PromptOptions {
   lead?: any;
   history: string[];
-  businessInfo: any;
+  context: any; // Dynamic context from whatsapp.context.ts
+  verifiedUrl?: string | null; // Matched URL from portfolio-links.json
   missingFields: string[];
   language: "hinglish" | "english";
 }
@@ -23,10 +24,10 @@ export interface PromptOptions {
 export const whatsappPrompt = {
   /**
    * Purpose: Constructs the final system prompt string for the Nvidia/OpenAI call
-   * @param options Object containing lead, history, and business info
+   * @param options Object containing lead, history, context, and verified URL
    */
   build(options: PromptOptions): string {
-    const { lead, history, businessInfo, missingFields, language } = options;
+    const { lead, history, context, verifiedUrl, missingFields, language } = options;
 
     const BASE_PROMPT = `You are CasaChic Interior sales assistant.
 
@@ -45,14 +46,15 @@ Response Rules:
 * Answer directly
 * Ask next question quickly
 * Keep conversation moving
-* If designs are available, the system may include a link.
 
-CRITICAL RULE:
-* NEVER generate any URL
-* NEVER create or guess links
-* NEVER mention website links on your own
-* Only respond with text
-* If a link is needed, it will be added by the system
+STRICT URL RULES:
+* NEVER generate, guess, or modify any URL.
+* NEVER create website paths or slugs (e.g., /kitchen, /contact).
+* NEVER mention any website unless a "Verified Link" is provided below.
+* Use ONLY the "Verified Link" exactly as provided.
+* If "Verified Link" is provided, mention it naturally (e.g., "Designs yaha dekh sakte ho: [link]").
+* If NO "Verified Link" is provided, do NOT mention any link or website.
+* Do not use placeholders like [link] or your-website.com.
 
 Example Style:
 GOOD:
@@ -62,20 +64,44 @@ Aapka location kya hai?"
 BAD:
 "Kitchen design is very exciting and we offer multiple solutions..."`;
 
-    const bName = businessInfo?.business_info?.name || "CasaChic Interior";
-    const bProjects = businessInfo?.trust_stats?.projects_delivered || "150+";
-    const bExp = businessInfo?.trust_stats?.years_experience || "5+";
-    const bLocs = (businessInfo?.locations?.service_areas || ["Noida", "Delhi NCR"]).slice(0, 3).join(", ");
+    // Extract basic info from business context
+    const business = context.business?.business_info || {};
+    const stats = context.business?.trust_stats || {};
+    const locations = context.business?.locations?.service_areas || ["Noida", "Delhi NCR"];
     
-    // Extract max 2 services dynamically
-    const servicesObj = businessInfo?.services || {};
-    const extractedServices = Object.keys(servicesObj).slice(0, 2).map(s => s.replace(/_/g, " ")).join(", ") || "Modular Kitchen, Home Interior";
+    const bName = business.name || "CasaChic Interior";
+    const bProjects = stats.projects_delivered || "150+";
+    const bExp = stats.years_experience || "5+";
+    const bLocs = locations.slice(0, 3).join(", ");
+
+    let extraContext = "";
+
+    // Dynamically add relevant info if available in context
+    if (context.services) {
+      const services = Object.keys(context.services.services || {}).slice(0, 3).map(s => s.replace(/_/g, " ")).join(", ");
+      extraContext += `\nServices: ${services}`;
+    }
+
+    if (context.pricing) {
+      extraContext += `\nPricing: Provide approximate ranges only. Exact cost after site visit.`;
+    }
+
+    if (context.materials) {
+      const brands = context.materials.wood_and_boards?.brands?.join(", ") || "CenturyPly, Greenply";
+      extraContext += `\nMaterials: Using premium brands like ${brands}.`;
+    }
+
+    if (context.faq) {
+      extraContext += `\nFAQ: Answer common questions based on business standards.`;
+    }
+
+    // Inject Verified URL if provided
+    const urlContext = verifiedUrl ? `\nVerified Link: ${verifiedUrl}` : "\nVerified Link: NONE (Do NOT mention any link)";
 
     const filteredBusinessContext = `Business:
 - ${bName}
 - ${bProjects} projects, ${bExp} years experience
-- Locations: ${bLocs}
-- Services: ${extractedServices}`;
+- Locations: ${bLocs}${extraContext}${urlContext}`;
 
     const userContext = `User:
 - Name: ${lead?.name || "unknown"}

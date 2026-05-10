@@ -1,0 +1,33 @@
+{
+    "lead_rules": {
+        "ask_name_if_missing": true,
+        "ask_location_if_missing": true,
+        "ask_requirement_if_missing": true,
+        "priority_locations": [
+            "Noida",
+            "Delhi NCR"
+        ],
+        "target_projects": [
+            "1BHK",
+            "2BHK",
+            "3BHK",
+            "Villa",
+            "Office"
+        ]
+    },
+    "lead_scoring": {
+        "high_intent_keywords": [
+            "urgent",
+            "this month",
+            "finalize",
+            "start work",
+            "immediately"
+        ],
+        "low_intent_keywords": [
+            "idea",
+            "just checking",
+            "future",
+            "planning"
+        ]
+    }
+}

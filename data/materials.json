@@ -1,0 +1,112 @@
+{
+    "hardware": {
+        "brands": [
+            "Hettich",
+            "Hafele",
+            "Inox"
+        ],
+        "details": {
+            "Hettich": {
+                "used_for": [
+                    "Soft close channels",
+                    "Hinges",
+                    "Wardrobe fittings",
+                    "Kitchen accessories"
+                ],
+                "quality": "Premium German hardware brand",
+                "price_range": "Mid to Premium"
+            },
+            "Hafele": {
+                "used_for": [
+                    "Modular kitchen accessories",
+                    "Wardrobe systems",
+                    "Sliding systems",
+                    "Hardware fittings"
+                ],
+                "quality": "Premium international hardware brand",
+                "price_range": "Premium"
+            },
+            "Inox": {
+                "used_for": [
+                    "Handles",
+                    "Locks",
+                    "Architectural hardware"
+                ],
+                "quality": "Reliable modern hardware brand",
+                "price_range": "Affordable to Mid"
+            }
+        }
+    },
+    "wood_and_boards": {
+        "brands": [
+            "CenturyPly",
+            "Action Tesa",
+            "Greenply"
+        ],
+        "details": {
+            "CenturyPly": {
+                "used_for": [
+                    "Plywood",
+                    "BWP plywood",
+                    "Marine plywood",
+                    "Furniture base"
+                ],
+                "quality": "Premium plywood brand",
+                "price_range": "Premium"
+            },
+            "Action Tesa": {
+                "used_for": [
+                    "HDHMR boards",
+                    "MDF",
+                    "Decorative panels"
+                ],
+                "quality": "Popular modular interior board brand",
+                "price_range": "Mid to Premium"
+            },
+            "Greenply": {
+                "used_for": [
+                    "Plywood",
+                    "Interior furniture",
+                    "Wardrobes",
+                    "Kitchen carcass"
+                ],
+                "quality": "Trusted plywood brand",
+                "price_range": "Mid to Premium"
+            }
+        }
+    },
+    "laminates": {
+        "brands": [
+            "Century",
+            "Merino",
+            "Virgo",
+            "Advance"
+        ]
+    },
+    "paints": {
+        "brands": [
+            "Asian Paints",
+            "Berger",
+            "Colortek"
+        ]
+    },
+    "sanitary_and_bath": {
+        "brands": [
+            "Jaquar",
+            "Kohler",
+            "Cera",
+            "Toto",
+            "American Standard"
+        ]
+    },
+    "tiles": {
+        "brands": [
+            "Varmora",
+            "Kajaria",
+            "Simpolo",
+            "Johnson",
+            "Karara",
+            "Somany"
+        ]
+    }
+}
