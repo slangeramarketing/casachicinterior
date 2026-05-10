@@ -1,0 +1,57 @@
+{
+    "about": {
+        "title": "About CasaChic Interior",
+        "url": "https://www.casachicinterior.in/about",
+        "type": "company"
+    },
+    "services": {
+        "home renovation": {
+            "title": "Home Renovation Interior Style Makeover",
+            "url": "https://www.casachicinterior.in/services/detail/home-renovation-interior-style-makeover",
+            "type": "service",
+            "keywords": [
+                "home renovation",
+                "renovation",
+                "house renovation",
+                "interior makeover",
+                "home makeover"
+            ]
+        },
+        "office interior": {
+            "title": "Strategic Corporate Office Design Workspace Optimization",
+            "url": "https://www.casachicinterior.in/services/detail/strategic-corporate-office-design-workspace-optimization",
+            "type": "service",
+            "keywords": [
+                "office interior",
+                "office design",
+                "workspace",
+                "corporate office",
+                "commercial office"
+            ]
+        },
+        "living room": {
+            "title": "Modular Living Room Furniture Design Ideas",
+            "url": "https://www.casachicinterior.in/services/detail/modular-living-room-furniture-design-ideas",
+            "type": "service",
+            "keywords": [
+                "living room",
+                "hall design",
+                "tv unit",
+                "living area",
+                "modular living room"
+            ]
+        },
+        "modular wardrobe": {
+            "title": "Modern Modular Wardrobe Designs For Bedroom",
+            "url": "https://www.casachicinterior.in/services/detail/modern-modular-wardrobe-designs-for-bedroom",
+            "type": "service",
+            "keywords": [
+                "wardrobe",
+                "modular wardrobe",
+                "bedroom wardrobe",
+                "closet",
+                "sliding wardrobe"
+            ]
+        }
+    }
+}

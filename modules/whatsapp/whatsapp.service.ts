@@ -16,9 +16,8 @@
  * - Must NOT return HTTP status codes
  ***************************************************/
 import OpenAI from "openai";
-import fs from "fs";
-import path from "path";
 import { whatsappIntent } from "./whatsapp.intent";
+import { whatsappContext } from "./whatsapp.context";
 import { whatsappMemory } from "./whatsapp.memory";
 import { whatsappLead } from "./whatsapp.lead";
 import { whatsappTemplates } from "./whatsapp.templates";
@@ -52,7 +51,8 @@ export const whatsappService = {
       console.log(`\n[WhatsApp] Incoming Message from ${fromNumber}: "${originalMessage}"`);
 
       // STEP 1: Detect intent
-      const intent = whatsappIntent.detect(originalMessage);
+      const intents = whatsappIntent.detect(originalMessage);
+      const primaryIntent = intents[0] || "unknown";
 
       // Fetch lead early for memory consistency
       const existingLead = await leadService.getLeadByPhone(fromNumber);
@@ -94,7 +94,7 @@ export const whatsappService = {
       const updatePayload: any = {
         phone: fromNumber,
         message: `User: ${originalMessage}`,
-        intent: intent
+        intent: primaryIntent
       };
 
       if (name) updatePayload.name = name;
@@ -117,9 +117,10 @@ export const whatsappService = {
       const history = whatsappMemory.get(fromNumber);
 
       let finalResponse = "";
+      let verifiedUrl: string | null = null;
 
       // STEP 4: Handle template shortcut
-      if (intent === "pricing") {
+      if (intents.includes("pricing")) {
         console.log(`[WhatsApp] Intent detected as 'pricing', using template shortcut.`);
         finalResponse = whatsappTemplates.pricing;
       } else if (!lead?.name) {
@@ -133,16 +134,14 @@ export const whatsappService = {
         finalResponse = language === "hinglish" ? "Aap kis type ka interior plan kar rahe hain?" : "What type of interior are you planning?";
       } else {
         // STEP 6: Build dynamic prompt and call AI
-        const infoPath = path.join(process.cwd(), "data", "casachic-info.json");
-        let businessInfo = {};
-        if (fs.existsSync(infoPath)) {
-          businessInfo = JSON.parse(fs.readFileSync(infoPath, "utf-8"));
-        }
+        const context = await whatsappContext.buildContext(originalMessage);
+        verifiedUrl = await whatsappContext.getVerifiedUrl(originalMessage);
 
         const systemPrompt = whatsappPrompt.build({
           lead,
           history,
-          businessInfo,
+          context,
+          verifiedUrl,
           missingFields: [], // No longer using dynamic missing fields array
           language
         });
@@ -166,7 +165,7 @@ export const whatsappService = {
           console.log("[WhatsApp] AI Thinking Process:", reasoning || "No reasoning content present");
 
           finalResponse = messageResult?.content || "";
-          
+
           if (!finalResponse || finalResponse.trim() === "") {
             throw new Error("Empty response from AI");
           }
@@ -184,28 +183,25 @@ export const whatsappService = {
         }
       }
 
-      // STEP 7: Append Portfolio Link if applicable
-      const activeRequirement = requirement || lead?.requirement;
-      const portfolioLink = activeRequirement ? whatsappPortfolio.getLink(activeRequirement) : null;
+      // STEP 7: Portfolio sent state update (if AI used the link provided in prompt)
+      // Note: We assume if verifiedUrl was provided, the AI mentioned it.
       let shouldMarkPortfolioSent = false;
-
-      if (portfolioLink && !lead?.portfolioSent) {
-        finalResponse += `\n\nDesigns dekh lo 👇\n${portfolioLink}`;
+      if (verifiedUrl && !lead?.portfolioSent) {
         shouldMarkPortfolioSent = true;
       }
 
       // STEP 8: Save AI response to memory
       whatsappMemory.add(fromNumber, `Bot: ${finalResponse}`);
-      
+
       // (NEW) Save bot message to DB
       const botPayload: any = {
         phone: fromNumber,
         message: `Bot: ${finalResponse}`
       };
       if (shouldMarkPortfolioSent) botPayload.portfolioSent = true;
-      
+
       await leadService.upsertLead(botPayload);
-      
+
       console.log(`[WhatsApp] Generated Response for ${fromNumber}: "${finalResponse}"\n`);
 
       // STEP 8: Send response via Meta API (existing logic)
@@ -244,3 +240,5 @@ export const whatsappService = {
     }
   }
 };
+
+

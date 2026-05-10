@@ -1,0 +1,25 @@
+{
+    "services": {
+        "modular_solutions": [
+            "Modular Kitchen",
+            "Modular Wardrobes"
+        ],
+        "interior_design": [
+            "Home Interior",
+            "Commercial Interior",
+            "Bedroom & Living Room Design"
+        ],
+        "renovation": [
+            "Home Renovation",
+            "Space Optimization"
+        ]
+    },
+    "design_process": [
+        "Step 1: Initial Consultation - Understanding requirements, lifestyle, and budget.",
+        "Step 2: Site Visit & Measurements - Accurate space assessment.",
+        "Step 3: Concept & 3D Design - Visualizing the final outcome.",
+        "Step 4: Material Selection - Finalizing premium materials and finishes.",
+        "Step 5: Execution & Management - Strict quality and timeline control.",
+        "Step 6: Quality Check & Handover - Final inspection before handing over."
+    ]
+}

@@ -1,0 +1,34 @@
+{
+    "pricing_rules": {
+        "never_share_exact_price": true,
+        "always_push_site_visit": true,
+        "min_project_value_hint": "Projects usually start from a moderate budget depending on design and materials",
+        "pricing_response_rule": "Always provide approximate ranges only. Final quotation depends on site visit, measurements, materials, and design scope."
+    },
+    "material_pricing_guidance": {
+        "plywood": {
+            "economy_range": "₹70 - ₹110 per sq ft approx",
+            "premium_range": "₹120 - ₹250+ per sq ft approx"
+        },
+        "laminates": {
+            "economy_range": "₹900 - ₹1500 per sheet approx",
+            "premium_range": "₹1800 - ₹4500+ per sheet approx"
+        },
+        "hardware": {
+            "basic_range": "₹15,000 - ₹40,000 approx for modular setup",
+            "premium_range": "₹50,000 - ₹2,00,000+ approx"
+        },
+        "paint": {
+            "basic_range": "₹12 - ₹20 per sq ft approx",
+            "premium_range": "₹25 - ₹80+ per sq ft approx"
+        },
+        "tiles": {
+            "economy_range": "₹35 - ₹80 per sq ft approx",
+            "premium_range": "₹100 - ₹400+ per sq ft approx"
+        },
+        "sanitary": {
+            "basic_bathroom_range": "₹25,000 - ₹60,000 approx",
+            "luxury_bathroom_range": "₹1,00,000 - ₹5,00,000+ approx"
+        }
+    }
+}
