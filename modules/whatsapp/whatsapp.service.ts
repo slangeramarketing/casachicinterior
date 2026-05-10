@@ -47,15 +47,21 @@ export const whatsappService = {
    * - Reasoning content is logged for debugging purposes
    */
   async processIncomingMessage(phoneNumberId: string, fromNumber: string, originalMessage: string): Promise<void> {
+    const totalStartTime = performance.now();
     try {
       console.log(`\n[WhatsApp] Incoming Message from ${fromNumber}: "${originalMessage}"`);
 
       // STEP 1: Detect intent
       const intents = whatsappIntent.detect(originalMessage);
       const primaryIntent = intents[0] || "unknown";
+      console.log(`[Intent] Detected intents: ${intents.join(", ") || "none"}`);
 
+      // STEP 1.1: Database Connection check (redundant but safe)
+      const dbStartTime = performance.now();
       // Fetch lead early for memory consistency
       const existingLead = await leadService.getLeadByPhone(fromNumber);
+      const dbEndTime = performance.now();
+      console.log(`[DB] Fetch lead time: ${(dbEndTime - dbStartTime).toFixed(2)}ms`);
 
       // STEP 1.5: Improve Extraction Logic
       let name: string | undefined;
@@ -101,8 +107,9 @@ export const whatsappService = {
       if (location) updatePayload.location = location;
       if (requirement) updatePayload.requirement = requirement;
 
-      console.log("Extracted:", { name, location, requirement });
-      console.log("Saving Payload:", updatePayload);
+      if (name || location || requirement) {
+        console.log(`[Lead] Extracted Data:`, { name, location, requirement });
+      }
 
       // (NEW) Persist lead message & intent to DB
       await leadService.upsertLead(updatePayload);
@@ -134,20 +141,28 @@ export const whatsappService = {
         finalResponse = language === "hinglish" ? "Aap kis type ka interior plan kar rahe hain?" : "What type of interior are you planning?";
       } else {
         // STEP 6: Build dynamic prompt and call AI
+        const contextStartTime = performance.now();
         const context = await whatsappContext.buildContext(originalMessage);
         verifiedUrl = await whatsappContext.getVerifiedUrl(originalMessage);
+        const contextEndTime = performance.now();
+        
+        console.log(`[Context] Context built in ${(contextEndTime - contextStartTime).toFixed(2)}ms`);
 
         const systemPrompt = whatsappPrompt.build({
           lead,
           history,
           context,
           verifiedUrl,
-          missingFields: [], // No longer using dynamic missing fields array
+          missingFields: [], 
           language
         });
 
+        console.log(`[Prompt] Prompt length: ${systemPrompt.length} chars`);
+
         // STEP 6: Call AI (USE EXISTING NVIDIA SETUP)
         try {
+          console.log(`[AI] Sending request to Nvidia API...`);
+          const aiStartTime = performance.now();
           const completion = await nvidiaOpenai.chat.completions.create({
             model: "meta/llama-4-maverick-17b-128e-instruct",
             messages: [
@@ -157,12 +172,16 @@ export const whatsappService = {
             temperature: 0.6,
             max_tokens: 800,
           });
+          const aiEndTime = performance.now();
+          console.log(`[AI] Response generated in ${(aiEndTime - aiStartTime).toFixed(2)}ms`);
 
           const messageResult = completion.choices[0]?.message;
 
           // @ts-ignore
           const reasoning = messageResult?.reasoning_content;
-          console.log("[WhatsApp] AI Thinking Process:", reasoning || "No reasoning content present");
+          if (reasoning) {
+            console.log("[AI] Reasoning content length:", reasoning.length);
+          }
 
           finalResponse = messageResult?.content || "";
 
@@ -177,14 +196,13 @@ export const whatsappService = {
           if (finalResponse.length > 200) {
             finalResponse = finalResponse.split(".")[0];
           }
-        } catch (aiError) {
-          console.error("[WhatsApp] AI Call Error:", aiError);
+        } catch (aiError: any) {
+          console.error(`[WhatsApp Service] AI Call Failed: ${aiError.message}`);
           finalResponse = "Thoda issue aa raha hai. Aap apna requirement share karein, team connect karegi.";
         }
       }
 
-      // STEP 7: Portfolio sent state update (if AI used the link provided in prompt)
-      // Note: We assume if verifiedUrl was provided, the AI mentioned it.
+      // STEP 7: Portfolio sent state update
       let shouldMarkPortfolioSent = false;
       if (verifiedUrl && !lead?.portfolioSent) {
         shouldMarkPortfolioSent = true;
@@ -202,9 +220,9 @@ export const whatsappService = {
 
       await leadService.upsertLead(botPayload);
 
-      console.log(`[WhatsApp] Generated Response for ${fromNumber}: "${finalResponse}"\n`);
+      console.log(`[WhatsApp] Final Response for ${fromNumber}: "${finalResponse}"`);
 
-      // STEP 8: Send response via Meta API (existing logic)
+      // STEP 8: Send response via Meta API
       const metaApiUrl = `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`;
       const whatsappToken = process.env.WHATSAPP_TOKEN;
 
@@ -219,6 +237,8 @@ export const whatsappService = {
         }
       };
 
+      console.log(`[Meta] Sending WhatsApp reply to ${fromNumber}...`);
+      const metaStartTime = performance.now();
       const metaResponse = await fetch(metaApiUrl, {
         method: "POST",
         headers: {
@@ -227,16 +247,20 @@ export const whatsappService = {
         },
         body: JSON.stringify(payload)
       });
+      const metaEndTime = performance.now();
 
       if (!metaResponse.ok) {
         const errorData = await metaResponse.json();
-        console.error("Meta API Error:", errorData);
+        console.error(`[Meta] API Error:`, JSON.stringify(errorData));
       } else {
-        console.log(`Successfully replied to WhatsApp number ${fromNumber}`);
+        console.log(`[Meta] Message sent successfully in ${(metaEndTime - metaStartTime).toFixed(2)}ms`);
       }
 
-    } catch (error) {
-      console.error("Error processing WhatsApp message via Nvidia/Meta:", error);
+      const totalEndTime = performance.now();
+      console.log(`[WhatsApp] Total Request Processing Time: ${(totalEndTime - totalStartTime).toFixed(2)}ms\n`);
+
+    } catch (error: any) {
+      console.error(`[WhatsApp Service] Critical Error: ${error.message}`);
     }
   }
 };
