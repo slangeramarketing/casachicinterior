@@ -24,6 +24,14 @@ const leadSchema = new Schema({
     type: String, 
     enum: ["new", "qualified", "site_visit_scheduled", "converted"], 
     default: "new" 
+  },
+  conversationState: {
+    askedStyle: { type: Boolean, default: false },
+    askedBudget: { type: Boolean, default: false },
+    askedKitchenSize: { type: Boolean, default: false },
+    askedSiteVisit: { type: Boolean, default: false },
+    sharedPortfolio: { type: Boolean, default: false },
+    sharedWebsite: { type: Boolean, default: false }
   }
 }, {
   timestamps: true

@@ -39,6 +39,8 @@ const intentFileMap: Record<WhatsappIntent, string[]> = {
   objection_price: ["objections.json", "pricing.json"],
   objection_delay: ["objections.json"],
   faq: ["faq.json", "business.json"],
+  website: ["business.json"],
+  portfolio: ["business.json", "services.json"],
   unknown: ["business.json", "services.json"]
 };
 
@@ -100,6 +102,29 @@ export const whatsappContext = {
     await Promise.all(loadPromises);
 
     return context;
+  },
+
+  /**
+   * Purpose: Returns the main business website URL
+   */
+  async getWebsiteUrl(): Promise<string> {
+    try {
+      const dataDir = path.join(process.cwd(), "data");
+      const fileName = "portfolio-links.json";
+      let data: any;
+
+      if (cache.has(fileName)) {
+        data = cache.get(fileName);
+      } else {
+        const filePath = path.join(dataDir, fileName);
+        const content = await fs.readFile(filePath, "utf-8");
+        data = JSON.parse(content);
+        cache.set(fileName, data);
+      }
+      return data.website || "https://www.casachicinterior.in";
+    } catch (error) {
+      return "https://www.casachicinterior.in";
+    }
   },
 
   /**

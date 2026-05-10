@@ -30,6 +30,8 @@ export type WhatsappIntent =
   | "objection_price"
   | "objection_delay"
   | "faq"
+  | "website"
+  | "portfolio"
   | "unknown";
 
 export const whatsappIntent = {
@@ -41,6 +43,16 @@ export const whatsappIntent = {
   detect(message: string): WhatsappIntent[] {
     const lowerMessage = message.toLowerCase();
     const intents = new Set<WhatsappIntent>();
+
+    // Portfolio / Work Samples
+    if (lowerMessage.match(/(work|sample|design|portfolio|project|dikhao|dikhaon|dikhaiye|kaam|photo|video|gallery)/)) {
+      intents.add("portfolio");
+    }
+
+    // Website
+    if (lowerMessage.match(/(website|site|link|url|web)/)) {
+      intents.add("website");
+    }
 
     // Greeting
     if (lowerMessage.match(/(hi|hello|hey|namaste|good morning|hola|kaise)/)) {
