@@ -1,56 +1,77 @@
 import mongoose from "mongoose";
 import { PHASE_PRODUCTION_BUILD } from 'next/constants';
 
-// global का इस्तेमाल करें ताकि रि-रेंडर होने पर कनेक्शन न टूटे
+/**
+ * File: lib/db.ts
+ * Purpose: Centralized MongoDB connection management using Mongoose.
+ * 
+ * Features:
+ * - Connection singleton for Next.js (prevents multiple connections in HMR)
+ * - Structured production logging with [DB] prefix
+ * - Fast fail with bufferCommands: false
+ * - Reusable connection promise
+ */
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+if (!MONGODB_URI) {
+    throw new Error("Please define the MONGODB_URI environment variable inside .env");
+}
+
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development. This prevents connections from growing exponentially
+ * during API Route usage in production as well.
+ */
 let cached = (global as any).mongoose;
 
 if (!cached) {
     cached = (global as any).mongoose = { conn: null, promise: null };
 }
 
-async function db(): Promise<void> {
+async function connectDB(): Promise<typeof mongoose> {
+    // Skip DB connection during Next.js build phase
     if (process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD) {
-        console.log("Skipping DB connection during build phase...");
-        return;
+        return mongoose;
     }
 
+    // 1. If we have a cached connection, reuse it
     if (cached.conn) {
-        console.log("Using cached connection");
-        return;
+        console.log("[DB] Reusing Existing MongoDB Connection");
+        return cached.conn;
     }
 
-    const uri = process.env.MONGODB_URI;
-    console.log("Checking URI:", uri?.replace(/:([^:@]+)@/, ':****@')); // पासवर्ड छुपाकर URI प्रिंट करें
-
-
-    if (!uri) {
-        throw new Error("MONGODB_URI is missing in .env file");
-    }
-
+    // 2. If no promise exists, create a new one
     if (!cached.promise) {
         const opts = {
-            dbName: "casachic_staging_db",
-            bufferCommands: false,
-            serverSelectionTimeoutMS: 5000, // 30s बहुत ज़्यादा है, 5s में फेल होने दें
-            family: 4,                      // फोर्स करें कि सिर्फ IPv4 (127.0.0.1) ही यूज़ हो
-            directConnection: true,         // क्लस्टर चेक छोड़कर सीधे कनेक्ट हो
+            dbName: "casachic_staging_db", // Explicit DB selection
+            bufferCommands: false,         // Fail fast if connection is not ready
+            serverSelectionTimeoutMS: 5000, // 5 seconds timeout
+            family: 4,                      // Force IPv4
+            directConnection: true,         // Skip replica set discovery for speed
         };
 
-
-        console.log("New DB Connection Attempting...");
-        cached.promise = mongoose.connect(uri, opts).then((mongoose) => {
-            console.log("DB Connected Successfully");
+        console.log("[DB] Connecting MongoDB...");
+        
+        cached.promise = mongoose.connect(MONGODB_URI!, opts).then((mongoose) => {
+            console.log("[DB] MongoDB Connected Successfully");
             return mongoose;
+        }).catch((err) => {
+            console.error("[DB] MongoDB Connection Error:", err.message);
+            cached.promise = null; // Reset promise so next attempt can retry
+            throw err;
         });
     }
 
+    // 3. Await the promise and cache the connection
     try {
         cached.conn = await cached.promise;
     } catch (e) {
         cached.promise = null;
-        console.error("DB Connection Failed:", e);
         throw e;
     }
+
+    return cached.conn;
 }
 
-export default db;
+export default connectDB;
