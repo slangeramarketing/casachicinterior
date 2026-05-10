@@ -32,7 +32,8 @@ export const leadService = {
         requirement: input.requirement,
         intent: input.intent,
         messages: initialMessages,
-        status: "new"
+        status: "new",
+        conversationState: input.conversationState || {}
       });
     }
 
@@ -44,6 +45,14 @@ export const leadService = {
     if (input.intent) updateData.intent = input.intent;
     if (input.portfolioSent !== undefined) updateData.portfolioSent = input.portfolioSent;
     
+    // Merge conversationState if provided
+    if (input.conversationState) {
+      updateData.conversationState = {
+        ...(existingLead.conversationState || {}),
+        ...input.conversationState
+      };
+    }
+
     // Always update timestamp
     updateData.updatedAt = new Date();
 

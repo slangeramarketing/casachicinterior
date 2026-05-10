@@ -18,6 +18,14 @@ export interface UpsertLeadDTO {
   message?: string;
   intent?: string;
   portfolioSent?: boolean;
+  conversationState?: {
+    askedStyle?: boolean;
+    askedBudget?: boolean;
+    askedKitchenSize?: boolean;
+    askedSiteVisit?: boolean;
+    sharedPortfolio?: boolean;
+    sharedWebsite?: boolean;
+  };
 }
 
 export interface LeadResponseDTO {

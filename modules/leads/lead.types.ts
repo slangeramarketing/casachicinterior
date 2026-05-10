@@ -20,6 +20,14 @@ export interface ILeadDB {
   intent?: string;
   portfolioSent?: boolean;
   status: "new" | "qualified" | "site_visit_scheduled" | "converted";
+  conversationState: {
+    askedStyle?: boolean;
+    askedBudget?: boolean;
+    askedKitchenSize?: boolean;
+    askedSiteVisit?: boolean;
+    sharedPortfolio?: boolean;
+    sharedWebsite?: boolean;
+  };
   createdAt: Date;
   updatedAt: Date;
 }

@@ -116,6 +116,44 @@ export const whatsappService = {
 
       // STEP 2: Get updated lead data for flow control
       const lead = await leadService.getLeadByPhone(fromNumber);
+      const conversationState = lead?.conversationState || {
+        askedStyle: false,
+        askedBudget: false,
+        askedKitchenSize: false,
+        askedSiteVisit: false,
+        sharedPortfolio: false,
+        sharedWebsite: false
+      };
+
+      // STEP 2.5: Smart State Update (Detect if user already provided info)
+      const stateUpdate: any = {};
+      if (messageLower.match(/(modern|traditional|classic|luxury|minimalist)/)) {
+        conversationState.askedStyle = true;
+        stateUpdate.askedStyle = true;
+      }
+      if (messageLower.match(/(budget|kharcha|paisa|affordable|premium|range)/) && messageLower.match(/(\d+|lakh|thousand|k)/)) {
+        conversationState.askedBudget = true;
+        stateUpdate.askedBudget = true;
+      }
+      if (messageLower.match(/(size|sqft|area|measure|dimensions|bhk)/)) {
+        conversationState.askedKitchenSize = true;
+        stateUpdate.askedKitchenSize = true;
+      }
+      if (intents.includes("portfolio")) {
+        conversationState.sharedPortfolio = true;
+        stateUpdate.sharedPortfolio = true;
+      }
+      if (intents.includes("website")) {
+        conversationState.sharedWebsite = true;
+        stateUpdate.sharedWebsite = true;
+      }
+
+      if (Object.keys(stateUpdate).length > 0) {
+        await leadService.upsertLead({
+          phone: fromNumber,
+          conversationState: { ...conversationState, ...stateUpdate }
+        } as any);
+      }
 
       const language = whatsappUtils.detectLanguage(originalMessage);
 
@@ -125,87 +163,92 @@ export const whatsappService = {
 
       let finalResponse = "";
       let verifiedUrl: string | null = null;
+      const websiteUrl = await whatsappContext.getWebsiteUrl();
 
-      // STEP 4: Handle template shortcut
-      if (intents.includes("pricing")) {
-        console.log(`[WhatsApp] Intent detected as 'pricing', using template shortcut.`);
-        finalResponse = whatsappTemplates.pricing;
-      } else if (!lead?.name) {
-        console.log(`[WhatsApp] Strict Flow: Asking for name`);
-        finalResponse = language === "hinglish" ? "Aapka naam kya hai?" : "May I know your name please?";
-      } else if (!lead?.location) {
-        console.log(`[WhatsApp] Strict Flow: Asking for location`);
-        finalResponse = language === "hinglish" ? "Aapka location kya hai?" : "What is your location?";
-      } else if (!lead?.requirement) {
-        console.log(`[WhatsApp] Strict Flow: Asking for requirement`);
-        finalResponse = language === "hinglish" ? "Aap kis type ka interior plan kar rahe hain?" : "What type of interior are you planning?";
-      } else {
-        // STEP 6: Build dynamic prompt and call AI
-        const contextStartTime = performance.now();
-        const context = await whatsappContext.buildContext(originalMessage);
-        verifiedUrl = await whatsappContext.getVerifiedUrl(originalMessage);
-        const contextEndTime = performance.now();
-        
-        console.log(`[Context] Context built in ${(contextEndTime - contextStartTime).toFixed(2)}ms`);
-
-        const systemPrompt = whatsappPrompt.build({
-          lead,
-          history,
-          context,
-          verifiedUrl,
-          missingFields: [], 
-          language
-        });
-
-        console.log(`[Prompt] Prompt length: ${systemPrompt.length} chars`);
-
-        // STEP 6: Call AI (USE EXISTING NVIDIA SETUP)
-        try {
-          console.log(`[AI] Sending request to Nvidia API...`);
-          const aiStartTime = performance.now();
-          const completion = await nvidiaOpenai.chat.completions.create({
-            model: "meta/llama-4-maverick-17b-128e-instruct",
-            messages: [
-              { role: "system", content: systemPrompt },
-              { role: "user", content: originalMessage }
-            ],
-            temperature: 0.6,
-            max_tokens: 800,
-          });
-          const aiEndTime = performance.now();
-          console.log(`[AI] Response generated in ${(aiEndTime - aiStartTime).toFixed(2)}ms`);
-
-          const messageResult = completion.choices[0]?.message;
-
-          // @ts-ignore
-          const reasoning = messageResult?.reasoning_content;
-          if (reasoning) {
-            console.log("[AI] Reasoning content length:", reasoning.length);
-          }
-
-          finalResponse = messageResult?.content || "";
-
-          if (!finalResponse || finalResponse.trim() === "") {
-            throw new Error("Empty response from AI");
-          }
-
-          // HARD FILTER: Remove any AI hallucinated URLs completely
-          finalResponse = finalResponse.replace(/https?:\/\/\S+/g, "");
-
-          // STEP 7: RESPONSE TRIM SAFETY (EXTRA PROTECTION)
-          if (finalResponse.length > 200) {
-            finalResponse = finalResponse.split(".")[0];
-          }
-        } catch (aiError: any) {
-          console.error(`[WhatsApp Service] AI Call Failed: ${aiError.message}`);
-          finalResponse = "Thoda issue aa raha hai. Aap apna requirement share karein, team connect karegi.";
-        }
+      // STEP 4: Handle template shortcut (Minimalistic)
+      if (intents.includes("pricing") && !messageLower.includes("budget")) {
+         // If they just ask about price without giving context, we can use the template or let AI handle.
+         // Let's let AI handle for better quality unless it's a very generic "pricing" trigger.
       }
 
-      // STEP 7: Portfolio sent state update
-      let shouldMarkPortfolioSent = false;
-      if (verifiedUrl && !lead?.portfolioSent) {
-        shouldMarkPortfolioSent = true;
+      // STEP 6: Build dynamic prompt and call AI
+      const contextStartTime = performance.now();
+      const context = await whatsappContext.buildContext(originalMessage);
+      verifiedUrl = await whatsappContext.getVerifiedUrl(originalMessage);
+      const contextEndTime = performance.now();
+      
+      console.log(`[Context] Context built in ${(contextEndTime - contextStartTime).toFixed(2)}ms`);
+
+      const systemPrompt = whatsappPrompt.build({
+        lead,
+        history,
+        context,
+        verifiedUrl,
+        websiteUrl,
+        conversationState,
+        missingFields: [], 
+        language
+      });
+
+      console.log(`[Prompt] Prompt length: ${systemPrompt.length} chars`);
+
+      // STEP 6: Call AI (USE EXISTING NVIDIA SETUP)
+      try {
+        console.log(`[AI] Sending request to Nvidia API...`);
+        const aiStartTime = performance.now();
+        const completion = await nvidiaOpenai.chat.completions.create({
+          model: "meta/llama-4-maverick-17b-128e-instruct",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: originalMessage }
+          ],
+          temperature: 0.6,
+          max_tokens: 800,
+        });
+        const aiEndTime = performance.now();
+        console.log(`[AI] Response generated in ${(aiEndTime - aiStartTime).toFixed(2)}ms`);
+
+        const messageResult = completion.choices[0]?.message;
+        finalResponse = messageResult?.content || "";
+
+        if (!finalResponse || finalResponse.trim() === "") {
+          throw new Error("Empty response from AI");
+        }
+
+        // DETERMINISTIC INJECTION (BACKEND ENFORCEMENT)
+        if (intents.includes("portfolio") || intents.includes("website")) {
+          if (!finalResponse.includes("https://")) {
+             const link = verifiedUrl || websiteUrl;
+             finalResponse += `\n\nAap humara kaam yaha dekh sakte hain: ${link}`;
+          }
+        }
+
+        // DETERMINISTIC SAFETY LAYER (POST-PROCESSING)
+        finalResponse = whatsappUtils.sanitizeSchedulingClaims(finalResponse);
+
+        // RESPONSE TRIM SAFETY (EXTRA PROTECTION)
+        if (finalResponse.length > 300) {
+          finalResponse = finalResponse.substring(0, 300);
+        }
+
+      } catch (aiError: any) {
+        console.error(`[WhatsApp Service] AI Call Failed: ${aiError.message}`);
+        finalResponse = "Thoda issue aa raha hai. Aap apna requirement share karein, team connect karegi.";
+      }
+
+      // STEP 7: Update flags based on AI response (Detect what AI asked)
+      const aiResponseLower = finalResponse.toLowerCase();
+      const aiStateUpdate: any = {};
+      if (aiResponseLower.match(/(modern|traditional|style|look)/)) aiStateUpdate.askedStyle = true;
+      if (aiResponseLower.match(/(budget|range|kharcha)/)) aiStateUpdate.askedBudget = true;
+      if (aiResponseLower.match(/(size|area|measure|dimensions)/)) aiStateUpdate.askedKitchenSize = true;
+      if (aiResponseLower.match(/(visit|meet|appointment|milne)/)) aiStateUpdate.askedSiteVisit = true;
+
+      if (Object.keys(aiStateUpdate).length > 0) {
+        await leadService.upsertLead({
+          phone: fromNumber,
+          conversationState: { ...conversationState, ...stateUpdate, ...aiStateUpdate }
+        } as any);
       }
 
       // STEP 8: Save AI response to memory
@@ -216,7 +259,7 @@ export const whatsappService = {
         phone: fromNumber,
         message: `Bot: ${finalResponse}`
       };
-      if (shouldMarkPortfolioSent) botPayload.portfolioSent = true;
+      if (verifiedUrl && !lead?.portfolioSent) botPayload.portfolioSent = true;
 
       await leadService.upsertLead(botPayload);
 

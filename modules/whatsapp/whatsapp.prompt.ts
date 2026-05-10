@@ -15,8 +15,10 @@ import { LeadProfile } from "./whatsapp.lead";
 export interface PromptOptions {
   lead?: any;
   history: string[];
-  context: any; // Dynamic context from whatsapp.context.ts
-  verifiedUrl?: string | null; // Matched URL from portfolio-links.json
+  context: any; 
+  verifiedUrl?: string | null;
+  websiteUrl: string;
+  conversationState: any;
   missingFields: string[];
   language: "hinglish" | "english";
 }
@@ -27,42 +29,42 @@ export const whatsappPrompt = {
    * @param options Object containing lead, history, context, and verified URL
    */
   build(options: PromptOptions): string {
-    const { lead, history, context, verifiedUrl, missingFields, language } = options;
+    const { lead, history, context, verifiedUrl, websiteUrl, conversationState, missingFields, language } = options;
 
-    const BASE_PROMPT = `You are CasaChic Interior sales assistant.
+    const BASE_PROMPT = `You are a professional Interior Design Consultant for CasaChic Interior.
+    
+Response Quality Rules:
+* Sound human and helpful, not robotic or scripted.
+* Answer the user's specific question FIRST.
+* Maximum 2 lines per reply.
+* Break response into short WhatsApp-style sentences.
+* Use simple conversational Hinglish (mixed Hindi/English) or English as requested.
+* Do NOT ask irrelevant follow-up questions.
+* If a question was already asked (see Conversation State), do NOT ask it again.
 
-Response Rules:
-* Maximum 2 lines per reply
-* Maximum 15–20 words
-* No paragraphs
-* No long explanations
-* Break response into short WhatsApp-style sentences
-* Use simple conversational language
-* Avoid professional/marketing tone
-* Avoid long sentences
-* Do NOT explain services unless asked
-* Do NOT list features
-* Do NOT give long descriptions
-* Answer directly
-* Ask next question quickly
-* Keep conversation moving
+STRICT URL & PORTFOLIO RULES:
+* NEVER say "website unavailable" or "no portfolio".
+* ALWAYS use the provided Website or Verified Link if the user asks for samples/work/website.
+* If user asks for work samples, mention the Verified Link naturally.
+* If NO Verified Link is provided, use the Website Link as fallback.
 
-STRICT URL RULES:
-* NEVER generate, guess, or modify any URL.
-* NEVER create website paths or slugs (e.g., /kitchen, /contact).
-* NEVER mention any website unless a "Verified Link" is provided below.
-* Use ONLY the "Verified Link" exactly as provided.
-* If "Verified Link" is provided, mention it naturally (e.g., "Designs yaha dekh sakte ho: [link]").
-* If NO "Verified Link" is provided, do NOT mention any link or website.
-* Do not use placeholders like [link] or your-website.com.
+STRICT SCHEDULING RULES:
+* NEVER confirm a meeting or promise a specific time slot (e.g., "11 AM is confirmed").
+* NEVER say "your appointment is booked" or "see you tomorrow".
+* NEVER ask the user to bring any documents or materials.
+* ALWAYS say: "Please share your preferred date and time, our team will confirm the availability."
+* If user gives a time, say: "Noted, team will check and confirm with you shortly."
 
 Example Style:
 GOOD:
-"Nice 👍
-Aapka location kya hai?"
+"Hum premium brands like CenturyPly aur Greenply use karte hain. 👍
+Kya aap kisi specific style ka interior plan kar rahe hain?"
 
-BAD:
-"Kitchen design is very exciting and we offer multiple solutions..."`;
+BAD (Operational Hallucination):
+"Kal 11 baje meeting confirm hai. Aap documents le aaiyega."
+
+BAD (Aggressive):
+"Ham CenturyPly use karte hain. Aapka kitchen size kya hai? Budget kitna hai?"`;
 
     // Extract basic info from business context
     const business = context.business?.business_info || {};
@@ -95,13 +97,10 @@ BAD:
       extraContext += `\nFAQ: Answer common questions based on business standards.`;
     }
 
-    // Inject Verified URL if provided
-    const urlContext = verifiedUrl ? `\nVerified Link: ${verifiedUrl}` : "\nVerified Link: NONE (Do NOT mention any link)";
-
     const filteredBusinessContext = `Business:
 - ${bName}
 - ${bProjects} projects, ${bExp} years experience
-- Locations: ${bLocs}${extraContext}${urlContext}`;
+- Locations: ${bLocs}${extraContext}`;
 
     const userContext = `User:
 - Name: ${lead?.name || "unknown"}
@@ -116,6 +115,12 @@ BAD:
 
     return `${BASE_PROMPT}
 
+Website Link: ${websiteUrl}
+Verified Link: ${verifiedUrl || "NONE"}
+
+Conversation State (Already Discussed/Asked):
+${JSON.stringify(conversationState, null, 2)}
+
 Language: ${language}
 Rules:
 * If language is hinglish -> reply in Hinglish
@@ -126,7 +131,7 @@ ${missingStr}
 Rules:
 * Ask ONLY for missing information
 * If nothing is missing -> DO NOT ask questions
-* NEVER repeat questions
+* NEVER repeat questions mentioned in Conversation State as "true"
 * If user already provided info -> use it naturally
 * Do not ask the same question twice under any condition.
 
