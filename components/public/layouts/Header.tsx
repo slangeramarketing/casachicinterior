@@ -59,6 +59,10 @@ export default function Header({ mainServiceCategoryList }: HeaderProps) {
       }`;
   };
 
+  if (pathname.startsWith("/portfolio")) {
+    return null;
+  }
+
   return (
     <header
       className={`
