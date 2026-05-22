@@ -1,0 +1,1119 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600&family=Inter:wght@300;400;500&display=swap');
+
+/* =====================================================
+   PORTFOLIO ONLY — no globals.css changes
+   ===================================================== */
+
+/* ─── SCROLL CONTAINER ─────────────────────────────── */
+
+.sc {
+  position: relative;
+  height: 900vh;
+  background: #050505;
+}
+
+/* ─── STICKY STAGE ─────────────────────────────────── */
+
+.stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #050505;
+  z-index: 20;
+}
+
+/* ─── SCENE IMAGES ─────────────────────────────────── */
+
+.sceneImg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0;
+  transform-origin: center;
+  backface-visibility: hidden;
+  transform-style: preserve-3d;
+  will-change: transform, opacity, filter;
+  user-select: none;
+  -webkit-user-drag: none;
+  /* NO CSS transition — JS lerp handles all smoothing */
+}
+
+.sceneImg:first-of-type {
+  opacity: 1;
+}
+
+/* ─── BACK-GLOW (orange halo behind villa) ─────────── */
+
+.backGlow {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 62% 52% at 50% 54%,
+      rgba(249, 115, 22, .38)   0%,
+      rgba(255, 120, 10, .18)  32%,
+      rgba(180,  60,  0, .07)  60%,
+      transparent              82%
+    );
+  filter: blur(28px);
+  will-change: opacity;
+  animation: backGlowPulse 5s ease-in-out infinite alternate;
+}
+
+@keyframes backGlowPulse {
+  from { opacity: 0.72; transform: scale(1);    }
+  to   { opacity: 1.00; transform: scale(1.04); }
+}
+
+/* ─── AMBIENT WARM GLOW ────────────────────────────── */
+
+.amb {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 55% 45% at 50% 58%,
+      rgba(249, 115, 22, .12),
+      rgba(180, 80, 10, .04) 55%,
+      transparent 80%
+    );
+  will-change: opacity;
+  animation: ambPulse 4s ease-in-out infinite alternate;
+}
+
+@keyframes ambPulse {
+  from { opacity: 0.6; }
+  to   { opacity: 1.0; }
+}
+
+/* ─── VIGNETTE (cinematic edge darkening) ──────────── */
+
+.vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 100% 100% at 50% 50%,
+      transparent 42%,
+      rgba(5, 5, 5, .50) 72%,
+      rgba(5, 5, 5, .82) 100%
+    );
+}
+
+/* ─── GRID OVERLAY (architectural drafting lines) ──── */
+
+.gridOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4; /* above background images, below text & labels */
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+    linear-gradient(rgba(255, 255, 255, 0.007) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.007) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 30px 30px, 30px 30px;
+  background-position: center center;
+  mix-blend-mode: screen;
+}
+
+
+/* ─── CINEMATIC LETTERBOX BARS ─────────────────────── */
+
+.lbTop,
+.lbBot {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  pointer-events: none;
+  height: 3.2vh;
+  background: #050505;
+}
+
+.lbTop { top: 0; }
+.lbBot { bottom: 0; }
+
+/* ─── LIGHT BURST / SPLASH ─────────────────────────── */
+
+.splash {
+  position: absolute;
+  inset: 0;
+  z-index: 14;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, .92)  0%,
+      rgba(255, 248, 235, .65) 30%,
+      transparent               75%
+    );
+  filter: blur(28px);
+  will-change: opacity, transform;
+}
+
+/* ─── HERO TEXT BLOCK ──────────────────────────────── */
+
+.ht {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 0 5vw 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  background:
+    linear-gradient(
+      to top,
+      rgba(5, 5, 5, .96),
+      rgba(5, 5, 5, .72),
+      transparent
+    );
+  will-change: opacity, transform;
+}
+
+.eyebrow {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: #ffb347;
+  margin-bottom: 24px;
+  animation: fadeUp .9s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+.h1big {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: clamp(48px, 7vw, 104px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -.03em;
+  color: #f5f0e8;
+  max-width: 900px;
+  margin-bottom: 24px;
+  animation: fadeUp .9s cubic-bezier(.22, 1, .36, 1) .18s forwards;
+  opacity: 0;
+  text-shadow:
+    0 0 100px rgba(249, 115, 22, .25),
+    0 4px 32px rgba(5, 5, 5, .80);
+}
+
+/* "Transforming" + "Spaces Into" — slightly lighter weight */
+.h1big .line1,
+.h1big .line2 {
+  font-weight: 200;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.hl {
+  /* gradient on the word "Experiences" */
+  font-weight: 500;
+  background: linear-gradient(
+    135deg,
+    #f97316 0%,
+    #ffb347 50%,
+    #ff6a00 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;           /* gradient overrides text-shadow */
+  filter: drop-shadow(0 0 32px rgba(249, 115, 22, .60));
+}
+
+.sub {
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 232, .65);
+  animation: fadeUp .9s cubic-bezier(.22, 1, .36, 1) .38s forwards;
+  opacity: 0;
+}
+
+/* ─── BUTTONS ──────────────────────────────────────── */
+
+.hbtns {
+  display: flex;
+  gap: 12px;
+  margin-top: 28px;
+  opacity: 0;
+  animation: fadeUp .9s cubic-bezier(.22, 1, .36, 1) .52s forwards;
+}
+
+.bp {
+  background: #f97316;
+  color: #050505;
+  border: none;
+  padding: 14px 26px;
+  font-size: 11px;
+  font-family: Inter;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .35s cubic-bezier(.22,1,.36,1), background .25s;
+}
+
+.bp:hover {
+  transform: translateY(-3px);
+  background: #ff9d40;
+}
+
+.bs {
+  background: rgba(255, 255, 255, .03);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, .12);
+  color: #f5f0e8;
+  padding: 14px 26px;
+  font-size: 11px;
+  font-family: Inter;
+  letter-spacing: .14em;
+  cursor: pointer;
+  transition: border-color .3s, transform .35s cubic-bezier(.22,1,.36,1);
+}
+
+.bs:hover {
+  border-color: rgba(255, 255, 255, .28);
+  transform: translateY(-2px);
+}
+
+/* ─── KEYFRAMES ────────────────────────────────────── */
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ─── CENTER LABEL OVERLAY (shared by all gallery slides) */
+
+/*
+  Key trick: children use CSS @keyframes with animation-fill-mode: both.
+  Browser PAUSES css animations when parent visibility:hidden,
+  and REPLAYS from the start when it becomes visibility:visible.
+  This gives us a free staggered replay every time a slide comes in.
+*/
+
+.centerLabel {
+  position: absolute;
+  inset: 0;
+  z-index: 22;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity, transform;
+  /* subtle dark center to lift text off busy images */
+  background:
+    radial-gradient(
+      ellipse 72% 55% at 50% 50%,
+      rgba(5, 5, 5, .55),
+      transparent 80%
+    );
+}
+
+/* ── top decorative line ── */
+.clLineTop {
+  width: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(249, 115, 22, .85),
+    transparent
+  );
+  animation: clLineReveal .55s cubic-bezier(.22, 1, .36, 1) .05s both;
+}
+
+/* ── service category label ── */
+.clCategory {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: .50em;
+  text-transform: uppercase;
+  color: rgba(201, 123, 46, .92);
+  animation: clFadeUp .65s cubic-bezier(.22, 1, .36, 1) .22s both;
+}
+
+/* ── main title ── */
+.clTitle {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: clamp(32px, 5vw, 72px);
+  font-weight: 100;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #f5f0e8;
+  margin: 0;
+  line-height: 1.0;
+  text-shadow:
+    0 0  80px rgba(249, 115, 22, .28),
+    0 0 200px rgba(249, 115, 22, .12),
+    0 4px 40px rgba(5, 5, 5, .90);
+  animation: clFadeUp .80s cubic-bezier(.22, 1, .36, 1) .38s both;
+}
+
+/* ── sub-label "Interior Service" ── */
+.clService {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: .32em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 232, .45);
+  animation: clFadeUp .65s cubic-bezier(.22, 1, .36, 1) .52s both;
+}
+
+/* ── bottom decorative line ── */
+.clLineBot {
+  width: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(249, 115, 22, .85),
+    transparent
+  );
+  animation: clLineReveal .55s cubic-bezier(.22, 1, .36, 1) .62s both;
+}
+
+/* ── keyframes ── */
+@keyframes clLineReveal {
+  from { width: 0;    opacity: 0; }
+  to   { width: 64px; opacity: 1; }
+}
+
+@keyframes clFadeUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* legacy names — no-op */
+.entranceText, .livingText, .kitchenText { }
+
+/* ═══════════════════════════════════════════════════════════
+   SERVICES ORBIT SECTION
+═══════════════════════════════════════════════════════════ */
+
+.serv {
+  position: relative;
+  height: 580vh;           /* tall → scroll drives orbit and outro zoom */
+  background: #050505;
+}
+
+/* sticky viewport-filling stage */
+.servStage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* background image */
+.servBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  filter: brightness(0.28) saturate(0.7);
+  will-change: transform;
+}
+
+/* dark gradient overlay */
+.servDim {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 50%,
+      rgba(5,5,5,.38), rgba(5,5,5,.75) 80%);
+  z-index: 1;
+}
+
+/* ── header ──────────────────────────────────────────────── */
+.servHeader {
+  position: relative;
+  z-index: 10;
+  text-align: center;
+  margin-bottom: 32px;
+  pointer-events: none;
+}
+
+.servEye {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: .48em;
+  text-transform: uppercase;
+  color: rgba(201, 123, 46, .85);
+  margin-bottom: 14px;
+}
+
+.servH2 {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: clamp(28px, 4vw, 54px);
+  font-weight: 200;
+  letter-spacing: -.02em;
+  color: #f5f0e8;
+  margin: 0 0 10px;
+  text-shadow: 0 2px 30px rgba(5,5,5,.80);
+}
+
+.servHl {
+  background: linear-gradient(95deg, #f97316 0%, #ffb347 60%, #ff8c00 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 16px rgba(249,115,22,.40));
+}
+
+.servNote {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,.30);
+}
+
+/* ── 3-D orbit container ──────────────────────────────────── */
+.orbitWrap {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1000px;
+  height: 480px;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+}
+
+/* ── individual orbit card ────────────────────────────────── */
+.orbitCard {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  width: 200px;
+  min-height: 280px;
+  padding: 0;                   /* image flush to top */
+
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;             /* clip image to border-radius */
+
+  background: rgba(10, 7, 4, 0.72);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+
+  border: 1px solid rgba(249, 115, 22, .22);
+  border-top: 1px solid rgba(255, 255, 255, .08);  /* rim light */
+  border-radius: 16px;
+
+  cursor: pointer;
+  user-select: none;
+
+  /* depth shadow — multiple layers for 3D feel */
+  box-shadow:
+    0  2px  4px rgba(0,0,0,.30),
+    0  8px 20px rgba(0,0,0,.45),
+    0 24px 60px rgba(0,0,0,.55),
+    0 0   0 0  rgba(249,115,22,.00);  /* placeholder for hover glow */
+
+  transition:
+    box-shadow   .30s ease,
+    border-color .30s ease;
+
+  will-change: transform, opacity;
+}
+
+/* ── card image ────────────────────────────────────────────── */
+.cardImgWrap {
+  position: relative;
+  width: 100%;
+  height: 145px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+.cardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform .55s cubic-bezier(.22, 1, .36, 1);
+  transform-origin: center;
+}
+
+.orbitCard:hover .cardImg {
+  transform: scale(1.08);
+}
+
+/* gradient to blend image into card body below */
+.cardImgOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 35%,
+    rgba(249,115,22,.06) 70%,
+    rgba(10,7,4,.90) 100%
+  );
+}
+
+/* ── card text body ─────────────────────────────────────────── */
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 16px 16px;
+  flex: 1;
+}
+
+.cardNum {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  letter-spacing: .36em;
+  color: rgba(249, 115, 22, .70);
+  text-transform: uppercase;
+}
+
+.cardTitle {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 21px;
+  font-weight: 300;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+  color: #f5f0e8;
+  margin: 2px 0 0;
+  flex: 1;
+}
+
+.cardSub {
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  letter-spacing: .30em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,.42);
+}
+
+.cardArrow {
+  font-size: 16px;
+  color: rgba(249, 115, 22, .55);
+  margin-top: 6px;
+  transition: color .25s, transform .25s;
+}
+
+.orbitCard:hover .cardArrow {
+  color: rgba(249, 115, 22, .95);
+  transform: translateX(5px);
+}
+
+/* ── scroll hint ──────────────────────────────────────────── */
+.servScrollHint {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 36px;
+  font-family: Inter, sans-serif;
+  font-size: 9px;
+  letter-spacing: .36em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,.25);
+  pointer-events: none;
+}
+
+.servScrollLine {
+  display: block;
+  width: 32px;
+  height: 1px;
+  background: rgba(249,115,22,.30);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   OUTRO ZOOM OUT SECTION
+   ═══════════════════════════════════════════════════════════ */
+
+.flashOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  background: #ffffff;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity;
+}
+
+.outroBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transform-origin: 50% 38%; /* focus on 1st floor window */
+  will-change: transform, filter, opacity;
+  opacity: 0;
+  visibility: hidden;
+  z-index: 1;
+}
+
+.outroText {
+  position: absolute;
+  z-index: 20;
+  text-align: center;
+  color: #f5f0e8;
+  max-width: 800px;
+  padding: 0 24px;
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity, transform;
+}
+
+.outroSub {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: #c97b2e;
+  margin-bottom: 18px;
+}
+
+.outroTitle {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: clamp(36px, 5vw, 76px);
+  font-weight: 200;
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  color: #f5f0e8;
+  margin-bottom: 24px;
+  text-shadow: 0 4px 40px rgba(5,5,5,.95);
+}
+
+.outroDesc {
+  font-family: Inter, sans-serif;
+  font-size: clamp(12px, 1.4vw, 15px);
+  line-height: 1.7;
+  letter-spacing: .05em;
+  color: rgba(245, 240, 232, 0.65);
+  margin-bottom: 42px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  text-shadow: 0 2px 20px rgba(5,5,5,.9);
+}
+
+.scrollNextInfo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 32px;
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 232, 0.45);
+  pointer-events: none;
+}
+
+.scrollNextArrow {
+  font-size: 20px;
+  color: #f97316;
+  animation: arrowBounce 1.6s ease-in-out infinite;
+}
+
+@keyframes arrowBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+}
+
+/* ─── RESPONSIVE ─────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+  .sc {
+    height: 660vh;
+  }
+
+  .ht {
+    padding: 0 24px 42px;
+  }
+
+  .h1big {
+    font-size: 44px;
+  }
+
+  .clTitle {
+    font-size: 32px;
+    letter-spacing: .07em;
+  }
+
+  .hbtns {
+    flex-direction: column;
+  }
+
+  .lbTop,
+  .lbBot {
+    height: 2.4vh;
+  }
+
+  .serv {
+    height: 480vh;
+  }
+
+  .orbitWrap {
+    height: 360px;
+  }
+
+  .orbitCard {
+    width: 138px;
+    min-height: 210px;
+  }
+
+  .cardImgWrap {
+    height: 110px;
+  }
+
+  .cardTitle {
+    font-size: 17px;
+  }
+
+  .outroTitle {
+    font-size: 36px;
+  }
+
+  .outroDesc {
+    font-size: 12px;
+    margin-bottom: 32px;
+  }
+
+  .scrollNextInfo {
+    font-size: 9px;
+    margin-top: 24px;
+  }
+
+  .scrollNextArrow {
+    font-size: 16px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   3D ROOM SHOWCASE SECTION
+   ═══════════════════════════════════════════════════════════ */
+
+.proj {
+  position: relative;
+  height: 880vh;
+  background: #050505;
+}
+
+.projStage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #050505;
+  perspective: 1200px;
+  perspective-origin: 50% 50%;
+}
+
+
+.room3d {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* ── hanging card ── */
+.projCard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 340px;
+  height: 460px;
+  margin-left: -170px;
+  margin-top: -230px;
+
+  display: flex;
+  flex-direction: column;
+  overflow: visible; /* so wire doesn't clip */
+
+  background: rgba(10, 7, 4, 0.76);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+
+  border: 1px solid rgba(249, 115, 22, 0.18);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+
+  box-shadow:
+    0  4px  8px rgba(0,0,0,.40),
+    0 16px 40px rgba(0,0,0,.60),
+    0 40px 90px rgba(0,0,0,.80);
+
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  transition: box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.projCard:hover {
+  border-color: rgba(249, 115, 22, 0.65);
+  box-shadow:
+    0 0 40px rgba(249, 115, 22, 0.35),
+    0 20px 50px rgba(0,0,0,0.7);
+}
+
+/* hanging wire from ceiling */
+.projCardWire {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 1px;
+  height: 500px;
+  background: linear-gradient(to top, rgba(249, 115, 22, 0.45) 0%, transparent 100%);
+  pointer-events: none;
+}
+
+.projCardImgWrap {
+  position: relative;
+  width: 100%;
+  height: 260px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 20px 20px 0 0;
+}
+
+.projCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.projCard:hover .projCardImg {
+  transform: scale(1.06);
+}
+
+.projCardImgOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 35%,
+    rgba(249, 115, 22, 0.04) 65%,
+    rgba(10, 7, 4, 0.95) 100%
+  );
+}
+
+.projCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 24px;
+  flex: 1;
+}
+
+.projCardNum {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  color: rgba(249, 115, 22, 0.75);
+  text-transform: uppercase;
+}
+
+.projCardTitle {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: 26px;
+  font-weight: 300;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: #f5f0e8;
+  margin: 4px 0 0;
+}
+
+.projCardSub {
+  font-family: Inter, sans-serif;
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(245, 240, 232, 0.42);
+}
+
+/* ── synchronized text block ── */
+.projDetailsWrap {
+  position: absolute;
+  left: 8vw;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 38vw;
+  max-width: 500px;
+  height: 400px;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.projDetailBlock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  will-change: opacity, transform;
+  /* subtle glow behind details text */
+  background: radial-gradient(
+    ellipse 100% 70% at 0% 50%,
+    rgba(5, 5, 5, 0.6) 0%,
+    transparent 80%
+  );
+}
+
+.projDetailCategory {
+  font-family: Inter, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.4em;
+  color: #c97b2e;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.projDetailTitle {
+  font-family: "Hanken Grotesk", sans-serif;
+  font-size: clamp(32px, 4.5vw, 60px);
+  font-weight: 100;
+  line-height: 1.1;
+  letter-spacing: 0.02em;
+  color: #f5f0e8;
+  margin: 0 0 20px;
+  text-shadow:
+    0 0 60px rgba(249, 115, 22, 0.18),
+    0 4px 30px rgba(5, 5, 5, 0.95);
+}
+
+.projDetailDesc {
+  font-family: Inter, sans-serif;
+  font-size: clamp(13px, 1.4vw, 16px);
+  line-height: 1.7;
+  letter-spacing: 0.05em;
+  color: rgba(245, 240, 232, 0.6);
+  margin: 0 0 32px;
+  text-shadow: 0 2px 20px rgba(5, 5, 5, 0.9);
+}
+
+.projDetailLine {
+  width: 90px;
+  height: 1px;
+  background: linear-gradient(90deg, #f97316 0%, transparent 100%);
+}
+
+/* ─── SHOWCASE RESPONSIVE ───────────────────────── */
+@media (max-width: 768px) {
+  .proj {
+    height: 780vh;
+  }
+
+  .projCard {
+    width: 220px;
+    height: 310px;
+    margin-left: -110px;
+    margin-top: -200px;
+    border-radius: 14px;
+  }
+
+  .projCardWire {
+    height: 400px;
+  }
+
+  .projCardImgWrap {
+    height: 160px;
+    border-radius: 14px 14px 0 0;
+  }
+
+  .projCardTitle {
+    font-size: 19px;
+  }
+
+  .projCardBody {
+    padding: 16px;
+    gap: 4px;
+  }
+
+  .projDetailsWrap {
+    left: 6vw;
+    right: 6vw;
+    width: 88vw;
+    top: auto;
+    bottom: 5vh;
+    transform: none;
+    height: 160px;
+    text-align: center;
+  }
+
+  .projDetailBlock {
+    align-items: center;
+    background: radial-gradient(
+      ellipse 80% 80% at 50% 50%,
+      rgba(5, 5, 5, 0.8) 0%,
+      transparent 80%
+    );
+  }
+
+  .projDetailTitle {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .projDetailDesc {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  }
+
+  .projDetailLine {
+    margin: 0 auto;
+  }
+}

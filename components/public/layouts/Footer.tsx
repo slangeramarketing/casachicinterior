@@ -12,6 +12,7 @@ import {
   FiFacebook,
   FiInstagram,
 } from "react-icons/fi";
+import { usePathname } from "next/navigation";
 import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 
 interface HeaderProps {
@@ -20,6 +21,11 @@ interface HeaderProps {
 }
 
 export default function Footer({ mainServiceCategoryList, topServiceSubCatList }: HeaderProps) {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/portfolio")) {
+    return null;
+  }
 
   return (
     <footer className="bg-linear-to-b from-[#0B1220] to-[#070C16] text-gray-300">
