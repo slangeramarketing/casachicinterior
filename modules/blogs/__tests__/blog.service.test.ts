@@ -131,7 +131,7 @@ describe("Blog Service", () => {
     vi.mocked(blogRepository.findBySlug).mockResolvedValue(null);
     vi.mocked(blogRepository.create).mockResolvedValue(mockBlog);
 
-    const result = await blogService.createBlog({
+    const result = await blogService.createBlog("super_admin", {
       title: mockBlog.title,
       slug: mockBlog.slug,
       content: mockBlog.content,
@@ -153,7 +153,7 @@ describe("Blog Service", () => {
       .mockResolvedValue(mockBlog);
 
     await expect(
-      blogService.createBlog({
+      blogService.createBlog("super_admin", {
         title: "Test",
         slug: mockBlog.slug,
         content: "content",
@@ -169,9 +169,10 @@ describe("Blog Service", () => {
 
   it("should update blog and recalculate reading time", async () => {
     vi.mocked(blogRepository.findBySlug).mockResolvedValue(null);
-    vi.mocked(blogRepository.update).mockResolvedValue(mockBlog);
+    // @ts-ignore
+    vi.mocked(blogRepository.updateById || blogRepository.update).mockResolvedValue(mockBlog);
 
-    const result = await blogService.updateBlog(blogId.toString(), {
+    const result = await blogService.updateBlog("super_admin", blogId.toString(), {
       content:
         "Updated content with more words so reading time changes correctly",
     });
@@ -190,18 +191,19 @@ describe("Blog Service", () => {
       });
 
     await expect(
-      blogService.updateBlog(blogId.toString(), {
+      blogService.updateBlog("super_admin", blogId.toString(), {
         slug: "duplicate-slug",
       })
-    ).rejects.toThrow("Slug is already taken by another blog");
+    ).rejects.toThrow("Slug already used by another blog");
   });
 
 /* ---------------- DELETE BLOG ---------------- */
 
     it("should delete blog", async () => {
-    vi.mocked(blogRepository.delete).mockResolvedValue(mockBlog);
+    // @ts-ignore
+    vi.mocked(blogRepository.deleteById || blogRepository.delete).mockResolvedValue(mockBlog);
 
-    const result = await blogService.deleteBlog(blogId.toString());
+    const result = await blogService.deleteBlog("super_admin", blogId.toString());
 
     expect(result).toBe(true);
     });

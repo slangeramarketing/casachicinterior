@@ -33,10 +33,12 @@ export const leadRepository = {
     if (query?.search) {
       filter.$or = [
         { name: { $regex: query.search, $options: "i" } },
-        { phone: { $regex: query.search, $options: "i" } }
+        { phone: { $regex: query.search, $options: "i" } },
+        { requirement: { $regex: query.search, $options: "i" } },
+        { location: { $regex: query.search, $options: "i" } }
       ];
     }
-    return await LeadModel.find(filter).sort({ createdAt: -1 }).lean() as ILeadDB[];
+    return await LeadModel.find(filter).sort({ lastActivityAt: -1, createdAt: -1 }).lean() as ILeadDB[];
   },
 
   async findByPhone(phone: string): Promise<ILeadDB | null> {
@@ -72,5 +74,26 @@ export const leadRepository = {
     ensureConnection();
     const result = await LeadModel.deleteOne({ phone });
     return result.deletedCount > 0;
+  },
+
+  async bulkUpdate(phones: string[], data: Partial<ILeadDB>): Promise<any> {
+    ensureConnection();
+    return await LeadModel.updateMany(
+      { phone: { $in: phones } },
+      { $set: { ...data, updatedAt: new Date(), lastActivityAt: new Date() } }
+    );
+  },
+
+  async getStats(): Promise<any> {
+    ensureConnection();
+    const [totalCount, newCount, qualifiedCount, convertedCount, manualCount, autoCount] = await Promise.all([
+      LeadModel.countDocuments({}),
+      LeadModel.countDocuments({ status: "NEW" }),
+      LeadModel.countDocuments({ status: "QUALIFIED" }),
+      LeadModel.countDocuments({ status: "CONVERTED" }),
+      LeadModel.countDocuments({ automationMode: "MANUAL" }),
+      LeadModel.countDocuments({ automationMode: "AUTO" })
+    ]);
+    return { total: totalCount, new: newCount, qualified: qualifiedCount, converted: convertedCount, manual: manualCount, auto: autoCount };
   }
 };

@@ -6,7 +6,7 @@ import { ReactNode, useState } from "react";
 
 // Icons
 import { FiHome, FiChevronDown, FiUsers } from "react-icons/fi";
-import { FaBlog, FaUser } from "react-icons/fa";
+import { FaBlog, FaUser, FaWhatsapp, FaRobot } from "react-icons/fa";
 import { LuBrainCircuit } from "react-icons/lu";
 import { GoGear } from "react-icons/go";
 import { MdOutlineReviews } from "react-icons/md";
@@ -57,7 +57,8 @@ const menu: MenuItem[] = [
     : []),
 
   { name: "Message", href: "/admin/message", icon: <IoChatboxEllipsesOutline size={18} /> },
-  { name: "Leads", href: "/admin/leads", icon: <FiUsers size={18} /> },
+  { name: "Leads", href: "/admin/leads", icon: <FaWhatsapp size={18} /> },
+  { name: "AI Ops", href: "/admin/ai", icon: <FaRobot size={18} /> },
   { name: "Review", href: "/admin/review", icon: <MdOutlineReviews size={18} /> },
 ];
 

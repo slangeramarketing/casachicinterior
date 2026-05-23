@@ -22,9 +22,24 @@ const leadSchema = new Schema({
   portfolioSent: { type: Boolean, default: false },
   status: { 
     type: String, 
-    enum: ["new", "qualified", "site_visit_scheduled", "converted"], 
-    default: "new" 
+    enum: ["NEW", "CONTACTED", "QUALIFIED", "SITE_VISIT", "QUOTE_SENT", "NEGOTIATION", "CONVERTED", "LOST"], 
+    default: "NEW" 
   },
+  leadScore: { type: Number, default: 0 },
+  owner: { type: String, required: false },
+  notes: { type: String, required: false },
+  lastActivityAt: { type: Date, default: Date.now },
+  updatedBy: { type: String, required: false },
+  automationMode: { type: String, enum: ["AUTO", "MANUAL"], default: "AUTO" },
+  label: { type: String, enum: ["UNKNOWN", "LEAD", "CLIENT", "RELATIVE", "VIP", "TEAM"], default: "UNKNOWN" },
+  conversationOwner: { type: String, enum: ["AUTO", "MANUAL"], default: "AUTO" },
+  convertedAt: { type: Date, required: false },
+  automationStoppedAt: { type: Date, required: false },
+  timeline: [{
+    event: String,
+    details: String,
+    timestamp: { type: Date, default: Date.now }
+  }],
   conversationState: {
     askedStyle: { type: Boolean, default: false },
     askedBudget: { type: Boolean, default: false },

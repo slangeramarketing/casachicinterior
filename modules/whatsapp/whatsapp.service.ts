@@ -15,7 +15,7 @@
  * - Must NOT handle Next.js HTTP Request/Response objects directly
  * - Must NOT return HTTP status codes
  ***************************************************/
-import OpenAI from "openai";
+import { aiService } from "../ai-management/ai.service";
 import { whatsappIntent } from "./whatsapp.intent";
 import { whatsappContext } from "./whatsapp.context";
 import { whatsappMemory } from "./whatsapp.memory";
@@ -25,11 +25,9 @@ import { whatsappPrompt } from "./whatsapp.prompt";
 import { leadService } from "../leads/lead.service";
 import { whatsappUtils } from "./whatsapp.utils";
 import { whatsappPortfolio } from "./whatsapp.portfolio";
+import { whatsappRule } from "./whatsapp.rule";
 
-const nvidiaOpenai = new OpenAI({
-  apiKey: process.env.NVIDIA_API_KEY || "NVIDIA_API_KEY_MISSING",
-  baseURL: "https://integrate.api.nvidia.com/v1",
-});
+// AI Provider is dynamically resolved in the processing flow
 
 export const whatsappService = {
   /**
@@ -51,19 +49,25 @@ export const whatsappService = {
     try {
       console.log(`\n[WhatsApp] Incoming Message from ${fromNumber}: "${originalMessage}"`);
 
+      // STEP 0.1: Fetch lead early for automation rules
+      const dbStartTime = performance.now();
+      const existingLead = await leadService.getLeadByPhone(fromNumber);
+      const dbEndTime = performance.now();
+      console.log(`[DB] Fetch lead time: ${(dbEndTime - dbStartTime).toFixed(2)}ms`);
+
+      // STEP 0.2: Check Automation Rules
+      const rule = await whatsappRule.shouldProcessAutomation(fromNumber, existingLead);
+      if (!rule.allowDB) {
+         console.log(`[WhatsApp] Skipped DB/AI for ${fromNumber}. Rule: ${rule.reason}`);
+         return; // STOP completely. No DB update, no AI, no Meta reply.
+      }
+
       // STEP 1: Detect intent
       const intents = whatsappIntent.detect(originalMessage);
       const primaryIntent = intents[0] || "unknown";
       console.log(`[Intent] Detected intents: ${intents.join(", ") || "none"}`);
 
-      // STEP 1.1: Database Connection check (redundant but safe)
-      const dbStartTime = performance.now();
-      // Fetch lead early for memory consistency
-      const existingLead = await leadService.getLeadByPhone(fromNumber);
-      const dbEndTime = performance.now();
-      console.log(`[DB] Fetch lead time: ${(dbEndTime - dbStartTime).toFixed(2)}ms`);
-
-      // STEP 1.5: Improve Extraction Logic
+      // STEP 1.1: Skipping duplicate fetch since we fetched it at STEP 0.1      // STEP 1.5: Improve Extraction Logic
       let name: string | undefined;
       let location: string | undefined;
       let requirement: string | undefined;
@@ -161,6 +165,12 @@ export const whatsappService = {
       whatsappMemory.add(fromNumber, `User: ${originalMessage}`);
       const history = whatsappMemory.get(fromNumber);
 
+      // STEP 3.5: Stop if AI is not allowed
+      if (!rule.allowAI) {
+        console.log(`[WhatsApp] Skipping AI and Meta Reply for ${fromNumber}. Rule: ${rule.reason}`);
+        return; // DB was saved, but we do not reply.
+      }
+
       let finalResponse = "";
       let verifiedUrl: string | null = null;
       const websiteUrl = await whatsappContext.getWebsiteUrl();
@@ -192,12 +202,22 @@ export const whatsappService = {
 
       console.log(`[Prompt] Prompt length: ${systemPrompt.length} chars`);
 
-      // STEP 6: Call AI (USE EXISTING NVIDIA SETUP)
+      // STEP 6: Call AI (Dynamic Provider & Usage Tracking)
+      let aiUsageData: any = null;
       try {
-        console.log(`[AI] Sending request to Nvidia API...`);
+        console.log(`[AI] Resolving dynamic AI provider...`);
+        const { client, model, providerName } = await aiService.providerResolver();
+
+        // Check Daily/Monthly Limits
+        const isAllowed = await aiService.checkLimits(providerName, fromNumber);
+        if (!isAllowed) {
+          throw new Error("API limits exceeded or provider expired.");
+        }
+
+        console.log(`[AI] Sending request to ${providerName} (${model})...`);
         const aiStartTime = performance.now();
-        const completion = await nvidiaOpenai.chat.completions.create({
-          model: "meta/llama-4-maverick-17b-128e-instruct",
+        const completion = await client.chat.completions.create({
+          model: model,
           messages: [
             { role: "system", content: systemPrompt },
             { role: "user", content: originalMessage }
@@ -206,10 +226,25 @@ export const whatsappService = {
           max_tokens: 800,
         });
         const aiEndTime = performance.now();
-        console.log(`[AI] Response generated in ${(aiEndTime - aiStartTime).toFixed(2)}ms`);
+        const latency = aiEndTime - aiStartTime;
+        console.log(`[AI] Response generated in ${latency.toFixed(2)}ms`);
 
         const messageResult = completion.choices[0]?.message;
         finalResponse = messageResult?.content || "";
+
+        // Intercept Usage to log LATER
+        const reportedTokens = (completion.usage?.prompt_tokens || 0) + (completion.usage?.completion_tokens || 0);
+        const estimatedTokens = Math.ceil((systemPrompt.length + originalMessage.length + (finalResponse.length)) / 4);
+
+        aiUsageData = {
+          phone: fromNumber,
+          provider: providerName,
+          model: model,
+          providerReportedTokens: reportedTokens,
+          estimatedTokens: estimatedTokens,
+          latency,
+          success: true
+        };
 
         if (!finalResponse || finalResponse.trim() === "") {
           throw new Error("Empty response from AI");
@@ -301,6 +336,12 @@ export const whatsappService = {
 
       const totalEndTime = performance.now();
       console.log(`[WhatsApp] Total Request Processing Time: ${(totalEndTime - totalStartTime).toFixed(2)}ms\n`);
+
+      // STEP 9: Background Usage Logging (Async, after user is replied to)
+      if (aiUsageData) {
+        aiService.logUsage(aiUsageData).catch(err => console.error("[AI Usage Logging Error]", err));
+      }
+
 
     } catch (error: any) {
       console.error(`[WhatsApp Service] Critical Error: ${error.message}`);

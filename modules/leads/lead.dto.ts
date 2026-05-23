@@ -22,10 +22,15 @@ export interface UpsertLeadDTO {
     askedStyle?: boolean;
     askedBudget?: boolean;
     askedKitchenSize?: boolean;
-    askedSiteVisit?: boolean;
     sharedPortfolio?: boolean;
     sharedWebsite?: boolean;
   };
+  leadScore?: number;
+  owner?: string;
+  notes?: string;
+  automationMode?: "AUTO" | "MANUAL";
+  updatedBy?: string;
+  status?: string;
 }
 
 export interface LeadResponseDTO {
@@ -36,5 +41,16 @@ export interface LeadResponseDTO {
   requirement?: string;
   portfolioSent?: boolean;
   status: string;
+  leadScore: number;
+  owner?: string;
+  notes?: string;
+  automationMode: "AUTO" | "MANUAL";
+  label?: string;
+  conversationOwner?: "AUTO" | "MANUAL";
+  convertedAt?: string;
+  automationStoppedAt?: string;
+  lastActivityAt: string;
+  timeline: { event: string; details?: string; timestamp: string }[];
   createdAt: string;
+  messages: string[];
 }
