@@ -25,6 +25,17 @@ export const leadMapper = {
       location: dbLead.location,
       requirement: dbLead.requirement,
       status: dbLead.status,
+      leadScore: dbLead.leadScore,
+      owner: dbLead.owner,
+      notes: dbLead.notes,
+      automationMode: dbLead.automationMode,
+      lastActivityAt: dbLead.lastActivityAt ? dbLead.lastActivityAt.toISOString() : dbLead.createdAt.toISOString(),
+      timeline: (dbLead.timeline || []).map((t: any) => ({
+        event: t.event,
+        details: t.details,
+        timestamp: t.timestamp.toISOString()
+      })),
+      messages: dbLead.messages || [],
       createdAt: dbLead.createdAt.toISOString()
     };
   }

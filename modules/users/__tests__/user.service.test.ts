@@ -54,15 +54,16 @@ beforeEach(() => {
 describe("User Service", () => {
   /* ---------------- CREATE USER ---------------- */
 
-  it("should create user when actor is admin", async () => {
+  it("should create user when actor is super_admin", async () => {
     vi.mocked(userRepository.findByEmail).mockResolvedValue(null);
     vi.mocked(userRepository.create).mockResolvedValue(mockUser);
 
-    const result = await userService.createUser("admin", {
+    const result = await userService.createUser("super_admin", {
       name: "Rohit",
       email: "rohit@test.com",
       password: "123456",
       role: "admin",
+      status: "active"
     });
 
     expect(result.email).toBe("rohit@test.com");
@@ -73,24 +74,26 @@ describe("User Service", () => {
     vi.mocked(userRepository.findByEmail).mockResolvedValue(mockUser);
 
     await expect(
-      userService.createUser("admin", {
+      userService.createUser("super_admin", {
         name: "Rohit",
         email: "rohit@test.com",
         password: "123",
         role: "admin",
+        status: "active"
       })
     ).rejects.toThrow("Email already exists");
   });
 
-  it("should deny non-admin user creation", async () => {
+  it("should deny non-super-admin user creation", async () => {
     await expect(
-      userService.createUser("user" as any, {
+      userService.createUser("admin", {
         name: "Test",
         email: "test@test.com",
         password: "123",
         role: "admin",
+        status: "active"
       })
-    ).rejects.toThrow("Permission denied");
+    ).rejects.toThrow("Only super_admin is allowed to perform this action");
   });
 
   /* ---------------- UPDATE USER ---------------- */
@@ -98,8 +101,8 @@ describe("User Service", () => {
   it("should update user by id", async () => {
     vi.mocked(userRepository.updateById).mockResolvedValue(mockUser);
 
-    const result = await userService.updateUser(
-      "admin",
+    const result = await userService.updateUserBySuperAdmin(
+      "super_admin",
       "user123",
       { name: "Updated" }
     );
@@ -111,26 +114,10 @@ describe("User Service", () => {
     vi.mocked(userRepository.updateById).mockResolvedValue(null);
 
     await expect(
-      userService.updateUser("admin", "badid", {})
+      userService.updateUserBySuperAdmin("super_admin", "badid", {})
     ).rejects.toThrow("User not found");
   });
 
-  /* ---------------- STATUS UPDATE ---------------- */
-
-  it("should update user status", async () => {
-    vi.mocked(userRepository.updateStatus).mockResolvedValue({
-      ...mockUser,
-      status: "blocked",
-    });
-
-    const result = await userService.updateUserStatus(
-      "admin",
-      "user123",
-      "blocked"
-    );
-
-    expect(result.status).toBe("blocked");
-  });
 
   /* ---------------- DELETE USER ---------------- */
 
@@ -145,7 +132,7 @@ describe("User Service", () => {
   it("should block delete for admin", async () => {
     await expect(
       userService.deleteUser("admin", "user123")
-    ).rejects.toThrow("Only super_admin can delete users");
+    ).rejects.toThrow("Only super_admin is allowed to perform this action");
   });
 
   /* ---------------- GET USER ---------------- */
@@ -163,31 +150,16 @@ describe("User Service", () => {
 
   /* ---------------- SUPER ADMIN Authorization ---------------- */
 
-  it("should block admin assigning super_admin", async () => {
+  it("should throw on missing required fields", async () => {
     await expect(
-        userService.createUser("admin", {
-        name: "X",
-        email: "x@test.com",
-        password: "123",
-        role: "super_admin",
-        })
-    ).rejects.toThrow("Admin cannot assign super_admin role");
-   });
-
-
-  /* ---------------- ADMIN Authorization ---------------- */
-
-   it("should throw on missing required fields", async () => {
-    await expect(
-        userService.createUser("admin", {
+        userService.createUser("super_admin", {
         name: "",
         email: "",
         password: "",
         role: "admin",
+        status: "active"
         })
     ).rejects.toThrow("Missing required fields");
-    });
-
-
+  });
 
 });

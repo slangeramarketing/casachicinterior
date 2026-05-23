@@ -10,6 +10,9 @@ import { uploadImage } from "@/lib/uploadImage";
 import { ChipInputField } from "@/components/common/ChipInputField";
 import { ToggleSwitch } from "@/components/common/ToggleSwitch";
 import { CreateServiceDTO, UpdateServiceDTO } from "@/modules/services/service.dto";
+import AiServiceGeneratorModal from "./AiServiceGeneratorModal";
+import { GeneratedServiceData } from "@/modules/ai-content/ai.schema";
+import { motion } from "framer-motion";
 import VideoManager, { 
   GalleryManager, 
   HighlightsManager, 
@@ -83,6 +86,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState<any>(null);
+  const [isAiModalOpen, setIsAiModalOpen] = useState(false);
 
   const [form, setForm] = useState<ServiceFormState>({
     title: initialData?.title ?? "",
@@ -286,9 +290,27 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
     }
   }
 
-
-
-
+  const handleAiConfirm = (data: GeneratedServiceData) => {
+    setForm(prev => ({
+      ...prev,
+      title: data.title || prev.title,
+      slug: data.slug || prev.slug,
+      shortDescription: data.shortDescription || prev.shortDescription,
+      description: data.description || prev.description,
+      categoryId: data.categorySuggestion || prev.categoryId,
+      highlights: data.highlights && data.highlights.length > 0 ? data.highlights : prev.highlights,
+      faqs: data.faqs && data.faqs.length > 0 ? data.faqs : prev.faqs,
+      startingPrice: data.startingPrice !== null ? data.startingPrice : prev.startingPrice,
+      priceUnit: data.priceUnit || prev.priceUnit,
+      metaTitle: data.seo?.title || prev.metaTitle,
+      metaDescription: data.seo?.description || prev.metaDescription,
+      metaKeywords: data.seo?.keywords?.join(", ") || prev.metaKeywords,
+      ctaText: data.ctaText || prev.ctaText,
+      ctaLink: data.ctaLink || prev.ctaLink,
+    }));
+    setIsAiModalOpen(false);
+    setAlert({ type: "success", title: "AI Draft Applied", message: "Form has been populated with AI generated data. Please review the details." });
+  };
 
   return (
     <div className="flex flex-col gap-6 pt-4 pb-18  lg:px-8 bg-gray-50 min-h-screen">
@@ -317,7 +339,7 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
             <TextField label="Title*" value={form.title} onChange={e => setForm({...form, title: e.target.value})} />
             <TextField label="Slug" value={form.slug} disabled={mode === "update"} />
             <TextAreaField label="Short Description*" value={form.shortDescription} onChange={e => setForm({...form, shortDescription: e.target.value})} />
-            <TextAreaField label="Full Content (Rich Text placeholder)*" value={form.description} onChange={e => setForm({...form, description: e.target.value})} />
+            <TextAreaField label="Full Content (Rich Text placeholder)*" value={form.description} onChange={e => setForm({...form, description: e.target.value})} maxLength={5000} />
             <Nav next={() => setStep(2)} />
           </div>
         )}
@@ -589,6 +611,32 @@ export default function ServiceForm({ mode, categories, initialData }: any) {
         )}
 
       </div>
+
+      {/* AI Floating Action Button */}
+      {mode === "create" && (
+        <motion.button
+          type="button"
+          drag
+          dragMomentum={false}
+          onClick={() => setIsAiModalOpen(true)}
+          style={{ position: "fixed", zIndex: 50, bottom: 24, right: 24, touchAction: "none" }}
+          whileDrag={{ scale: 1.1, cursor: "grabbing" }}
+          whileHover={{ scale: 1.05 }}
+          className="w-14 h-14 bg-orange-600 hover:bg-orange-700 text-white shadow-[0_8px_30px_rgb(0,0,0,0.3)] hover:shadow-orange-400/50 rounded-full flex items-center justify-center cursor-grab active:cursor-grabbing border-2 border-white/20"
+          title="Generate with AI (Drag to move)"
+        >
+          <span className="text-2xl pointer-events-none leading-none mt-0.5">✨</span> 
+        </motion.button>
+      )}
+
+      {/* AI Generator Modal */}
+      <AiServiceGeneratorModal 
+        isOpen={isAiModalOpen}
+        onClose={() => setIsAiModalOpen(false)}
+        onConfirm={handleAiConfirm}
+        categories={categories || []}
+      />
+
     </div>
   );
 }
