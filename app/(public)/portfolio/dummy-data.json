@@ -1,0 +1,101 @@
+[
+  {
+    "slug": "kitchen-interior",
+    "title": "Nordic Style Kitchen",
+    "category": "Modular Kitchen",
+    "location": "Delhi NCR",
+    "heroImage": "/assets/ktichen-interior.png",
+    "overview": "A majestic modern kitchen showcasing clean geometric lines, high-performance appliances, and luxury finishes. The space is optimized for both culinary excellence and social gathering, featuring a seamless blend of natural oak and engineered stone.",
+    "features": [
+      "Integrated Smart Appliances",
+      "Calacatta Gold Marble Countertops",
+      "Warm Oak Fluted Cabinetry",
+      "Ambient Cove Lighting System"
+    ],
+    "gallery": [
+      "/assets/ktichen-interior.png",
+      "/assets/interior-assets/Master-Bedroom-1.png",
+      "/assets/interior-assets/office.png"
+    ],
+    "process": [
+      {
+        "title": "Concept & Layout",
+        "desc": "Spatial planning, 3D visualization, and material mood boards."
+      },
+      {
+        "title": "Execution",
+        "desc": "Custom cabinetry construction, plumbing, and electrical routing."
+      },
+      {
+        "title": "Finishing",
+        "desc": "Appliance installation, final polishing, and quality inspection."
+      }
+    ]
+  },
+  {
+    "slug": "master-bedroom",
+    "title": "Royal Master Bedroom",
+    "category": "Luxury Living",
+    "location": "Gurgaon",
+    "heroImage": "/assets/interior-assets/Master-Bedroom-3.png",
+    "overview": "A palatial bedroom design with plush velvet headboards, custom brass accents, and ambient cove lighting. Designed to be a serene sanctuary away from the city noise, focusing on acoustic dampening and soft material palettes.",
+    "features": [
+      "Bespoke Velvet Headboard",
+      "Brushed Brass Accents",
+      "Acoustic Wall Paneling",
+      "Automated Blackout Blinds"
+    ],
+    "gallery": [
+      "/assets/interior-assets/Master-Bedroom-3.png",
+      "/assets/interior-assets/3d-bedroom.png",
+      "/assets/interior-assets/living-room-3d-render.png"
+    ],
+    "process": [
+      {
+        "title": "Spatial Design",
+        "desc": "Optimizing floor space for a walk-in wardrobe and seating area."
+      },
+      {
+        "title": "Material Sourcing",
+        "desc": "Procuring premium fabrics, veneers, and brass fittings."
+      },
+      {
+        "title": "Installation",
+        "desc": "On-site assembly, lighting integration, and final styling."
+      }
+    ]
+  },
+  {
+    "slug": "premium-bathroom",
+    "title": "Aura Premium Bathroom",
+    "category": "Bespoke Fittings",
+    "location": "South Delhi",
+    "heroImage": "/assets/interior-assets/premium-bathroom-after.png",
+    "overview": "Spa-like luxury bathroom featuring a freestanding bathtub, fluted wall panels, and brushed gold fixtures. The design emphasizes tranquility and hygiene through the use of large-format antimicrobial tiles and seamless glass.",
+    "features": [
+      "Freestanding Resin Bathtub",
+      "Brushed Gold Fixtures",
+      "Fluted Stone Wall Panels",
+      "Underfloor Heating"
+    ],
+    "gallery": [
+      "/assets/interior-assets/premium-bathroom-after.png",
+      "/assets/interior-assets/bathroom-1.png",
+      "/assets/interior-assets/office.png"
+    ],
+    "process": [
+      {
+        "title": "Plumbing & Waterproofing",
+        "desc": "Comprehensive structural waterproofing and hidden plumbing."
+      },
+      {
+        "title": "Tiling",
+        "desc": "Precision cutting and installation of large-format slabs."
+      },
+      {
+        "title": "Fixtures",
+        "desc": "Mounting of high-end sanitaryware and ambient lighting."
+      }
+    ]
+  }
+]
