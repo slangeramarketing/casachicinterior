@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import Link from "next/link";
 import styles from "./portfolio.module.css";
+import CinematicTeam from "./CinematicTeam";
 
 /* ─── math helpers ─────────────────────────────────────────── */
 
@@ -19,13 +21,13 @@ const lerp = (a: number, b: number, alpha: number) =>
 /* ─── services data ──────────────────────────────────────────── */
 
 const SERVICES = [
-  { num: "01", title: "Kitchen",     sub: "Interior",   img: "/assets/ktichen-interior.png" },
-  { num: "02", title: "Modular",     sub: "Interior",   img: "/assets/interior-assets/Master-Bedroom-1.png" },
-  { num: "03", title: "Office",      sub: "Interior",   img: "/assets/interior-assets/office.png" },
-  { num: "04", title: "Home",        sub: "Renovation", img: "/assets/interior-assets/living-roo-after.png" },
-  { num: "05", title: "Bedroom",     sub: "Interior",   img: "/assets/interior-assets/master-bedroom-after.png" },
-  { num: "06", title: "Living Room", sub: "Interior",   img: "/assets/interior-assets/living-room-1.png" },
-  { num: "07", title: "Bathroom",    sub: "Interior",   img: "/assets/interior-assets/bathroom-1.png" },
+  { num: "01", title: "Kitchen",     sub: "Interior",   img: "/assets/ktichen-interior.png", slug: "kitchen-interior" },
+  { num: "02", title: "Modular",     sub: "Interior",   img: "/assets/interior-assets/Master-Bedroom-1.png", slug: "kitchen-interior" },
+  { num: "03", title: "Office",      sub: "Interior",   img: "/assets/interior-assets/office.png", slug: "master-bedroom" },
+  { num: "04", title: "Home",        sub: "Renovation", img: "/assets/interior-assets/living-roo-after.png", slug: "premium-bathroom" },
+  { num: "05", title: "Bedroom",     sub: "Interior",   img: "/assets/interior-assets/master-bedroom-after.png", slug: "master-bedroom" },
+  { num: "06", title: "Living Room", sub: "Interior",   img: "/assets/interior-assets/living-room-1.png", slug: "master-bedroom" },
+  { num: "07", title: "Bathroom",    sub: "Interior",   img: "/assets/interior-assets/bathroom-1.png", slug: "premium-bathroom" },
 ];
 
 const PROJECTS = [
@@ -86,7 +88,7 @@ export default function PortfolioCinematic() {
     let raf = 0;
     let displayP = 0;
     let targetP  = 0;
-    const LERP_ALPHA = 0.055;
+    const LERP_ALPHA = 0.08;
 
     const render = () => {
       if (
@@ -100,35 +102,36 @@ export default function PortfolioCinematic() {
       const p  = displayP;
 
       /* beats — mapped to user timeline for perfect orchestration */
-      const heroHide = ease(clamp(p / 0.12, 0, 1));
-      const zoom     = smoothstep(clamp((p - 0.20) / 0.25, 0, 1));
-      const open     = ease(clamp((p - 0.45) / 0.17, 0, 1));
-      const enter    = smoothstep(clamp((p - 0.62) / 0.06, 0, 1));
+      const heroHide = ease(clamp(p / 0.10, 0, 1));
+      const zoom     = smoothstep(clamp((p - 0.10) / 0.30, 0, 1));
+      const open     = ease(clamp((p - 0.35) / 0.15, 0, 1));
+      const crossfade= smoothstep(clamp((p - 0.48) / 0.07, 0, 1));
+      const enter    = smoothstep(clamp((p - 0.48) / 0.12, 0, 1));
 
-      const entranceIn  = smoothstep(clamp((p - 0.52) / 0.06, 0, 1));
-      const entranceOut = smoothstep(clamp((p - 0.60) / 0.05, 0, 1));
+      const entranceIn  = smoothstep(clamp((p - 0.52) / 0.04, 0, 1));
+      const entranceOut = smoothstep(clamp((p - 0.61) / 0.03, 0, 1));
       const entranceT   = clamp(entranceIn - entranceOut, 0, 1);
 
-      const livingSlide   = smoothstep(clamp((p - 0.68) / 0.05, 0, 1));
-      const kitchenSlide  = smoothstep(clamp((p - 0.73) / 0.04, 0, 1));
+      const livingSlide   = smoothstep(clamp((p - 0.63) / 0.07, 0, 1));
+      const kitchenSlide  = smoothstep(clamp((p - 0.73) / 0.07, 0, 1));
 
-      const livingTextIn  = smoothstep(clamp((p - 0.69) / 0.02, 0, 1));
-      const livingTextOut = smoothstep(clamp((p - 0.72) / 0.02, 0, 1));
+      const livingTextIn  = smoothstep(clamp((p - 0.64) / 0.03, 0, 1));
+      const livingTextOut = smoothstep(clamp((p - 0.71) / 0.03, 0, 1));
       const livingTextT   = clamp(livingTextIn - livingTextOut, 0, 1);
 
-      const kitchenTextIn  = smoothstep(clamp((p - 0.74) / 0.02, 0, 1));
-      const kitchenTextOut = smoothstep(clamp((p - 0.77) / 0.02, 0, 1));
+      const kitchenTextIn  = smoothstep(clamp((p - 0.74) / 0.03, 0, 1));
+      const kitchenTextOut = smoothstep(clamp((p - 0.81) / 0.03, 0, 1));
       const kitchenTextT   = clamp(kitchenTextIn - kitchenTextOut, 0, 1);
 
-      const bedroomSlide = smoothstep(clamp((p - 0.78) / 0.04, 0, 1));
-      const bedroomText  = smoothstep(clamp((p - 0.80) / 0.02, 0, 1));
+      const bedroomSlide = smoothstep(clamp((p - 0.83) / 0.07, 0, 1));
+      const bedroomText  = smoothstep(clamp((p - 0.85) / 0.03, 0, 1));
 
       /* HERO */
       heroRef.current.style.opacity   = `${1 - heroHide}`;
       heroRef.current.style.transform = `translateY(${heroHide * -40}px) scale(${1 + heroHide * 0.05})`;
 
       /* FRONT */
-      const frontVisible = open < 0.80;
+      const frontVisible = open < 0.99;
       frontRef.current.style.opacity    = frontVisible ? `${1 - open}` : "0";
       frontRef.current.style.visibility = frontVisible ? "visible" : "hidden";
       const cam = 1 + zoom * 2.4;
@@ -137,35 +140,34 @@ export default function PortfolioCinematic() {
       frontRef.current.style.transformOrigin = "50% 72%";
 
       /* DOOR */
-      const doorVisible = open > 0.48 && enter < 0.10;
-      doorRef.current.style.visibility = doorVisible ? "visible" : "hidden";
-      doorRef.current.style.opacity    = doorVisible ? "1" : "0";
-      const frozenZoom = 1 + zoom * 5.8;
+      const doorOpacity = (open > 0.01 ? 1 : 0) * (1 - crossfade);
+      doorRef.current.style.visibility = doorOpacity > 0 ? "visible" : "hidden";
+      doorRef.current.style.opacity    = `${doorOpacity}`;
+      const frozenZoom = 1 + zoom * 5.8 + open * 1.8;
       doorRef.current.style.transform       = `scale(${frozenZoom}) translateY(${-zoom * 22}px)`;
       doorRef.current.style.transformOrigin = "50% 72%";
       doorRef.current.style.filter          = `blur(${(1 - open) * 0.5}px)`;
 
       /* SPLASH */
       if (splashRef.current) {
-        const inSplash = open > 0.42 && open < 0.58;
-        const t = clamp((open - 0.42) / 0.16, 0, 1);
-        splashRef.current.style.opacity   = inSplash ? `${smoothstep(1 - t)}` : "0";
-        splashRef.current.style.transform = `scale(${1 + t * 0.4})`;
+        const splashOpacity = open * (1 - crossfade);
+        splashRef.current.style.opacity   = `${splashOpacity}`;
+        splashRef.current.style.transform = `scale(${1 + crossfade * 0.4})`;
       }
 
       /* INTERIOR — slides left */
-      const interiorVisible = open > 0.65;
-      interiorRef.current.style.opacity    = interiorVisible ? `${enter * 0.82 + 0.18}` : "0";
+      const interiorVisible = crossfade > 0.01;
+      interiorRef.current.style.opacity    = interiorVisible ? `${crossfade}` : "0";
       interiorRef.current.style.visibility = interiorVisible ? "visible" : "hidden";
       const iZoom = 1 + Math.min(enter, 1) * 0.14;
       interiorRef.current.style.transform = `translateX(${-livingSlide * 100}%) scale(${iZoom}) translateY(${-Math.min(enter, 1) * 8}px)`;
-      interiorRef.current.style.filter    = `blur(${(1 - enter) * 1.8}px)`;
+      interiorRef.current.style.filter    = `blur(${(1 - crossfade) * 1.8}px)`;
       interiorRef.current.style.transformOrigin = "50% 50%";
 
       /* ENTRANCE TEXT */
       if (entranceTextRef.current) {
         entranceTextRef.current.style.opacity    = `${entranceT}`;
-        entranceTextRef.current.style.transform  = `translateX(${-livingSlide * 100}%) translateY(${(1 - entranceIn) * 36}px)`;
+        entranceTextRef.current.style.transform  = `translateX(${-livingSlide * 100}%) translateY(${(1 - entranceIn) * 50}px) scale(${1 + (1 - entranceIn) * 0.1})`;
         entranceTextRef.current.style.visibility = entranceT > 0.01 ? "visible" : "hidden";
       }
 
@@ -219,14 +221,12 @@ export default function PortfolioCinematic() {
 
       /* AMBIENT GLOW */
       if (ambRef.current) {
-        const gs = open > 0.3
-          ? smoothstep(clamp((open - 0.3) / 0.4, 0, 1)) * (1 - enter * 0.6)
-          : 0;
+        const gs = crossfade > 0 ? smoothstep(crossfade) : 0;
         ambRef.current.style.opacity = `${0.6 + gs * 0.4}`;
       }
 
       /* SECTION TRANSITION: next section late trigger */
-      const sectionReveal = ease(clamp((p - 0.92) / 0.08, 0, 1));
+      const sectionReveal = ease(clamp((p - 0.93) / 0.07, 0, 1));
       if (servRef.current) {
         servRef.current.style.opacity = `${sectionReveal}`;
         servRef.current.style.transform = `translateY(${80 - (sectionReveal * 80)}px)`;
@@ -271,7 +271,7 @@ export default function PortfolioCinematic() {
     let targP     = 0;
     let dispRot   = 0;
     let targRot   = 0;
-    const ALPHA   = 0.055;
+    const ALPHA   = 0.10;
     const RZ      = 160;
 
     const getRX = () => Math.min(wrap.offsetWidth * 0.44, 380);
@@ -392,14 +392,6 @@ export default function PortfolioCinematic() {
       if (running) {
         cancelAnimationFrame(raf);
         raf = requestAnimationFrame(draw);
-      } else {
-        const rect  = section.getBoundingClientRect();
-        const total = section.offsetHeight - window.innerHeight;
-        if (total > 0) {
-          targP = clamp(-rect.top / total, 0, 1);
-          dispP = targP;
-          draw();
-        }
       }
     };
 
@@ -409,16 +401,6 @@ export default function PortfolioCinematic() {
         raf = requestAnimationFrame(draw);
       } else {
         cancelAnimationFrame(raf);
-        // Force clean alignment to prevent any stale state off-screen
-        const rect = section.getBoundingClientRect();
-        if (rect.top > 0) {
-          targP = 0;
-          dispP = 0;
-        } else {
-          targP = 1;
-          dispP = 1;
-        }
-        draw();
       }
     }, { threshold: 0 });
 
@@ -448,7 +430,7 @@ export default function PortfolioCinematic() {
     let raf = 0;
     let dispP = 0;
     let targetP = 0;
-    const ALPHA = 0.08;
+    const ALPHA = 0.10;
 
     let mouseX = 0;
     let mouseY = 0;
@@ -543,9 +525,9 @@ export default function PortfolioCinematic() {
 
         // Scale boost when centered
         let scaleBoost = 1.0;
-        if (Math.abs(relZ + 300) < 300) {
-          const t = 1 - Math.abs(relZ + 300) / 300;
-          scaleBoost = 1.0 + t * 0.12;
+        if (Math.abs(relZ + 300) < 400) {
+          const t = 1 - Math.abs(relZ + 300) / 400;
+          scaleBoost = 1.0 + t * 0.22;
         }
 
         const rotY = i === 1 ? 15 : i === 3 ? -15 : i === 5 ? 12 : 0;
@@ -561,9 +543,9 @@ export default function PortfolioCinematic() {
         if (!pos) return;
         const relZ = camZ + pos.z;
 
-        const rawT = clamp(1 - Math.abs(relZ + 300) / 320, 0, 1);
+        const rawT = clamp(1 - Math.abs(relZ + 300) / 500, 0, 1);
         const textOp = smoothstep(rawT);
-        const textY = (1 - textOp) * 20;
+        const textY = (1 - textOp) * 40;
 
         textBlock.style.opacity = `${textOp}`;
         textBlock.style.transform = `translateY(${textY}px)`;
@@ -641,12 +623,12 @@ export default function PortfolioCinematic() {
           <div ref={ambRef}    className={styles.amb} />
           <div ref={splashRef} className={styles.splash} />
 
-          <img ref={frontRef}    src="/assets/front-view.png"            className={styles.sceneImg} alt="" />
-          <img ref={doorRef}     src="/assets/open-door-view.png"        className={styles.sceneImg} alt="" />
-          <img ref={interiorRef} src="/assets/enterance-area.png"        className={styles.sceneImg} alt="" />
-          <img ref={livingRef}   src="/assets/leaving-room-interior.png" className={styles.sceneImg} alt="" />
-          <img ref={kitchenRef}  src="/assets/ktichen-interior.png"      className={styles.sceneImg} alt="" />
-          <img ref={bedroomRef}  src="/assets/bed-room.png"              className={styles.sceneImg} alt="" />
+          <img ref={frontRef}    src="/assets/front-view.png"            className={styles.sceneImg} alt="" style={{ willChange: 'transform, opacity, filter' }} fetchPriority="high" decoding="sync" />
+          <img ref={doorRef}     src="/assets/open-door-view.png"        className={styles.sceneImg} alt="" style={{ willChange: 'transform, opacity, filter' }} fetchPriority="high" decoding="sync" />
+          <img ref={interiorRef} src="/assets/enterance-area.png"        className={styles.sceneImg} alt="" style={{ willChange: 'transform, opacity, filter' }} decoding="async" />
+          <img ref={livingRef}   src="/assets/leaving-room-interior.png" className={styles.sceneImg} alt="" style={{ willChange: 'transform, opacity, filter' }} decoding="async" />
+          <img ref={kitchenRef}  src="/assets/ktichen-interior.png"      className={styles.sceneImg} alt="" style={{ willChange: 'transform, opacity, filter' }} decoding="async" />
+          <img ref={bedroomRef}  src="/assets/bed-room.png"              className={styles.sceneImg} alt="" style={{ willChange: 'transform, opacity, filter' }} decoding="async" />
 
           {/* labels */}
           <div ref={entranceTextRef} className={styles.centerLabel}>
@@ -698,8 +680,8 @@ export default function PortfolioCinematic() {
         <div className={styles.servStage}>
 
           {/* background images */}
-          <img ref={servBgRef} src="/assets/drawingroom.png" className={styles.servBg} alt="" />
-          <img ref={outroBgRef} src="/assets/front-view.png" className={styles.outroBg} alt="" />
+          <img ref={servBgRef} src="/assets/drawingroom.png" className={styles.servBg} alt="" style={{ willChange: 'transform, opacity, filter' }} decoding="async" />
+          <img ref={outroBgRef} src="/assets/front-view.png" className={styles.outroBg} alt="" style={{ willChange: 'transform, opacity, filter' }} decoding="async" />
 
           <div className={styles.servDim} />
           <div className={styles.vignette} />
@@ -729,19 +711,22 @@ export default function PortfolioCinematic() {
                 onMouseEnter={() => { hovIdxRef.current = i; }}
                 onMouseLeave={() => { hovIdxRef.current = -1; }}
               >
-                {/* image */}
-                <div className={styles.cardImgWrap}>
-                  <img src={s.img} className={styles.cardImg} alt={s.title} />
-                  <div className={styles.cardImgOverlay} />
-                </div>
+                {/* Make card clickable */}
+                <Link href={`/portfolio/${s.slug}`} className="absolute inset-0 z-10 w-full h-full flex flex-col justify-end" style={{ textDecoration: 'none' }}>
+                  {/* image */}
+                  <div className={styles.cardImgWrap}>
+                    <img src={s.img} className={styles.cardImg} alt={s.title} />
+                    <div className={styles.cardImgOverlay} />
+                  </div>
 
-                {/* text body */}
-                <div className={styles.cardBody}>
-                  <span className={styles.cardNum}>{s.num}</span>
-                  <h3 className={styles.cardTitle}>{s.title}</h3>
-                  <p  className={styles.cardSub}>{s.sub}</p>
-                  <div className={styles.cardArrow}>→</div>
-                </div>
+                  {/* text body */}
+                  <div className={styles.cardBody}>
+                    <span className={styles.cardNum}>{s.num}</span>
+                    <h3 className={styles.cardTitle}>{s.title}</h3>
+                    <p  className={styles.cardSub}>{s.sub}</p>
+                    <div className={styles.cardArrow}>→</div>
+                  </div>
+                </Link>
               </div>
             ))}
           </div>
@@ -783,7 +768,7 @@ export default function PortfolioCinematic() {
           <div className={styles.lbBot} />
 
           {/* 3D Room Environment */}
-          <div ref={projRoomRef} className={styles.room3d}>
+          <div ref={projRoomRef} className={styles.room3d} style={{ willChange: 'transform' }}>
             {PROJECTS.map((proj, i) => (
               <div
                 key={i}
@@ -828,6 +813,9 @@ export default function PortfolioCinematic() {
           </div>
         </div>
       </section>
+
+      {/* ── CINEMATIC TEAM SECTION ──────────────────────────── */}
+      <CinematicTeam />
 
     </>
   );
