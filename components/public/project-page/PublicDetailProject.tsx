@@ -88,7 +88,7 @@ export default function PublicDetailProject({project}:ProjectsProps) {
                 </h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {project.materials.map((item, i) => {
-                        const Icon = (Fi as any)[item.icon];
+                        const Icon = item.icon ? (Fi as any)[item.icon] : Fi.FiCheckCircle;
                         return (
                         <div key={i} className="flex items-center gap-4 group">
                             <div className="p-3 bg-white rounded-xl shadow-sm group-hover:bg-orange-500 group-hover:text-white transition-all">

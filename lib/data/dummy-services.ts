@@ -4,7 +4,7 @@ export type DummyService = {
   title: string;
   shortDescription: string;
   heroImage: string;
-  rawMaterials: { name: string; brand: string }[];
+  rawMaterials: { name: string; brand: string; domain?: string }[];
   about: { text: string; image: string };
   gallery: string[];
   videos: string[];
@@ -128,7 +128,7 @@ export const dummyServices: DummyService[] = [
       { title: "Quick Installation", description: "Installing the modular units in just a few days." }
     ],
     faqs: [
-      { question: "Are the kitchens water-proof?", point: "Yes, we use BWP (Boiling Water Proof) plywood for all base cabinets." },
+      { question: "Are the kitchens water-proof?", answer: "Yes, we use BWP (Boiling Water Proof) plywood for all base cabinets." },
       { question: "What is the warranty?", answer: "We provide a 10-year warranty on modular woodwork and lifetime warranty on Blum hardware." }
     ]
   },
