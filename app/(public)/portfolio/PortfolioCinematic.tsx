@@ -4,6 +4,10 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import styles from "./portfolio.module.css";
 import CinematicTeam from "./CinematicTeam";
+import PortfolioDesignProcess from "@/components/public/portfolio/PortfolioDesignProcess";
+import ContactSection from "@/components/public/landing-page/ContactSection";
+import ReviewSection from "@/components/public/landing-page/ReviewSection";
+import { ReviewResponseDTO } from "@/modules/review/review.dto";
 
 /* ─── math helpers ─────────────────────────────────────────── */
 
@@ -21,28 +25,30 @@ const lerp = (a: number, b: number, alpha: number) =>
 /* ─── services data ──────────────────────────────────────────── */
 
 const SERVICES = [
-  { num: "01", title: "Kitchen",     sub: "Interior",   img: "/assets/ktichen-interior.png", slug: "kitchen-interior" },
-  { num: "02", title: "Modular",     sub: "Interior",   img: "/assets/interior-assets/Master-Bedroom-1.png", slug: "kitchen-interior" },
-  { num: "03", title: "Office",      sub: "Interior",   img: "/assets/interior-assets/office.png", slug: "master-bedroom" },
-  { num: "04", title: "Home",        sub: "Renovation", img: "/assets/interior-assets/living-roo-after.png", slug: "premium-bathroom" },
-  { num: "05", title: "Bedroom",     sub: "Interior",   img: "/assets/interior-assets/master-bedroom-after.png", slug: "master-bedroom" },
-  { num: "06", title: "Living Room", sub: "Interior",   img: "/assets/interior-assets/living-room-1.png", slug: "master-bedroom" },
-  { num: "07", title: "Bathroom",    sub: "Interior",   img: "/assets/interior-assets/bathroom-1.png", slug: "premium-bathroom" },
+  { num: "01", title: "Home",        sub: "Renovation", img: "/assets/interior-assets/living-roo-after.png", slug: "home-renovation" },
+  { num: "02", title: "Office",      sub: "Interior",   img: "/assets/interior-assets/office.png", slug: "office-interior" },
+  { num: "03", title: "Kitchen",     sub: "Interior",   img: "/assets/ktichen-interior.png", slug: "kitchen-interior" },
+  { num: "04", title: "Bedroom",     sub: "Interior",   img: "/assets/interior-assets/master-bedroom-after.png", slug: "bedroom-interior" },
+  { num: "05", title: "Living Room", sub: "Interior",   img: "/assets/interior-assets/living-room-1.png", slug: "living-room-interior" },
 ];
 
 const PROJECTS = [
-  { num: "01", title: "Grand Villa Facade", sub: "Premium Architecture", img: "/assets/front-view.png", desc: "A majestic modern villa showcasing clean geometric lines, double-height glazing, and luxury finishes." },
-  { num: "02", title: "Modern Living Room", sub: "Warm Aesthetics", img: "/assets/interior-assets/living-room-3d-render.png", desc: "Cozy yet spacious living area designed with organic textures, ambient lighting, and bespoke seating." },
-  { num: "03", title: "Nordic Style Kitchen", sub: "Minimalist Function", img: "/assets/ktichen-interior.png", desc: "High-performance modular kitchen featuring integrated appliances, marble countertops, and warm oak details." },
-  { num: "04", title: "Royal Master Bedroom", sub: "Luxury Living", img: "/assets/interior-assets/Master-Bedroom-3.png", desc: "A palatial bedroom design with plush velvet headboard, custom brass accents, and ambient cove lighting." },
-  { num: "05", title: "Aura Premium Bathroom", sub: "Bespoke Fittings", img: "/assets/interior-assets/premium-bathroom-after.png", desc: "Spa-like luxury bathroom featuring freestanding bathtub, fluted wall panels, and brushed gold fixtures." },
-  { num: "06", title: "Corporate Office Lounge", sub: "Ergonomic & Modern", img: "/assets/interior-assets/office.png", desc: "A functional yet inspiring corporate workspace with acoustical baffling, rich wood tones, and breakout pods." },
-  { num: "07", title: "Minimalist Zen Bedroom", sub: "Tranquil Space", img: "/assets/interior-assets/3d-bedroom.png", desc: "A serene Japanese-inspired bedroom prioritizing natural materials, low-profile bed, and soft diffused light." },
+  { num: "01", title: "Grand Villa Facade", sub: "Premium Architecture", img: "/assets/front-view.png", slug: "minimalist-villa-interior-noida" },
+  { num: "02", title: "Modern Living Room", sub: "Warm Aesthetics", img: "/assets/interior-assets/living-room-3d-render.png", slug: "modern-3bhk-apartment-patna" },
+  { num: "03", title: "Nordic Style Kitchen", sub: "Minimalist Function", img: "/assets/ktichen-interior.png", slug: "modern-3bhk-apartment-patna" },
+  { num: "04", title: "Royal Master Bedroom", sub: "Luxury Living", img: "/assets/interior-assets/Master-Bedroom-3.png", slug: "modern-3bhk-apartment-patna" },
+  { num: "05", title: "Aura Premium Bathroom", sub: "Bespoke Fittings", img: "/assets/interior-assets/premium-bathroom-after.png", slug: "modern-3bhk-apartment-patna" },
+  { num: "06", title: "Corporate Office Lounge", sub: "Ergonomic & Modern", img: "/assets/interior-assets/office.png", slug: "luxury-office-interior-delhi" },
+  { num: "07", title: "Minimalist Zen Bedroom", sub: "Tranquil Space", img: "/assets/interior-assets/3d-bedroom.png", slug: "boutique-cafe-interior-gurgaon" },
 ];
 
 /* ─── component ─────────────────────────────────────────────── */
 
-export default function PortfolioCinematic() {
+interface Props {
+  reviews?: ReviewResponseDTO[];
+}
+
+export default function PortfolioCinematic({ reviews = [] }: Props) {
 
   /* ── cinematic scene refs ────────────────────────────────── */
   const scRef       = useRef<HTMLDivElement>(null);
@@ -420,57 +426,20 @@ export default function PortfolioCinematic() {
   }, []);
 
   /* ══════════════════════════════════════════════════════════
-     3D SHOWCASE SCROLL & INTERACTION EFFECT
+     HORIZONTAL SHOWCASE SCROLL & PARALLAX
   ══════════════════════════════════════════════════════════ */
   useEffect(() => {
     const section = projSectionRef.current;
-    const room3d  = projRoomRef.current;
-    if (!section || !room3d) return;
+    const track = projRoomRef.current; // reusing this ref as track
+    if (!section || !track) return;
 
     let raf = 0;
     let dispP = 0;
     let targetP = 0;
-    const ALPHA = 0.10;
+    const ALPHA = 0.08;
 
     let mouseX = 0;
     let mouseY = 0;
-    let dispTiltX = 0;
-    let dispTiltY = 0;
-
-    const CARD_POSITIONS = [
-      { x: 0,    y: 0,    z: -300 },
-      { x: -350, y: -60,  z: -1100 },
-      { x: 200,  y: 40,   z: -1900 },
-      { x: 350,  y: -40,  z: -2700 },
-      { x: -160, y: -40,  z: -3500 },
-      { x: -300, y: 60,   z: -4300 },
-      { x: 0,    y: 0,    z: -5100 },
-    ];
-
-    const getCameraPath = (z: number) => {
-      const keys = [
-        { z: 0,    x: 0,    y: 0 },
-        { z: 800,  x: -60,  y: 0 },
-        { z: 1600, x: 200,  y: 40 },
-        { z: 2400, x: 80,   y: 0 },
-        { z: 3200, x: -160, y: -40 },
-        { z: 4000, x: -60,  y: 0 },
-        { z: 4800, x: 0,    y: 0 }
-      ];
-      for (let i = 0; i < keys.length - 1; i++) {
-        const k1 = keys[i];
-        const k2 = keys[i+1];
-        if (z >= k1.z && z <= k2.z) {
-          const t = (z - k1.z) / (k2.z - k1.z);
-          const alpha = ease(t);
-          return {
-            x: lerp(k1.x, k2.x, alpha),
-            y: lerp(k1.y, k2.y, alpha)
-          };
-        }
-      }
-      return { x: 0, y: 0 };
-    };
 
     const render = () => {
       const rect = section.getBoundingClientRect();
@@ -482,98 +451,77 @@ export default function PortfolioCinematic() {
       }
 
       dispP = lerp(dispP, targetP, ALPHA);
-      const MAX_DEPTH = 4800;
-      const camZ = dispP * MAX_DEPTH;
-      const camPos = getCameraPath(camZ);
+      
+      // Calculate max translation to scroll to the end of the track
+      // Center the first card at 0%, center the last card at 100%
+      const trackWidth = track.scrollWidth;
+      const vw = window.innerWidth;
+      
+      // Maximum distance we need to shift the track left so the last card is centered
+      const maxTx = trackWidth - vw; 
+      
+      const tx = -(dispP * maxTx);
+      track.style.transform = `translate3d(${tx}px, 0, 0)`;
 
-      // Room translation & tilt
-      const tx = -camPos.x;
-      const ty = -camPos.y;
-      const tz = camZ;
-
-      const targetTiltX = -mouseY * 8;
-      const targetTiltY = mouseX * 8;
-      dispTiltX = lerp(dispTiltX, targetTiltX, 0.08);
-      dispTiltY = lerp(dispTiltY, targetTiltY, 0.08);
-
-      room3d.style.transform = `translate3d(${tx}px, ${ty}px, ${tz}px) rotateX(${dispTiltX}deg) rotateY(${dispTiltY}deg)`;
-
-      // Cards layout & scale boost & opacity fade
-      const isMobile = window.innerWidth < 768;
-      const scaleX = isMobile ? 0.35 : 1.0;
-      const scaleY = isMobile ? 0.6 : 1.0;
-
+      // Loop over cards to calculate individual parallax and active states
       projCardRefs.current.forEach((card, i) => {
         if (!card) return;
-        const pos = CARD_POSITIONS[i];
-        if (!pos) return;
-        const relZ = camZ + pos.z;
-
-        // Opacity
-        let op = 0;
-        if (relZ < -1500) {
-          op = 0;
-        } else if (relZ >= -1500 && relZ < -900) {
-          op = (relZ + 1500) / 600;
-        } else if (relZ >= -900 && relZ < -100) {
-          op = 1;
-        } else if (relZ >= -100 && relZ < 200) {
-          op = 1 - (relZ + 100) / 300;
-        } else {
-          op = 0;
-        }
-
+        
+        const cardRect = card.getBoundingClientRect();
+        // Distance from center of screen
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const screenCenter = vw / 2;
+        
+        // Normalized distance (-1 to 1) roughly
+        const distNorm = (cardCenter - screenCenter) / (vw / 2);
+        
         // Scale boost when centered
-        let scaleBoost = 1.0;
-        if (Math.abs(relZ + 300) < 400) {
-          const t = 1 - Math.abs(relZ + 300) / 400;
-          scaleBoost = 1.0 + t * 0.22;
+        const absDist = Math.abs(distNorm);
+        
+        // Side cards shrink to 0.8, centered card grows to 1.25
+        const scale = 0.8 + Math.max(0, 1 - absDist) * 0.45;
+        
+        // Slightly dim side cards to make center pop more
+        const cardOpacity = 0.6 + Math.max(0, 1 - absDist) * 0.4;
+        
+        card.style.opacity = `${cardOpacity}`;
+        card.style.filter = "none";
+        
+        // Inner image parallax (moves opposite to card relative to center)
+        const imgWrap = card.querySelector(`.${styles.projCardImgWrap}`);
+        const img = imgWrap?.querySelector('img');
+        if (img) {
+          const parallaxTx = distNorm * 40; // max 40px shift
+          img.style.transform = `translate3d(${parallaxTx}px, 0, 0) scale(1.15)`;
         }
+        
+        // Subtle mouse tilt for all cards, but stronger for the centered one
+        const tiltIntensity = Math.max(0, 1 - absDist) * 12;
+        const tiltX = -mouseY * tiltIntensity;
+        const tiltY = mouseX * tiltIntensity;
 
-        const rotY = i === 1 ? 15 : i === 3 ? -15 : i === 5 ? 12 : 0;
-        card.style.opacity = `${op}`;
-        card.style.visibility = op > 0.01 ? "visible" : "hidden";
-        card.style.transform = `translate3d(${pos.x * scaleX}px, ${pos.y * scaleY}px, ${pos.z}px) rotateY(${rotY}deg) scale(${scaleBoost})`;
+        card.style.transform = `scale(${scale}) rotateX(${tiltX}deg) rotateY(${tiltY}deg)`;
       });
 
-      // Text fade in/out
+      // Handle synchronized Text block visibility
       projTextRefs.current.forEach((textBlock, i) => {
         if (!textBlock) return;
-        const pos = CARD_POSITIONS[i];
-        if (!pos) return;
-        const relZ = camZ + pos.z;
-
-        const rawT = clamp(1 - Math.abs(relZ + 300) / 500, 0, 1);
-        const textOp = smoothstep(rawT);
-        const textY = (1 - textOp) * 40;
+        const card = projCardRefs.current[i];
+        if (!card) return;
+        
+        const cardRect = card.getBoundingClientRect();
+        const cardCenter = cardRect.left + cardRect.width / 2;
+        const screenCenter = vw / 2;
+        const absDist = Math.abs(cardCenter - screenCenter);
+        
+        // Fade text in only for the card currently closest to center
+        const op = clamp(1 - (absDist / 300), 0, 1);
+        const textOp = smoothstep(op);
+        const ty = (1 - textOp) * 20;
 
         textBlock.style.opacity = `${textOp}`;
-        textBlock.style.transform = `translateY(${textY}px)`;
+        textBlock.style.transform = `translateY(${ty}px)`;
         textBlock.style.visibility = textOp > 0.01 ? "visible" : "hidden";
-
-        // Mirror text details to the right on desktop if the card is left-aligned
-        if (!isMobile && (i === 1 || i === 5)) {
-          textBlock.style.left = "auto";
-          textBlock.style.right = "8vw";
-          textBlock.style.textAlign = "right";
-          const line = textBlock.querySelector(`.${styles.projDetailLine}`) as HTMLDivElement;
-          if (line) {
-            line.style.marginLeft = "auto";
-            line.style.marginRight = "0";
-            line.style.background = "linear-gradient(270deg, #f97316 0%, transparent 100%)";
-          }
-        } else if (!isMobile) {
-          // Reset to default left alignment
-          textBlock.style.left = "0";
-          textBlock.style.right = "auto";
-          textBlock.style.textAlign = "left";
-          const line = textBlock.querySelector(`.${styles.projDetailLine}`) as HTMLDivElement;
-          if (line) {
-            line.style.marginLeft = "0";
-            line.style.marginRight = "auto";
-            line.style.background = "linear-gradient(90deg, #f97316 0%, transparent 100%)";
-          }
-        }
       });
 
       if (Math.abs(targetP - dispP) > 0.0001) {
@@ -757,65 +705,70 @@ export default function PortfolioCinematic() {
         </div>
       </section>
 
-      {/* ── 3D ROOM PROJECT SHOWCASE ────────────────────────── */}
+      {/* ── HORIZONTAL SHOWCASE SCROLL ───────────────────────────── */}
       <section ref={projSectionRef} className={styles.proj}>
         <div className={styles.projStage}>
-          {/* background overlay/grids inside room */}
-          <div className={styles.backGlow} />
-          <div className={styles.vignette} />
-          <div className={styles.gridOverlay} />
-          <div className={styles.lbTop} />
-          <div className={styles.lbBot} />
-
-          {/* 3D Room Environment */}
-          <div ref={projRoomRef} className={styles.room3d} style={{ willChange: 'transform' }}>
+          <div ref={projRoomRef} className={styles.projTrack}>
+            {/* PROJECTS */}
             {PROJECTS.map((proj, i) => (
               <div
                 key={i}
-                ref={el => { projCardRefs.current[i] = el; }}
+                ref={(el) => { projCardRefs.current[i] = el; }}
                 className={styles.projCard}
               >
-                {/* hanging wire */}
-                <div className={styles.projCardWire} />
+                <Link href={`/portfolio/${proj.slug}`} className="block w-full h-full relative" style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {/* image */}
+                  <div className={styles.projCardImgWrap}>
+                    <img src={proj.img} className={styles.projCardImg} alt={proj.title} />
+                    <div className={styles.projCardImgOverlay} />
+                  </div>
 
-                {/* image */}
-                <div className={styles.projCardImgWrap}>
-                  <img src={proj.img} className={styles.projCardImg} alt={proj.title} />
-                  <div className={styles.projCardImgOverlay} />
-                </div>
-
-                {/* body */}
-                <div className={styles.projCardBody}>
-                  <span className={styles.projCardNum}>{proj.num}</span>
-                  <h3 className={styles.projCardTitle}>{proj.title}</h3>
-                  <p className={styles.projCardSub}>{proj.sub}</p>
-                </div>
+                  {/* body */}
+                  <div className={styles.projCardBody}>
+                    <span className={styles.projCardNum}>{proj.num}</span>
+                    <h3 className={styles.projCardTitle}>{proj.title}</h3>
+                    <p className={styles.projCardSub}>{proj.sub}</p>
+                  </div>
+                </Link>
               </div>
             ))}
           </div>
 
-          {/* Synchronized text details for all 7 projects */}
-          <div className={styles.projDetailsWrap}>
-            {PROJECTS.map((proj, i) => (
-              <div
-                key={i}
-                ref={el => { projTextRefs.current[i] = el; }}
-                className={styles.projDetailBlock}
-              >
-                <div className={styles.projDetailCategory}>
-                  {i === 1 || i === 3 || i === 5 ? "GALLERY COLLECTION" : "FEATURED PROJECT"}
-                </div>
-                <h2 className={styles.projDetailTitle}>{proj.title}</h2>
-                <p className={styles.projDetailDesc}>{proj.desc}</p>
-                <div className={styles.projDetailLine} />
-              </div>
-            ))}
-          </div>
+          {/* Text details removed to prevent overlap */}
         </div>
       </section>
 
+      {/* ── VIEW ALL PROJECTS CTA ─────────────────────────────── */}
+      <section className="bg-[#050505] py-32 md:py-48 border-y border-white/5 relative overflow-hidden flex flex-col items-center justify-center text-center px-4 mt-8 md:mt-16">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(249,115,22,0.05)_0%,transparent_70%)] pointer-events-none" />
+        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 tracking-tight relative z-10" style={{ fontFamily: "'Hanken Grotesk', sans-serif" }}>
+          Looking for a specific <span className="text-orange-500">Design?</span>
+        </h2>
+        <p className="text-gray-400 mb-10 max-w-xl mx-auto text-base md:text-lg relative z-10">
+          Skip the cinematic tour and jump straight into our complete portfolio. Filter by Residential, Commercial, Kitchen, Bedroom, and Renovation projects.
+        </p>
+        <Link 
+          href="/portfolio/grid" 
+          className="relative z-10 group inline-flex items-center gap-3 bg-orange-500 hover:bg-orange-400 text-black px-8 py-4 rounded-full font-bold tracking-[0.15em] uppercase transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(249,115,22,0.2)] hover:shadow-[0_0_40px_rgba(249,115,22,0.4)]"
+        >
+          View All Projects
+          <svg className="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </Link>
+      </section>
+
+      {/* ── PROCESS SECTION ─────────────────────────────────── */}
+      <PortfolioDesignProcess theme="dark" />
+
       {/* ── CINEMATIC TEAM SECTION ──────────────────────────── */}
       <CinematicTeam />
+
+      {/* ── REVIEW SECTION ──────────────────────────────────── */}
+      <ReviewSection reviews={reviews} theme="dark" />
+
+      {/* ── CALL TO ACTION SECTION ──────────────────────────── */}
+      <ContactSection theme="dark" />
 
     </>
   );

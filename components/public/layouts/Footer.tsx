@@ -12,6 +12,7 @@ import {
   FiFacebook,
   FiInstagram,
 } from "react-icons/fi";
+import { FaWhatsapp, FaPinterestP } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
 
@@ -23,9 +24,7 @@ interface HeaderProps {
 export default function Footer({ mainServiceCategoryList, topServiceSubCatList }: HeaderProps) {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/portfolio")) {
-    return null;
-  }
+  // Footer is now enabled globally across (public) routes including /portfolio
 
   return (
     <footer className="bg-linear-to-b from-[#0B1220] to-[#070C16] text-gray-300">
@@ -52,6 +51,9 @@ export default function Footer({ mainServiceCategoryList, topServiceSubCatList }
               </Link>
               <Link href="https://www.instagram.com/casa.chic_interior?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" aria-label="Instagram">
                 <FiInstagram className="hover:text-orange-400 transition" />
+              </Link>
+              <Link href="https://www.pinterest.com/" aria-label="Pinterest" target="_blank">
+                <FaPinterestP className="hover:text-orange-400 transition" />
               </Link>
             </div>
           </div>
@@ -95,9 +97,15 @@ export default function Footer({ mainServiceCategoryList, topServiceSubCatList }
             </h3>
             <ul className="space-y-4 text-sm">
               <Link href={`tel:+918740990990`} aria-label="Call Casa Chic Interior" className="flex items-center gap-3">
-                <li className="flex items-center gap-3">
+                <li className="flex items-center gap-3 hover:text-white transition">
                   <FiPhone className="text-orange-400" />
                   +91 87409 90990
+                </li>
+              </Link>
+              <Link href={`https://wa.me/918740990990`} aria-label="WhatsApp Casa Chic Interior" target="_blank" className="flex items-center gap-3 mt-4">
+                <li className="flex items-center gap-3 hover:text-white transition">
+                  <FaWhatsapp className="text-orange-400" />
+                  +91 87409 90990 (WhatsApp)
                 </li>
               </Link>
               <li className="flex items-center gap-3">
