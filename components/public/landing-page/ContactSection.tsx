@@ -7,7 +7,12 @@ import { useState } from "react";
 import { submitContactAction } from "@/app/(public)/actions/public.message.action";
 import Alert, { AlertType } from "@/components/common/Alert";
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  theme?: "light" | "dark";
+}
+
+export default function ContactSection({ theme = "light" }: ContactSectionProps) {
+  const isDark = theme === "dark";
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -116,7 +121,7 @@ export default function ContactSection() {
 
 
   return (
-    <section className="w-full py-34 bg-[#F2F2F2] overflow-hidden" id="contact">
+    <section className={`w-full py-34 ${isDark ? 'bg-[#050505]' : 'bg-[#F2F2F2]'} overflow-hidden relative z-50`} id="contact">
       <div className="max-w-6xl mx-auto md:px-6 px-2">
 
         {/* HEADER - Slide Up Animation */}
@@ -129,10 +134,10 @@ export default function ContactSection() {
           <span className="text-[#F97316] font-bold tracking-widest text-xs uppercase bg-[#F97316]/10 px-4 py-1.5 rounded-full">
             Connect With Us
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-[#090F1A] mt-4">
+          <h2 className={`text-3xl md:text-5xl font-bold ${isDark ? 'text-white' : 'text-[#090F1A]'} mt-4`}>
             Let’s Design Your <span className="text-[#F97316]">Dream Space</span>
           </h2>
-          <p className="mt-4 text-gray-500 max-w-xl mx-auto">
+          <p className={`mt-4 max-w-xl mx-auto ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             Ready to transform your home? Fill out the form below and we'll get back to you within 24 hours.
           </p>
         </motion.div>
@@ -146,12 +151,12 @@ export default function ContactSection() {
             viewport={{ once: true }}
             className="space-y-6"
           >
-            <ContactInfo icon={<FiMail />} title="Email Us" value="contact@casachicinterior.com" href="mailto:contact@casachicinterior.com" />
-            <ContactInfo icon={<FiPhone />} title="Call Us" value="+91 87409 90990" href="tel:+918740990990" />
-            <ContactInfo icon={<FiMapPin />} title="Visit Us" value="Delhi NCR, Noida Sector 62" />
+            <ContactInfo isDark={isDark} icon={<FiMail />} title="Email Us" value="contact@casachicinterior.com" href="mailto:contact@casachicinterior.com" />
+            <ContactInfo isDark={isDark} icon={<FiPhone />} title="Call Us" value="+91 87409 90990" href="tel:+918740990990" />
+            <ContactInfo isDark={isDark} icon={<FiMapPin />} title="Visit Us" value="Delhi NCR, Noida Sector 62" />
 
             {/* Design Element */}
-            <div className="hidden lg:block p-8 bg-[#0c1f43] rounded mt-10 relative overflow-hidden text-white">
+            <div className={`hidden lg:block p-8 ${isDark ? 'bg-zinc-900 border border-zinc-800' : 'bg-[#0c1f43]'} rounded mt-10 relative overflow-hidden text-white`}>
               <p className="text-xl font-medium relative z-10">"Design is not just what it looks like, it's how it works."</p>
               <div className="absolute -bottom-10 -right-10 w-32 h-32 bg-[#F97316] rounded-full blur-3xl opacity-30" />
             </div>
@@ -162,7 +167,7 @@ export default function ContactSection() {
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="lg:col-span-2 bg-white rounded shadow-2xl shadow-black/5 p-8 md:p-12 relative"
+            className={`lg:col-span-2 ${isDark ? 'bg-[#0a0a0a] border border-white/5 shadow-2xl shadow-black' : 'bg-white shadow-2xl shadow-black/5'} rounded p-8 md:p-12 relative`}
           >
             {/* Status Messages with AnimatePresence */}
             <AnimatePresence mode="wait">
@@ -193,19 +198,19 @@ export default function ContactSection() {
               )}
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <label htmlFor="name" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Full Name</label>
+                  <label htmlFor="name" className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? 'text-gray-300' : 'text-[#090F1A]'}`}>Full Name</label>
                   <input id="name" type="text" name="name" value={form.name} onChange={updateField} placeholder="John Doe"
-                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
+                    className={`w-full ${isDark ? 'bg-zinc-900 text-white placeholder-zinc-500' : 'bg-[#F2F2F2] text-black'} border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none`} required />
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor="email" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Email Address</label>
+                  <label htmlFor="email" className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? 'text-gray-300' : 'text-[#090F1A]'}`}>Email Address</label>
                   <input id="email" type="email" name="email" value={form.email} onChange={updateField} placeholder="john@example.com"
-                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" />
+                    className={`w-full ${isDark ? 'bg-zinc-900 text-white placeholder-zinc-500' : 'bg-[#F2F2F2] text-black'} border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none`} />
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <label htmlFor="phone" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Phone Number</label>
+                  <label htmlFor="phone" className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? 'text-gray-300' : 'text-[#090F1A]'}`}>Phone Number</label>
                   <input
                     id="phone"
                     type="tel"
@@ -218,32 +223,32 @@ export default function ContactSection() {
                       }
                     }}
                     placeholder="10 digit mobile number"
-                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none"
+                    className={`w-full ${isDark ? 'bg-zinc-900 text-white placeholder-zinc-500' : 'bg-[#F2F2F2] text-black'} border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none`}
                     required
                   />
 
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <label htmlFor="city" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Location</label>
+                  <label htmlFor="city" className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? 'text-gray-300' : 'text-[#090F1A]'}`}>Location</label>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <select id="city" name="city" value={form.city} onChange={updateField}
-                      className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none appearance-none" required >
+                      className={`w-full ${isDark ? 'bg-zinc-900 text-white' : 'bg-[#F2F2F2] text-black'} border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none appearance-none`} required >
                       <option value="" disabled>Select City</option>
                       {cities.map((cityName) => (<option key={cityName} value={cityName}>{cityName}</option>))}
                     </select>
                     {form.city === "Other" && (
                       <motion.input initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
                         id="customCity" type="text" name="customCity" value={form.customCity} onChange={updateField} placeholder="Enter city name"
-                        className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none" required />
+                        className={`w-full ${isDark ? 'bg-zinc-900 text-white placeholder-zinc-500' : 'bg-[#F2F2F2] text-black'} border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none`} required />
                     )}
                   </div>
                 </div>
 
                 <div className="space-y-2 md:col-span-2">
-                  <label htmlFor="message" className="text-xs font-bold text-[#090F1A] uppercase tracking-wider ml-1">Message</label>
+                  <label htmlFor="message" className={`text-xs font-bold uppercase tracking-wider ml-1 ${isDark ? 'text-gray-300' : 'text-[#090F1A]'}`}>Message</label>
                   <textarea id="message" name="message" value={form.message} onChange={updateField} placeholder="Tell us about your space..." rows={4}
-                    className="w-full bg-[#F2F2F2] border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none resize-none" required />
+                    className={`w-full ${isDark ? 'bg-zinc-900 text-white placeholder-zinc-500' : 'bg-[#F2F2F2] text-black'} border-none rounded-md px-5 py-3 text-sm focus:ring-2 focus:ring-[#F97316] transition-all outline-none resize-none`} required />
                 </div>
 
                 <button
@@ -264,15 +269,15 @@ export default function ContactSection() {
   );
 }
 
-function ContactInfo({ icon, title, value, href }: { icon: React.ReactNode; title: string; value: string; href?: string }) {
+function ContactInfo({ icon, title, value, href, isDark }: { icon: React.ReactNode; title: string; value: string; href?: string; isDark?: boolean }) {
   const Content = (
-    <div className="flex items-center gap-5 p-6 bg-white rounded-md border border-gray-100 hover:border-[#F97316]/30 transition-all group">
+    <div className={`flex items-center gap-5 p-6 ${isDark ? 'bg-[#0a0a0a] border-zinc-800 hover:border-[#F97316]/30' : 'bg-white border-gray-100 hover:border-[#F97316]/30'} rounded-md border transition-all group`}>
       <div className="w-12 h-12 rounded-md bg-[#F97316]/10 flex items-center justify-center text-[#F97316] text-xl group-hover:bg-[#F97316] group-hover:text-white transition-all">
         {icon}
       </div>
       <div>
         <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">{title}</p>
-        <p className="text-sm font-bold text-[#090F1A]">{value}</p>
+        <p className={`text-sm font-bold ${isDark ? 'text-white' : 'text-[#090F1A]'}`}>{value}</p>
       </div>
     </div>
   );

@@ -850,35 +850,27 @@
   overflow: hidden;
   display: flex;
   align-items: center;
-  justify-content: center;
   background: #050505;
-  perspective: 1200px;
-  perspective-origin: 50% 50%;
 }
 
-
-.room3d {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  transform-style: preserve-3d;
+.projTrack {
+  display: flex;
+  align-items: center;
+  gap: 12vw;
+  padding: 0 50vw;
   will-change: transform;
 }
 
-/* ── hanging card ── */
+/* ── Elevated card ── */
 .projCard {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 340px;
-  height: 460px;
-  margin-left: -170px;
-  margin-top: -230px;
+  position: relative;
+  width: 320px;
+  height: 440px;
+  flex-shrink: 0;
 
   display: flex;
   flex-direction: column;
-  overflow: visible; /* so wire doesn't clip */
+  overflow: hidden;
 
   background: rgba(10, 7, 4, 0.76);
   backdrop-filter: blur(24px) saturate(1.4);
@@ -893,9 +885,9 @@
     0 16px 40px rgba(0,0,0,.60),
     0 40px 90px rgba(0,0,0,.80);
 
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
+  will-change: transform;
   transition: box-shadow 0.35s ease, border-color 0.35s ease;
+  cursor: pointer;
 }
 
 .projCard:hover {
@@ -905,16 +897,7 @@
     0 20px 50px rgba(0,0,0,0.7);
 }
 
-/* hanging wire from ceiling */
-.projCardWire {
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  width: 1px;
-  height: 500px;
-  background: linear-gradient(to top, rgba(249, 115, 22, 0.45) 0%, transparent 100%);
-  pointer-events: none;
-}
+
 
 .projCardImgWrap {
   position: relative;
@@ -922,7 +905,6 @@
   height: 260px;
   flex-shrink: 0;
   overflow: hidden;
-  border-radius: 20px 20px 0 0;
 }
 
 .projCardImg {
@@ -930,11 +912,8 @@
   height: 100%;
   object-fit: cover;
   object-position: center;
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.projCard:hover .projCardImg {
-  transform: scale(1.06);
+  transform: scale(1.2);
+  will-change: transform;
 }
 
 .projCardImgOverlay {
@@ -982,34 +961,30 @@
   color: rgba(245, 240, 232, 0.42);
 }
 
-/* ── synchronized text block ── */
 .projDetailsWrap {
   position: absolute;
-  left: 8vw;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 38vw;
-  max-width: 500px;
-  height: 400px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 10;
   pointer-events: none;
+  background: linear-gradient(to top, rgba(5,5,5,1) 0%, rgba(5,5,5,0) 100%);
 }
 
 .projDetailBlock {
   position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
+  text-align: center;
   opacity: 0;
   visibility: hidden;
   will-change: opacity, transform;
-  /* subtle glow behind details text */
-  background: radial-gradient(
-    ellipse 100% 70% at 0% 50%,
-    rgba(5, 5, 5, 0.6) 0%,
-    transparent 80%
-  );
 }
 
 .projDetailCategory {
@@ -1018,36 +993,25 @@
   letter-spacing: 0.4em;
   color: #c97b2e;
   text-transform: uppercase;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
 }
 
 .projDetailTitle {
   font-family: "Hanken Grotesk", sans-serif;
-  font-size: clamp(32px, 4.5vw, 60px);
-  font-weight: 100;
-  line-height: 1.1;
+  font-size: clamp(24px, 3.5vw, 42px);
+  font-weight: 200;
   letter-spacing: 0.02em;
   color: #f5f0e8;
-  margin: 0 0 20px;
-  text-shadow:
-    0 0 60px rgba(249, 115, 22, 0.18),
-    0 4px 30px rgba(5, 5, 5, 0.95);
+  margin: 0 0 10px;
 }
 
 .projDetailDesc {
   font-family: Inter, sans-serif;
-  font-size: clamp(13px, 1.4vw, 16px);
-  line-height: 1.7;
-  letter-spacing: 0.05em;
+  font-size: clamp(12px, 1.2vw, 14px);
+  line-height: 1.6;
   color: rgba(245, 240, 232, 0.6);
-  margin: 0 0 32px;
-  text-shadow: 0 2px 20px rgba(5, 5, 5, 0.9);
-}
-
-.projDetailLine {
-  width: 90px;
-  height: 1px;
-  background: linear-gradient(90deg, #f97316 0%, transparent 100%);
+  margin: 0;
+  max-width: 600px;
 }
 
 /* ─── SHOWCASE RESPONSIVE ───────────────────────── */
@@ -1057,24 +1021,16 @@
   }
 
   .projCard {
-    width: 220px;
-    height: 310px;
-    margin-left: -110px;
-    margin-top: -200px;
-    border-radius: 14px;
-  }
-
-  .projCardWire {
-    height: 400px;
+    width: 280px;
+    height: 420px;
   }
 
   .projCardImgWrap {
-    height: 160px;
-    border-radius: 14px 14px 0 0;
+    height: 220px;
   }
 
   .projCardTitle {
-    font-size: 19px;
+    font-size: 20px;
   }
 
   .projCardBody {
@@ -1083,37 +1039,6 @@
   }
 
   .projDetailsWrap {
-    left: 6vw;
-    right: 6vw;
-    width: 88vw;
-    top: auto;
-    bottom: 5vh;
-    transform: none;
-    height: 160px;
-    text-align: center;
-  }
-
-  .projDetailBlock {
-    align-items: center;
-    background: radial-gradient(
-      ellipse 80% 80% at 50% 50%,
-      rgba(5, 5, 5, 0.8) 0%,
-      transparent 80%
-    );
-  }
-
-  .projDetailTitle {
-    font-size: 28px;
-    margin-bottom: 10px;
-  }
-
-  .projDetailDesc {
-    font-size: 12px;
-    line-height: 1.5;
-    margin-bottom: 12px;
-  }
-
-  .projDetailLine {
-    margin: 0 auto;
+    height: 140px;
   }
 }

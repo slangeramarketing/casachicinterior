@@ -10,6 +10,7 @@
 
 import type { Metadata } from "next";
 import PortfolioCinematic from "./PortfolioCinematic";
+import { reviewServer } from '@/modules/review/review.server';
 
 export const metadata: Metadata = {
   title: "Portfolio | CasaChic Interior Design — Delhi NCR",
@@ -24,10 +25,12 @@ export const metadata: Metadata = {
   ],
 };
 
-export default function PortfolioPage() {
+export default async function PortfolioPage() {
+  const reviewData = await reviewServer.getPublicFeaturedReviews();
+
   return (
     <main className="relative bg-[#050505] min-h-screen">
-      <PortfolioCinematic />
+      <PortfolioCinematic reviews={reviewData} />
     </main>
   );
 }
