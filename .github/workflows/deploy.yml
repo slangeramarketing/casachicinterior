@@ -20,11 +20,19 @@ jobs:
           key: ${{ secrets.STAGING_SSH_KEY }}
           port: 22
           script: |
-            # Check if directory exists, if not, this might fail, so we assume it exists as per user's prompt
+            # Create directory if it doesn't exist
+            mkdir -p ~/casachicinterior-staging
+            
+            # Initialize or verify git repository
+            if [ ! -d ~/casachicinterior-staging/.git ]; then
+              cd ~
+              git clone https://github.com/slangeramarketing/casachicinterior.git casachicinterior-staging
+            fi
+            
+            # Navigate and deploy
             cd ~/casachicinterior-staging
             git fetch origin staging
             git reset --hard origin/staging
             npm install
             npm run build
-            # Restart or start the process
             pm2 restart casachic-staging || pm2 start npm --name "casachic-staging" -- start
