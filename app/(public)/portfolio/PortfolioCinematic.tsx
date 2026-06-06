@@ -94,7 +94,7 @@ export default function PortfolioCinematic({ reviews = [] }: Props) {
     let raf = 0;
     let displayP = 0;
     let targetP  = 0;
-    const LERP_ALPHA = 0.08;
+    const LERP_ALPHA = 0.15; // Increased to make the zoom and scroll animation much faster and snappier
 
     const render = () => {
       if (
@@ -414,6 +414,61 @@ export default function PortfolioCinematic({ reviews = [] }: Props) {
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
 
+    /* ── drag to scroll logic ─────────────────────────────── */
+    let isDragging = false;
+    let hasDragged = false;
+    let startX = 0;
+
+    const onDragStart = (x: number) => {
+      isDragging = true;
+      hasDragged = false;
+      startX = x;
+      section.style.cursor = "grabbing";
+    };
+
+    const onDragMove = (x: number) => {
+      if (!isDragging) return;
+      const deltaX = x - startX;
+      if (Math.abs(deltaX) > 5) {
+        hasDragged = true;
+      }
+      window.scrollBy({ top: -deltaX * 1.5, behavior: "instant" });
+      startX = x;
+    };
+
+    const onDragEnd = () => {
+      isDragging = false;
+      section.style.cursor = "grab";
+      // Small delay before allowing clicks again so mouseup doesn't trigger click immediately
+      setTimeout(() => { hasDragged = false; }, 50);
+    };
+
+    const handleTouchStart = (e: TouchEvent) => onDragStart(e.touches[0].clientX);
+    const handleTouchMove = (e: TouchEvent) => onDragMove(e.touches[0].clientX);
+    const handleMouseDown = (e: MouseEvent) => onDragStart(e.clientX);
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        onDragMove(e.clientX);
+        e.preventDefault();
+      }
+    };
+    const handleClick = (e: MouseEvent) => {
+      if (hasDragged) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    };
+
+    section.style.cursor = "grab";
+    section.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+    window.addEventListener("touchend", onDragEnd);
+    
+    section.addEventListener("mousedown", handleMouseDown);
+    window.addEventListener("mousemove", handleMouseMove, { passive: false });
+    window.addEventListener("mouseup", onDragEnd);
+    section.addEventListener("click", handleClick, true);
+
     onScroll();
 
     return () => {
@@ -422,6 +477,14 @@ export default function PortfolioCinematic({ reviews = [] }: Props) {
       io.disconnect();
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
+
+      section.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("touchend", onDragEnd);
+      section.removeEventListener("mousedown", handleMouseDown);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", onDragEnd);
+      section.removeEventListener("click", handleClick, true);
     };
   }, []);
 
@@ -551,6 +614,66 @@ export default function PortfolioCinematic({ reviews = [] }: Props) {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("mousemove", onMouseMove);
+    };
+  }, []);
+
+  /* ══════════════════════════════════════════════════════════
+     AUTO SCROLL ON LOAD
+  ══════════════════════════════════════════════════════════ */
+  useEffect(() => {
+    let animationFrameId = 0;
+    let isUserScrolling = false;
+
+    const handleUserInteraction = () => {
+      isUserScrolling = true;
+    };
+
+    window.addEventListener("wheel", handleUserInteraction, { passive: true });
+    window.addEventListener("touchstart", handleUserInteraction, { passive: true });
+    window.addEventListener("keydown", handleUserInteraction, { passive: true });
+    window.addEventListener("mousedown", handleUserInteraction, { passive: true });
+
+    const timer = setTimeout(() => {
+      if (!servRef.current) return;
+      
+      const targetY = servRef.current.offsetTop;
+      let currentY = window.scrollY;
+
+      const autoScroll = () => {
+        if (isUserScrolling || !scRef.current) return;
+
+        const maxScroll = scRef.current.offsetHeight - window.innerHeight;
+        const currentP = currentY / maxScroll;
+
+        // Fast speed until "Entrance Interior" appears, then normal cinematic speed
+        if (currentP < 0.50) {
+          currentY += 32; // Fast zoom speed
+        } else {
+          currentY += 12; // Normal walkthrough speed
+        }
+
+        if (currentY >= targetY) {
+          window.scrollTo(0, targetY);
+          return;
+        }
+
+        window.scrollTo(0, currentY);
+        animationFrameId = requestAnimationFrame(autoScroll);
+      };
+
+      // Only start if we are at the top
+      if (window.scrollY < 10) {
+        animationFrameId = requestAnimationFrame(autoScroll);
+      }
+    }, 1500); // 1.5 seconds delay
+
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("wheel", handleUserInteraction);
+      window.removeEventListener("touchstart", handleUserInteraction);
+      window.removeEventListener("keydown", handleUserInteraction);
+      window.removeEventListener("mousedown", handleUserInteraction);
     };
   }, []);
 

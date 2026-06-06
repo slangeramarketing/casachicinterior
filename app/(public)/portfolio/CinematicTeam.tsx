@@ -14,9 +14,9 @@ interface TeamMember {
 
 const TEAM: TeamMember[] = [
   { name: "Nishant Poonia", role: "CEO & Founder", image: "/assets/Nishant-Poonia.jpeg", category: "founder" },
-  { name: "Ashutosh Goyal", role: "COO & Co-founder", image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&q=80", category: "founder" },
+  { name: "Ashutosh Goyal", role: "COO & Co-founder", image: "/assets/Ashutosh.jpeg", category: "founder" },
   { name: "Farooq Saifi", role: "Production Head", image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=400&q=80", category: "leadership" },
-  { name: "Shivam Jaiswal", role: "VP & Sales Director", image: "/assets/Abhinay-Yadav.png", category: "leadership" },
+  { name: "Shivam Jaiswal", role: "VP & Sales Director", image: "/assets/Shivam.jpeg", category: "leadership" },
   { name: "Kanhaiya Nayak", role: "CMO", image: "/assets/kanhainya.png", category: "leadership" },
   { name: "Hanu Arya", role: "Marketing Manager", image: "/assets/hanu.png", category: "ops" },
   { name: "Abhinay Yadav", role: "CTO", image: "/assets/Abhinay-Yadav.png", category: "ops" },
