@@ -34,6 +34,18 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       {
+        // Serve one hostname only: www -> bare domain (308)
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.casachicinterior.com",
+          },
+        ],
+        destination: "https://casachicinterior.com/:path*",
+        permanent: true,
+      },
+      {
         source: "/:path*",
         has: [
           {

@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
+import { seoServer } from "@/modules/seo/seo.server";
+import { buildPageMetadata } from "@/lib/seo/buildPageMetadata";
+import { getSiteUrl } from "@/lib/seo/siteUrl";
 
-export const metadata: Metadata = {
-  title: "Privacy Policy | CasaChic Interior",
-  description:
-    "Learn how CasaChic Interior collects, uses, and protects your personal information.",
-};
+const ROUTE = "/privacy-policy";
 
-export default function PrivacyPolicyPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteUrl, seo] = await Promise.all([getSiteUrl(), seoServer.getPublishedForRoute(ROUTE)]);
+
+  return buildPageMetadata({
+    route: ROUTE,
+    siteUrl,
+    seo,
+    defaults: {
+      title: "Privacy Policy | CasaChic Interior",
+      description:
+        "Learn how CasaChic Interior collects, uses, and protects your personal information.",
+    },
+  });
+}
+
+export default async function PrivacyPolicyPage() {
+  const seo = await seoServer.getPublishedForRoute(ROUTE);
+
   return (
     <main className="max-w-5xl mx-auto px-6 py-32 text-gray-800">
       <h1 className="text-3xl md:text-4xl font-bold mb-8">
-        Privacy Policy
+        {seo?.heading || "Privacy Policy"}
       </h1>
 
       <p className="text-sm text-gray-500 mb-10">

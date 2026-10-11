@@ -13,7 +13,10 @@ import ContactSection from "../landing-page/ContactSection";
 import VideoShowcase from "./VideoShowcase";
 import { OptimizedImage } from "@/components/common/OptimizedImage";
 
+import Breadcrumbs, { BreadcrumbLink } from "@/components/public/seo/Breadcrumbs";
+
 interface PublicServiceDetailProps {
+  breadcrumbs?: BreadcrumbLink[];
   service: ServiceResponseDTO;
 }
 
@@ -47,7 +50,7 @@ const staggerContainer: Variants = {
 };
 
 
-export default function PublicServiceDetail({ service }: PublicServiceDetailProps) {
+export default function PublicServiceDetail({ service, breadcrumbs }: PublicServiceDetailProps) {
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
@@ -83,6 +86,9 @@ export default function PublicServiceDetail({ service }: PublicServiceDetailProp
         </motion.div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center text-white">
+          {breadcrumbs && breadcrumbs.length > 0 && (
+            <Breadcrumbs items={breadcrumbs} tone="light" align="center" className="mb-4" />
+          )}
           <motion.span 
             initial={{ opacity: 0 }} 
             animate={{ opacity: 1 }}

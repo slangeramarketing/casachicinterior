@@ -7,7 +7,15 @@ import { useState } from "react";
 import { submitContactAction } from "@/app/(public)/actions/public.message.action";
 import Alert, { AlertType } from "@/components/common/Alert";
 
-export default function ContactSection() {
+interface ContactSectionProps {
+  /** "h1" on the /contact page (its primary heading), "h2" when embedded on the home page. */
+  headingAs?: "h1" | "h2";
+  /** Optional heading override managed from the dashboard (Page SEO). */
+  heading?: string;
+}
+
+export default function ContactSection({ headingAs = "h2", heading }: ContactSectionProps) {
+  const HeadingTag = headingAs;
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -129,9 +137,15 @@ export default function ContactSection() {
           <span className="text-[#F97316] font-bold tracking-widest text-xs uppercase bg-[#F97316]/10 px-4 py-1.5 rounded-full">
             Connect With Us
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-[#090F1A] mt-4">
-            Let’s Design Your <span className="text-[#F97316]">Dream Space</span>
-          </h2>
+          <HeadingTag className="text-3xl md:text-5xl font-bold text-[#090F1A] mt-4">
+            {heading ? (
+              heading
+            ) : (
+              <>
+                Let’s Design Your <span className="text-[#F97316]">Dream Space</span>
+              </>
+            )}
+          </HeadingTag>
           <p className="mt-4 text-gray-500 max-w-xl mx-auto">
             Ready to transform your home? Fill out the form below and we'll get back to you within 24 hours.
           </p>

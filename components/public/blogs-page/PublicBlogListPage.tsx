@@ -11,9 +11,11 @@ import Image from "next/image";
 interface Props {
   blogs: BlogResponseDTO[];
   categories: BlogCategoryResponseDTO[];
+  /** Optional H1 override managed from the dashboard (Page SEO). */
+  heading?: string;
 }
 
-export default function PublicBlogListPage({ blogs, categories }: Props) {
+export default function PublicBlogListPage({ blogs, categories, heading }: Props) {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
 
@@ -42,7 +44,7 @@ export default function PublicBlogListPage({ blogs, categories }: Props) {
     
     {/* Background Image */}
     <Image
-        src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?q=80&w=1920&auto=format&fit=crop
+        src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?q=75&w=1600&auto=format&fit=crop
     "
         alt="Interior Design Blog Background"
         fill
@@ -61,7 +63,13 @@ export default function PublicBlogListPage({ blogs, categories }: Props) {
     {/* Content */}
     <div className="relative z-10 w-full">
         <h1 className="text-5xl md:text-7xl font-black text-white tracking-tighter leading-tight">
-        THE <span className="text-orange-500">INTERIOR</span> BLOG
+        {heading ? (
+          heading
+        ) : (
+          <>
+            THE <span className="text-orange-500">INTERIOR</span> BLOG
+          </>
+        )}
         </h1>
 
         <p className="text-neutral-200 mt-6 max-w-lg text-lg md:text-xl font-medium leading-relaxed">

@@ -9,6 +9,8 @@ type OptimizedImageProps = {
   height?: number;
   fill?: boolean;
   sizes?: string;
+  /** Optional responsive candidates, e.g. "/a-768.webp 768w, /a.webp 1536w". */
+  srcSet?: string;
   priority?: boolean;
   fetchPriority?: "high" | "low" | "auto";
   className?: string;
@@ -21,6 +23,7 @@ export function OptimizedImage({
   height,
   fill = false,
   sizes,
+  srcSet,
   priority = false,
   fetchPriority,
   className,
@@ -35,6 +38,7 @@ export function OptimizedImage({
   return (
     <img
       src={resolvedSrc}
+      srcSet={srcSet}
       alt={alt || ""}
       loading={priority ? "eager" : "lazy"}
       fetchPriority={fetchPriority || (priority ? "high" : "auto")}

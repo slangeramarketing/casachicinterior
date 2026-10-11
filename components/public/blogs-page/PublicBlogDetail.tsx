@@ -12,12 +12,15 @@ import { useRouter } from "next/navigation";
 import { ShareButton } from "@/components/common/ShareButton";
 import { OptimizedImage } from "@/components/common/OptimizedImage";
 
+import Breadcrumbs, { BreadcrumbLink } from "@/components/public/seo/Breadcrumbs";
+
 interface Props {
+  breadcrumbs?: BreadcrumbLink[];
   blog: BlogResponseDTO;
   relatedBlogs?: BlogResponseDTO[];
 }
 
-export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
+export default function PublicBlogDetail({ blog, relatedBlogs = [], breadcrumbs }: Props) {
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter()
 
@@ -51,6 +54,9 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [] }: Props) {
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="max-w-4xl text-center text-white space-y-4">
+            {breadcrumbs && breadcrumbs.length > 0 && (
+              <Breadcrumbs items={breadcrumbs} tone="light" align="center" />
+            )}
             <span className="bg-orange-500 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">
               {blog.category?.name || "General"}
             </span>

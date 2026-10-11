@@ -10,7 +10,8 @@
     "seed:admin": "tsx scripts/seedSuperAdmin.ts",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "optimize:uploads": "tsx scripts/optimizeUploads.ts"
   },
   "dependencies": {
     "@google-analytics/data": "^5.2.1",
@@ -37,6 +38,7 @@
     "react-icons": "^5.5.0",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.6.0",
+    "sharp": "^0.34.5",
     "swiper": "^12.0.3",
     "xlsx": "^0.18.5"
   },

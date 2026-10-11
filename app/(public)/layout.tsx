@@ -1,41 +1,25 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "../globals.css";
 import ClientLayout from "./ClientLayout";
 import ContactIcons from "@/components/public/layouts/ContactIcons";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata: Metadata = {
-  title: "Casachicinterior",
-  description: "Interior Design and Decoration Services",
-};
-
+/**
+ * Public site layout. The <html>/<body> shell, fonts and analytics live
+ * in the root layout (app/layout.tsx); rendering them here as well
+ * produced nested <html> and <body> tags in the served HTML.
+ *
+ * Every public page is rendered on demand so dashboard changes
+ * (content and SEO) are live on the next request.
+ */
 export const dynamic = "force-dynamic";
 
-
-export default async function PublicLayout({
+export default function PublicLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ClientLayout>{children}</ClientLayout>
-        <ContactIcons />
-      </body>
-    </html>
+    <>
+      <ClientLayout>{children}</ClientLayout>
+      <ContactIcons />
+    </>
   );
 }

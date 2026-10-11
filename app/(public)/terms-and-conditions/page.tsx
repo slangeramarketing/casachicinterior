@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
+import { seoServer } from "@/modules/seo/seo.server";
+import { buildPageMetadata } from "@/lib/seo/buildPageMetadata";
+import { getSiteUrl } from "@/lib/seo/siteUrl";
 
-export const metadata: Metadata = {
-  title: "Terms & Conditions | CasaChic Interior",
-  description:
-    "Read the terms and conditions governing the use of CasaChic Interior services and website.",
-};
+const ROUTE = "/terms-and-conditions";
 
-export default function TermsAndConditionsPage() {
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteUrl, seo] = await Promise.all([getSiteUrl(), seoServer.getPublishedForRoute(ROUTE)]);
+
+  return buildPageMetadata({
+    route: ROUTE,
+    siteUrl,
+    seo,
+    defaults: {
+      title: "Terms & Conditions | CasaChic Interior",
+      description:
+        "Read the terms and conditions governing the use of CasaChic Interior services and website.",
+    },
+  });
+}
+
+export default async function TermsAndConditionsPage() {
+  const seo = await seoServer.getPublishedForRoute(ROUTE);
+
   return (
     <main className="max-w-5xl mx-auto px-6 py-32 text-gray-800">
       <h1 className="text-3xl md:text-4xl font-bold mb-8">
-        Terms & Conditions
+        {seo?.heading || "Terms & Conditions"}
       </h1>
 
       <p className="text-sm text-gray-500 mb-10">
