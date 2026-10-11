@@ -1,10 +1,24 @@
 "use client";
 
+import { preload } from "react-dom";
 import { OptimizedImage } from "@/components/common/OptimizedImage";
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+const HERO_IMAGE = "/assets/hero-wallpaper.webp";
+const HERO_IMAGE_SRCSET =
+  "/assets/hero-wallpaper-768.webp 768w, /assets/hero-wallpaper.webp 1536w";
+
 export default function HeroSection() {
+  // Preload the LCP image so the browser fetches it before CSS/JS finish
+  // (React hoists this into <head> during server rendering and dedupes it).
+  preload(HERO_IMAGE, {
+    as: "image",
+    imageSrcSet: HERO_IMAGE_SRCSET,
+    imageSizes: "100vw",
+    fetchPriority: "high",
+  });
+
   return (
     <section className="relative w-full min-h-[90vh] flex items-center overflow-hidden">
       
@@ -18,8 +32,11 @@ export default function HeroSection() {
           ease: [0.16, 1, 0.3, 1],
         }}
       >
+        {/* LCP image: WebP (63 KB) replaces the 1.9 MB PNG. */}
         <OptimizedImage
-          src="/assets/hero-wallpaper.png"
+          src={HERO_IMAGE}
+          srcSet={HERO_IMAGE_SRCSET}
+          sizes="100vw"
           alt="Luxury interior design"
           fill
           priority

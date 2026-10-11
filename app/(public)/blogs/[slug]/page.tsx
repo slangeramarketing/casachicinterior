@@ -6,7 +6,10 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { blogServer } from "@/modules/blogs/blog.server";
 import PublicBlogDetail from "@/components/public/blogs-page/PublicBlogDetail";
-import { getBaseUrl } from "@/lib/utils/getBaseUrl";
+import JsonLd from "@/components/public/seo/JsonLd";
+import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
+import { breadcrumbJsonLd, organizationId } from "@/lib/seo/jsonLd";
+import { siteConfig } from "@/lib/seo/siteConfig";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -19,7 +22,7 @@ export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
   const { slug } = await params;
-  const baseUrl = await getBaseUrl();
+  const siteUrl = await getSiteUrl();
 
   const blogRes = await blogServer.getBySlug(slug);
 
@@ -31,7 +34,7 @@ export async function generateMetadata(
   }
 
   const blog = blogRes.data;
-  const canonicalUrl = `${baseUrl}/blogs/${blog.slug}`;
+  const canonicalUrl = absoluteUrl(siteUrl, `/blogs/${blog.slug}`);
 
   return {
     title:
@@ -104,6 +107,7 @@ export default async function SingleBlogServerPage({ params }: Props) {
   }
 
   const blogData = blogRes.data;
+  const siteUrl = await getSiteUrl();
 
   // 2️⃣ Fetch related blogs (same category, exclude current)
   const relatedRes = await blogServer.getAll({
@@ -141,17 +145,24 @@ export default async function SingleBlogServerPage({ params }: Props) {
     },
     publisher: {
       "@type": "Organization",
-      name: "Casa Chic Interior",
+      "@id": organizationId(siteUrl),
+      name: siteConfig.name,
       logo: {
         "@type": "ImageObject",
-        url: `${await getBaseUrl()}/logo.png`,
+        url: absoluteUrl(siteUrl, siteConfig.logoPath),
       },
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `${await getBaseUrl()}/blogs/${blogData.slug}`,
+      "@id": absoluteUrl(siteUrl, `/blogs/${blogData.slug}`),
     },
   };
+
+  const breadcrumbs = [
+    { name: "Home", path: "/" },
+    { name: "Blogs", path: "/blogs" },
+    { name: blogData.title },
+  ];
 
   return (
     <div className="min-h-screen bg-white">
@@ -163,9 +174,12 @@ export default async function SingleBlogServerPage({ params }: Props) {
         }}
       />
 
+      <JsonLd data={breadcrumbJsonLd(siteUrl, breadcrumbs)} />
+
       <PublicBlogDetail
         blog={blogData}
         relatedBlogs={relatedBlogs}
+        breadcrumbs={breadcrumbs.map((b) => ({ name: b.name, href: b.path }))}
       />
     </div>
   );

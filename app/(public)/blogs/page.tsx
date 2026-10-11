@@ -12,45 +12,40 @@ import { blogCategoryServer } from "@/modules/blog-category/blog-category.server
 import { blogServer } from "@/modules/blogs/blog.server";
 import { BlogResponseDTO } from "@/modules/blogs/blog.dto";
 import { BlogCategoryResponseDTO } from "@/modules/blog-category/blog-category.dto";
-import { getBaseUrl } from "@/lib/utils/getBaseUrl";
+import { seoServer } from "@/modules/seo/seo.server";
+import { buildPageMetadata } from "@/lib/seo/buildPageMetadata";
+import { getSiteUrl } from "@/lib/seo/siteUrl";
+
+const ROUTE = "/blogs";
 
 /* -----------------------------------------------------------
-   SEO METADATA
+   SEO METADATA (dashboard-managed entry with fallbacks)
 ----------------------------------------------------------- */
 export async function generateMetadata(): Promise<Metadata> {
-  const baseUrl = await getBaseUrl();
-  const canonicalUrl = `${baseUrl}/blogs`;
+  const [siteUrl, seo] = await Promise.all([getSiteUrl(), seoServer.getPublishedForRoute(ROUTE)]);
 
-  return {
-    title: "Interior Design Blogs | Casa Chic Interior",
-    description:
-      "Explore expert interior design blogs, tips, trends, and renovation guides by Casa Chic Interior.",
-    alternates: {
-      canonical: canonicalUrl,
-    },
-    openGraph: {
+  return buildPageMetadata({
+    route: ROUTE,
+    siteUrl,
+    seo,
+    defaults: {
       title: "Interior Design Blogs | Casa Chic Interior",
       description:
-        "Latest interior design ideas, tips, trends, and home renovation insights.",
-      url: canonicalUrl,
-      siteName: "Casa Chic Interior",
-      type: "website",
+        "Explore expert interior design blogs, tips, trends, and renovation guides by Casa Chic Interior.",
+      keywords: ["interior design blog", "home decor tips", "modular kitchen ideas", "home renovation guide"],
     },
-    twitter: {
-      card: "summary_large_image",
-      title: "Interior Design Blogs | Casa Chic Interior",
-      description:
-        "Read expert blogs on interior design, modular kitchens, home renovation, and décor trends.",
-    },
-  };
+  });
 }
 
 /* -----------------------------------------------------------
    PAGE
 ----------------------------------------------------------- */
 export default async function BlogsServerPage() {
-  const result = await blogServer.getAll();
-  const blogCategoryList = await blogCategoryServer.getList();
+  const [result, blogCategoryList, seo] = await Promise.all([
+    blogServer.getAll(),
+    blogCategoryServer.getList(),
+    seoServer.getPublishedForRoute(ROUTE),
+  ]);
 
   // ✅ Blogs always array
   const blogs: BlogResponseDTO[] =
@@ -73,6 +68,7 @@ export default async function BlogsServerPage() {
       <PublicBlogListPage
         blogs={blogs}
         categories={categories}
+        heading={seo?.heading || undefined}
       />
     </main>
   );

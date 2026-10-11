@@ -5,10 +5,13 @@ import ProjectGallery from "@/components/public/ProjectGallery";
 import Link from "next/link";
 import { Project } from "@/lib/data/projects";
 
+import Breadcrumbs, { BreadcrumbLink } from "@/components/public/seo/Breadcrumbs";
+
 interface ProjectsProps{
+  breadcrumbs?: BreadcrumbLink[];
     project:Project
 }
-export default function PublicDetailProject({project}:ProjectsProps) {
+export default function PublicDetailProject({project, breadcrumbs}:ProjectsProps) {
 
   return (
     <div className="bg-[#fcfcfc] min-h-screen">
@@ -36,6 +39,9 @@ export default function PublicDetailProject({project}:ProjectsProps) {
           {/* RIGHT: PROJECT INTRO & QUICK STATS */}
           <div className="lg:w-2/5 space-y-10">
             <div className="space-y-4">
+              {breadcrumbs && breadcrumbs.length > 0 && (
+                <Breadcrumbs items={breadcrumbs} tone="dark" className="mb-2" />
+              )}
               <span className="inline-block bg-orange-100 text-orange-600 text-[10px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">
                 {project.category}
               </span>

@@ -8,7 +8,7 @@ import { Metadata } from "next";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 import { serviceServer } from "@/modules/services/service.server";
 import PublicServicesList from "@/components/public/service-page/PublicServiceList";
-import { getBaseUrl } from "@/lib/utils/getBaseUrl";
+import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -21,7 +21,7 @@ export async function generateMetadata(
   { params }: PageProps
 ): Promise<Metadata> {
   const { slug } = await params;
-  const baseUrl = await getBaseUrl();
+  const siteUrl = await getSiteUrl();
 
   const category = await serviceCategoryServer.getBySlug(slug);
 
@@ -35,7 +35,7 @@ export async function generateMetadata(
     };
   }
 
-  const canonicalUrl = `${baseUrl}/services/${category.slug}`;
+  const canonicalUrl = absoluteUrl(siteUrl, `/services/${category.slug}`);
 
   return {
     title: `${category.name} Services | Casa Chic Interior`,
@@ -73,7 +73,12 @@ export default async function ServiceCategoryPage(
 
   return (
     <main className="w-full">
-      <PublicServicesList services={services} />
+      {/* Unique H1 per category page instead of the generic listing heading */}
+      <PublicServicesList
+        services={services}
+        heading={category.name}
+        intro={category.description || undefined}
+      />
     </main>
   );
 }

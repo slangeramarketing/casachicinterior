@@ -3,8 +3,15 @@
  * Layer: Server Page
  ***************************************************/
 
+import { Metadata } from "next";
 import ReviewSubmitForm from "@/components/admin/clientComponent/review/ReviewSubmitForm";
 import { reviewServer } from "@/modules/review/review.server";
+
+// Private, token-based links: never indexed.
+export const metadata: Metadata = {
+  title: "Share Your Review | Casa Chic Interior",
+  robots: { index: false, follow: false },
+};
 
 export default async function ReviewSubmissionPage({
   params,

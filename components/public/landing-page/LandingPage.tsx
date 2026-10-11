@@ -20,10 +20,12 @@ import StatsSection from './StatsSection'
 
 interface Props{
     reviews:ReviewResponseDTO[];
+    /** Server-fetched on the home page so the content is in the initial HTML. */
+    featuredServices?: ServiceResponseDTO[];
 }
-export default function LandingPage({reviews}:Props) {
+export default function LandingPage({reviews, featuredServices}:Props) {
   
-  const [featuredServiceList, setFeaturedServiceList]=useState<ServiceResponseDTO[]>([]);
+  const [featuredServiceList, setFeaturedServiceList]=useState<ServiceResponseDTO[]>(featuredServices ?? []);
 
 
 
@@ -31,6 +33,9 @@ export default function LandingPage({reviews}:Props) {
      Fetched Featured Services
      ================================== */
   useEffect(()=>{
+    // Only fall back to a client fetch when the server did not provide the list.
+    if (featuredServices && featuredServices.length > 0) return;
+
     async function loadService(){
       try{
         const services=await getFeaturedServicesAction();
@@ -41,7 +46,7 @@ export default function LandingPage({reviews}:Props) {
     }
 
     loadService();
-  },[]);
+  },[featuredServices]);
   
   return (
     <div>

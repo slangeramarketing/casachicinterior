@@ -61,9 +61,9 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=80",
 
     galleryImages: [
-      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7",
-      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c",
+      "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1600&q=75",
     ],
 
     materials: [
@@ -108,9 +108,9 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1600&q=80",
 
     galleryImages: [
-      "https://images.unsplash.com/photo-1524758631624-e2822e304c36",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c",
-      "https://images.unsplash.com/photo-1600210492493-0946911123ea",
+      "https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1600&q=75",
     ],
 
     materials: [
@@ -156,9 +156,9 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1600210492493-0946911123ea?auto=format&fit=crop&w=1600&q=80",
 
     galleryImages: [
-      "https://images.unsplash.com/photo-1600121848594-d8644e57abab",
-      "https://images.unsplash.com/photo-1618220179428-22790b461013",
-      "https://images.unsplash.com/photo-1600607688969-a5bfcd646154",
+      "https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1618220179428-22790b461013?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1600607688969-a5bfcd646154?auto=format&fit=crop&w=1600&q=75",
     ],
 
     materials: [
@@ -201,8 +201,8 @@ export const projects: Project[] = [
       "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=1600&q=80",
 
     galleryImages: [
-      "https://images.unsplash.com/photo-1497366811353-6870744d04b2",
-      "https://images.unsplash.com/photo-1556761175-4b46a572b786",
+      "https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1600&q=75",
+      "https://images.unsplash.com/photo-1556761175-4b46a572b786?auto=format&fit=crop&w=1600&q=75",
     ],
 
     materials: [

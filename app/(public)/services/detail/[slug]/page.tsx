@@ -1,61 +1,58 @@
 /*******************************************************
- * Server Page: app/services/[slug]/page.tsx
+ * Server Page: app/(public)/services/detail/[slug]/page.tsx
+ * - Metadata comes from the service's own SEO fields (edited in the
+ *   dashboard under Service), with sensible fallbacks.
+ * - Canonical, Open Graph and JSON-LD all point at THIS route
+ *   (/services/detail/<slug>); the previous /services/<slug> form
+ *   resolved to the category page and returned 404.
+ * - Unknown slugs return a real 404 via notFound().
  *******************************************************/
 
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { serviceServer } from "@/modules/services/service.server";
 import PublicServiceDetail from "@/components/public/service-page/PublicServiceDetail";
-import { getBaseUrl } from "@/lib/utils/getBaseUrl";
+import JsonLd from "@/components/public/seo/JsonLd";
+import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
+import { breadcrumbJsonLd, organizationId } from "@/lib/seo/jsonLd";
+import { siteConfig } from "@/lib/seo/siteConfig";
+import { parseMetaRobots } from "@/lib/seo/buildPageMetadata";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
-/* -----------------------------------------------------------
-   DYNAMIC SEO METADATA (MULTI-DOMAIN SAFE)
------------------------------------------------------------ */
-export async function generateMetadata(
-  { params }: PageProps
-): Promise<Metadata> {
-  const {slug}=await params;
-  const baseUrl = await getBaseUrl();
-  const service = await serviceServer.getBySlug(slug);
+const detailPath = (slug: string) => `/services/detail/${slug}`;
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const [siteUrl, service] = await Promise.all([getSiteUrl(), serviceServer.getBySlug(slug)]);
 
   if (!service) {
     return {
       title: "Service Not Found | Casa Chic Interior",
-      robots: {
-        index: false,
-        follow: false,
-      },
+      robots: { index: false, follow: false },
     };
   }
 
-  const canonicalUrl = `${baseUrl}/services/${service.slug}`;
-  const ogImage = service.seo?.ogImage || service.coverImage;
+  const canonicalUrl = absoluteUrl(siteUrl, detailPath(service.slug));
+  const ogImage = absoluteUrl(siteUrl, service.seo?.ogImage || service.coverImage || siteConfig.defaultOgImagePath);
+  const title = service.seo?.title || `${service.title} | Casa Chic Interior`;
+  const description = service.seo?.description || service.shortDescription;
+  const robots = parseMetaRobots(service.seo?.metaRobots);
 
   return {
-    title: service.seo?.title || `${service.title} | Casa Chic Interior`,
-    description:
-      service.seo?.description || service.shortDescription,
+    title,
+    description,
     keywords: service.seo?.keywords || [],
-    alternates: {
-      canonical: canonicalUrl,
-    },
+    alternates: { canonical: canonicalUrl },
+    robots: { index: robots.index, follow: robots.follow },
     openGraph: {
       title: service.title,
       description: service.shortDescription,
       url: canonicalUrl,
-      siteName: "Casa Chic Interior",
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: service.title,
-        },
-      ],
+      siteName: siteConfig.name,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: service.title }],
       type: "website",
     },
     twitter: {
@@ -67,63 +64,60 @@ export async function generateMetadata(
   };
 }
 
-/* -----------------------------------------------------------
-   PAGE
------------------------------------------------------------ */
 export default async function ServiceDetailPage({ params }: PageProps) {
-  const {slug}=await params
-  const baseUrl = await getBaseUrl();
-  const service = await serviceServer.getBySlug(slug);
+  const { slug } = await params;
+  const [siteUrl, service] = await Promise.all([getSiteUrl(), serviceServer.getBySlug(slug)]);
 
   if (!service) return notFound();
 
-  /* -----------------------------------------------------------
-     JSON-LD (Service Schema)
-  ----------------------------------------------------------- */
-  const jsonLd = {
+  const pageUrl = absoluteUrl(siteUrl, detailPath(service.slug));
+
+  const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
     name: service.title,
     description: service.shortDescription,
-    image: service.coverImage,
-    url: `${baseUrl}/services/${service.slug}`,
+    image: absoluteUrl(siteUrl, service.coverImage),
+    url: pageUrl,
     provider: {
       "@type": "LocalBusiness",
-      name: "Casa Chic Interior",
-      url: baseUrl,
+      "@id": organizationId(siteUrl),
+      name: siteConfig.name,
+      url: siteUrl,
     },
-    areaServed: {
-      "@type": "City",
-      name: "Patna",
-    },
-    hasOfferCatalog: service.category?.name
+    areaServed: siteConfig.serviceArea,
+    ...(service.category?.name
+      ? { hasOfferCatalog: { "@type": "OfferCatalog", name: service.category.name } }
+      : {}),
+    ...(service.startingPrice
       ? {
-          "@type": "OfferCatalog",
-          name: service.category.name,
+          offers: {
+            "@type": "Offer",
+            priceCurrency: "INR",
+            price: service.startingPrice,
+            description: `Starting from ₹${service.startingPrice} per ${service.priceUnit}`,
+            availability: "https://schema.org/InStock",
+          },
         }
-      : undefined,
-    offers: service.startingPrice
-      ? {
-          "@type": "Offer",
-          priceCurrency: "INR",
-          price: service.startingPrice,
-          description: `Starting from ₹${service.startingPrice} per ${service.priceUnit}`,
-          availability: "https://schema.org/InStock",
-        }
-      : undefined,
+      : {}),
   };
+
+  const breadcrumbs = [
+    { name: "Home", path: "/" },
+    { name: "Services", path: "/services" },
+    ...(service.category?.slug
+      ? [{ name: service.category.name, path: `/services/${service.category.slug}` }]
+      : []),
+    { name: service.title },
+  ];
 
   return (
     <div className="w-full">
-      {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd),
-        }}
+      <JsonLd data={[serviceJsonLd, breadcrumbJsonLd(siteUrl, breadcrumbs)]} />
+      <PublicServiceDetail
+        service={service}
+        breadcrumbs={breadcrumbs.map((b) => ({ name: b.name, href: b.path }))}
       />
-
-      <PublicServiceDetail service={service} />
     </div>
   );
 }

@@ -6,13 +6,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { FiArrowRight } from "react-icons/fi";
 
-export default function PublicServicesList({ services }: { services: ServiceResponseDTO[] }) {
+interface PublicServicesListProps {
+  services: ServiceResponseDTO[];
+  /** Optional H1 override (dashboard Page SEO, or the category name on category pages). */
+  heading?: string;
+  /** Optional intro paragraph override. */
+  intro?: string;
+}
+
+export default function PublicServicesList({ services, heading, intro }: PublicServicesListProps) {
   return (
     <div className="w-full bg-[#F2F2F2]">
       {/* HERO SECTION */}
       <section className="relative w-full h-[60vh] flex items-center justify-center overflow-hidden">
         <Image
-          src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=2000"
+          src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1600&q=75"
           alt="Interior Design"
           fill
           priority
@@ -22,11 +30,11 @@ export default function PublicServicesList({ services }: { services: ServiceResp
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-center">
           <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
-            Our Interior Services
+            {heading || "Our Interior Services"}
           </h1>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
-            Professional interior design and execution services tailored to your needs.
-            From concept to reality, we handle everything.
+            {intro ||
+              "Professional interior design and execution services tailored to your needs. From concept to reality, we handle everything."}
           </p>
         </div>
       </section>

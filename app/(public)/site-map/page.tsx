@@ -1,16 +1,33 @@
+import { Metadata } from "next";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 import Link from "next/link";
+import { seoServer } from "@/modules/seo/seo.server";
+import { buildPageMetadata } from "@/lib/seo/buildPageMetadata";
+import { getSiteUrl } from "@/lib/seo/siteUrl";
 
-export const metadata = {
-  title: "Sitemap | Casa Chic Interior",
-  description:
-    "Explore all pages of Casa Chic Interior including services, design ideas, blogs, and policies.",
-};
+const ROUTE = "/site-map";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [siteUrl, seo] = await Promise.all([getSiteUrl(), seoServer.getPublishedForRoute(ROUTE)]);
+
+  return buildPageMetadata({
+    route: ROUTE,
+    siteUrl,
+    seo,
+    defaults: {
+      title: "Sitemap | Casa Chic Interior",
+      description:
+        "Explore all pages of Casa Chic Interior including services, design ideas, blogs, and policies.",
+    },
+  });
+}
 
 export default async function SitemapPage() {
-    const mainServiceCategoryList=await serviceCategoryServer.getByParent(null);
-    // Ab ye perfectly kaam karega!
-    const topServiceSubCatList = await serviceCategoryServer.getTopFiveSubCategories();
+    const [mainServiceCategoryList, topServiceSubCatList, seo] = await Promise.all([
+      serviceCategoryServer.getByParent(null),
+      serviceCategoryServer.getTopFiveSubCategories(),
+      seoServer.getPublishedForRoute(ROUTE),
+    ]);
   return (
     <section className="w-full py-32 bg-white">
       <div className="max-w-5xl mx-auto px-6">
@@ -18,7 +35,7 @@ export default async function SitemapPage() {
         {/* HEADER */}
         <div className="mb-12">
           <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Sitemap
+            {seo?.heading || "Sitemap"}
           </h1>
           <p className="mt-3 text-gray-600 text-sm md:text-base">
             Browse all pages of Casa Chic Interior in one place.
@@ -36,6 +53,8 @@ export default async function SitemapPage() {
             <ul className="space-y-2 text-gray-700">
               <li><Link href="/" className="text-blue-600 hover:text-orange-500">Home</Link></li>
               <li><Link href="/about" className="text-blue-600 hover:text-orange-500">About Us</Link></li>
+              <li><Link href="/services" className="text-blue-600 hover:text-orange-500">Services</Link></li>
+              <li><Link href="/projects" className="text-blue-600 hover:text-orange-500">Projects</Link></li>
               <li><Link href="/contact" className="text-blue-600 hover:text-orange-500">Contact Us</Link></li>
             </ul>
           </div>
@@ -72,7 +91,7 @@ export default async function SitemapPage() {
             <ul className="space-y-2 text-gray-700">
               <li><Link href="/blogs" className="text-blue-600 hover:text-orange-500">Blogs</Link></li>
               <li><Link href="/privacy-policy" className="text-blue-600 hover:text-orange-500">Privacy Policy</Link></li>
-              <li><Link href="/terms-of-service" className="text-blue-600 hover:text-orange-500">Terms of Service</Link></li>
+              <li><Link href="/terms-and-conditions" className="text-blue-600 hover:text-orange-500">Terms &amp; Conditions</Link></li>
             </ul>
           </div>
 

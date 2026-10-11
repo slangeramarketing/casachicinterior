@@ -8,7 +8,12 @@ import { FiMapPin, FiClock, FiArrowRight, FiSearch } from "react-icons/fi";
 
 
 
-export default function PublicProjectList() {
+interface PublicProjectListProps {
+  /** Optional H1 override managed from the dashboard (Page SEO). */
+  heading?: string;
+}
+
+export default function PublicProjectList({ heading }: PublicProjectListProps) {
   const categories = ["All", "Featured", "Residential", "Office", "Commercial"];
 
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -37,8 +42,14 @@ export default function PublicProjectList() {
         <div className="max-w-7xl mx-auto relative z-10">
           <span className="text-orange-500 font-bold uppercase tracking-[0.2em] text-xs">Our Portfolio</span>
           <h1 className="text-4xl md:text-6xl font-black text-white mt-4 tracking-tighter">
+            {heading ? (
+              heading
+            ) : (
+              <>
             CRAFTING <span className="text-orange-500">SPACES</span>,<br /> 
             DELIVERING DREAMS.
+              </>
+            )}
           </h1>
           <p className="mt-6 max-w-xl text-neutral-400 text-lg leading-relaxed">
             From modern residences to productive workspaces, explore how CasaChic transforms 
