@@ -146,7 +146,7 @@ export default function AnalyticsDashboard({ data }: { data: any }) {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
           <div className="w-full md:w-auto">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 flex items-center gap-2">
-              Portfolio Insightss 📊
+              Portfolio Insights 📊
             </h2>
             <p className="text-[10px] md:text-xs text-gray-400 font-medium">Real-time performance of your brand.</p>
           </div>
