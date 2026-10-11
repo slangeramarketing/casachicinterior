@@ -88,21 +88,22 @@ export default function Footer({ mainServiceCategoryList, topServiceSubCatList }
               Contact Us
             </h3>
             <ul className="space-y-4 text-sm">
-              <Link href={`tel:+918740990990`} aria-label="Call Casa Chic Interior" className="flex items-center gap-3">
-                <li className="flex items-center gap-3">
+              {/* <li> must be the direct child of <ul>; the link goes inside it */}
+              <li className="flex items-center gap-3">
+                <Link href={`tel:+918740990990`} className="flex items-center gap-3">
                   <FiPhone className="text-orange-400" />
                   +91 87409 90990
-                </li>
-              </Link>
+                </Link>
+              </li>
               <li className="flex items-center gap-3">
-                <Link href={`mailto:contact@casachicinterior.com`} aria-label="Email Contact" className="flex items-center gap-3">
+                <Link href={`mailto:contact@casachicinterior.com`} className="flex items-center gap-3">
                   <FiMail className="text-orange-400" />
                   contact@casachicinterior.com
                 </Link>
 
               </li>
               <li className="flex items-center gap-3">
-                <Link href={`mailto:info@casachicinterior.com`} aria-label="Email Info" className="flex items-center gap-3">
+                <Link href={`mailto:info@casachicinterior.com`} className="flex items-center gap-3">
                   <FiMail className="text-orange-400" />
                   info@casachicinterior.com
                 </Link>

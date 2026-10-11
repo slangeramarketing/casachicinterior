@@ -52,16 +52,16 @@ const PublicBlogCard: React.FC<BlogCardProps> = ({
       {/* --- Content Section --- */}
       <div className="p-5 flex flex-col flex-grow">
         {/* Last Updated */}
-        <div className="flex items-center gap-1.5 text-neutral-400 text-xs mb-3 font-medium">
+        <div className="flex items-center gap-1.5 text-neutral-600 text-xs mb-3 font-medium">
           <HiOutlineCalendar className="text-sm" />
           <span>Updated {formattedDate}</span>
         </div>
 
         {/* Title */}
         <Link href={`/blogs/${slug}`}>
-          <h3 className="text-xl font-semibold text-neutral-800 mb-3 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug">
+          <h2 className="text-xl font-semibold text-neutral-800 mb-3 group-hover:text-amber-700 transition-colors line-clamp-2 leading-snug">
             {title}
-          </h3>
+          </h2>
         </Link>
 
         {/* Description */}

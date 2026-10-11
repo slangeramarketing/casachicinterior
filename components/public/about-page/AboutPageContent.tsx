@@ -135,9 +135,9 @@ export default function AboutPageContent({ heading }: AboutPageContentProps) {
                 }}
                 className="border border-amber-600 rounded-2xl p-6 hover:shadow-md transition"
               >
-                <h4 className="text-xl font-semibold mb-2 text-color-primary">
+                <h3 className="text-xl font-semibold mb-2 text-color-primary">
                   {value.title}
-                </h4>
+                </h3>
                 <p className="text-gray-700 text-sm leading-relaxed">
                   {value.description}
                 </p>

@@ -28,7 +28,7 @@ export default function PublicDetailProject({project, breadcrumbs}:ProjectsProps
               {/* Subtle accent under gallery */}
               <div className="mt-8 flex items-center gap-3">
                 <span className="h-[1px] flex-1 bg-gray-100"></span>
-                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-300">
+                <p className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-600">
                   Slide to explore interior details
                 </p>
                 <span className="h-[1px] flex-1 bg-gray-100"></span>
@@ -123,7 +123,7 @@ export default function PublicDetailProject({project, breadcrumbs}:ProjectsProps
                             <div key={i} className="flex gap-6 p-6 bg-white border border-gray-50 rounded-2xl hover:shadow-md transition-shadow">
                                 <div className="text-orange-500"><Icon size={24} /></div>
                                 <div className="space-y-1">
-                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">{item.label}</p>
+                                    <p className="text-[10px] font-black uppercase tracking-widest text-gray-600">{item.label}</p>
                                     <p className="font-bold text-neutral-800">{item.value}</p>
                                 </div>
                             </div>

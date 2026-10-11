@@ -28,6 +28,7 @@ export function generateMetadata(): Metadata {
   const verification = process.env.GOOGLE_SITE_VERIFICATION;
 
   return {
+    // siteUrl is already validated by parseSiteUrl(), so new URL() cannot throw here.
     ...(siteUrl ? { metadataBase: new URL(siteUrl) } : {}),
     title: {
       default: `${siteConfig.name} | Interior Designers in Noida & Delhi NCR`,

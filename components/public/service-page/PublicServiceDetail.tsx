@@ -134,7 +134,7 @@ export default function PublicServiceDetail({ service, breadcrumbs }: PublicServ
                 <div className="w-12 h-12 rounded-full bg-[#F97316]/10 flex items-center justify-center text-[#F97316] mb-3">
                   <IconNode size={24} />
                 </div>
-                <h3 className="text-sm font-bold text-[#090F1A]">{h.title}</h3>
+                <p className="text-sm font-bold text-[#090F1A]">{h.title}</p>
               </motion.div>
             );
           })}

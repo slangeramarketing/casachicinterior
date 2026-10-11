@@ -10,6 +10,7 @@ import JsonLd from "@/components/public/seo/JsonLd";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
 import { breadcrumbJsonLd, organizationId } from "@/lib/seo/jsonLd";
 import { siteConfig } from "@/lib/seo/siteConfig";
+import { withImageDefaults } from "@/lib/utils/htmlImages";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -35,6 +36,12 @@ export async function generateMetadata(
 
   const blog = blogRes.data;
   const canonicalUrl = absoluteUrl(siteUrl, `/blogs/${blog.slug}`);
+  // New uploads are stored as site-relative paths; social and search
+  // previews need absolute URLs.
+  const ogImage = absoluteUrl(
+    siteUrl,
+    blog.seo?.ogImage || blog.bannerImage || blog.thumbnail || siteConfig.defaultOgImagePath
+  );
 
   return {
     title:
@@ -61,11 +68,7 @@ export async function generateMetadata(
       modifiedTime: blog.updatedAt,
       images: [
         {
-          url:
-            blog.seo?.ogImage ||
-            blog.bannerImage ||
-            blog.thumbnail ||
-            "",
+          url: ogImage,
           width: 1200,
           height: 630,
           alt: blog.title,
@@ -79,12 +82,7 @@ export async function generateMetadata(
         blog.summary ||
         blog.seo?.metaDescription ||
         "",
-      images: [
-        blog.seo?.ogImage ||
-          blog.bannerImage ||
-          blog.thumbnail ||
-          "",
-      ],
+      images: [ogImage],
     },
     robots: {
       index: blog.status === "published",
@@ -106,7 +104,11 @@ export default async function SingleBlogServerPage({ params }: Props) {
     notFound();
   }
 
-  const blogData = blogRes.data;
+  const blogData = {
+    ...blogRes.data,
+    // Editor content may contain images without alt text; fall back to the post title.
+    content: withImageDefaults(blogRes.data.content, blogRes.data.title),
+  };
   const siteUrl = await getSiteUrl();
 
   // 2️⃣ Fetch related blogs (same category, exclude current)
@@ -132,11 +134,13 @@ export default async function SingleBlogServerPage({ params }: Props) {
       blogData.summary ||
       blogData.seo?.metaDescription ||
       "",
-    image:
+    image: absoluteUrl(
+      siteUrl,
       blogData.seo?.ogImage ||
-      blogData.bannerImage ||
-      blogData.thumbnail ||
-      "",
+        blogData.bannerImage ||
+        blogData.thumbnail ||
+        siteConfig.defaultOgImagePath
+    ),
     datePublished: blogData.publishedAt,
     dateModified: blogData.updatedAt,
     author: {
@@ -180,6 +184,7 @@ export default async function SingleBlogServerPage({ params }: Props) {
         blog={blogData}
         relatedBlogs={relatedBlogs}
         breadcrumbs={breadcrumbs.map((b) => ({ name: b.name, href: b.path }))}
+        shareUrl={absoluteUrl(siteUrl, `/blogs/${blogData.slug}`)}
       />
     </div>
   );

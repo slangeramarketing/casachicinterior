@@ -109,8 +109,10 @@ time, when the database is deliberately not connected.
 ## 6. Technical SEO fixes shipped in this branch
 
 - Canonical tags: removed the root-level canonical that marked every page as
-  a duplicate of the home page; each page now derives its own from the
-  configured site URL (`PUBLIC_SITE_URL`), not from the request host.
+  a duplicate of the home page; each page now derives its own. The origin is
+  `PUBLIC_SITE_URL` when it is a valid https URL (localhost and http are
+  ignored in production), otherwise the request host, exactly as before.
+  `NEXT_PUBLIC_BASE_URL` is not used for canonicals.
 - Service detail pages: canonical, Open Graph URL and JSON-LD now point to
   the real route `/services/detail/<slug>` (the old `/services/<slug>` form
   returned 404). The services ItemList schema uses the same URLs.
@@ -121,7 +123,9 @@ time, when the database is deliberately not connected.
   generic listing heading.
 - Headings: about and contact now have an H1 (same text, correct level).
 - robots.txt added; `/admin`, `/auth`, `/api`, review-submission links and
-  the static services preview are disallowed and also `noindex`.
+  the static services preview are disallowed. The whole dashboard and login
+  group is `noindex` through `app/(pwa)/layout.tsx`, and unauthenticated
+  crawlers are redirected to the login page anyway.
 - Sitemap: correct static routes (two dead URLs removed, services, projects,
   terms, site-map and category pages added), published-only dynamic routes,
   `lastmod` from the database, resilient to a failing data source.
@@ -133,9 +137,14 @@ time, when the database is deliberately not connected.
   of a hardcoded placeholder.
 - Home page featured services are fetched on the server, so that content is
   in the initial HTML.
-- Images: uploads are resized (max 1920 px, 512 px for profiles) and
-  re-encoded as WebP at upload time. Existing files can be compressed in
-  place with `npm run optimize:uploads` (dry run) / `-- --apply`.
+- Images: uploads wider than the limit (1920 px, 512 px for profiles) are
+  resized and stored as WebP. Smaller uploads are converted only when WebP
+  saves at least 10%, so images the dashboard already compressed in the
+  browser are not re-compressed for nothing. Animated images, SVG and GIF
+  are stored unchanged. Existing files can be compressed in place with
+  `npm run optimize:uploads` (dry run) / `-- --apply`: PNG stays lossless,
+  only files at least 15% smaller are rewritten, and backups go to a new
+  timestamped folder under `~/casachic-upload-backups/` (outside `public/`).
 - Home page LCP: the hero background was a 1.9 MB PNG in `public/assets`;
   it is now a 63 KB WebP with a 19 KB mobile candidate, preloaded with
   `fetchPriority="high"` (`components/public/landing-page/HeroSection.tsx`).
@@ -156,6 +165,44 @@ across runs. Local numbers are indicative only: no nginx compression, no
 HTTPS, and a laptop instead of the VPS. Re-measure the live site with
 PageSpeed Insights after deploying, and again after running the upload
 optimiser on the server.
+
+## 6a. Accessibility and Best Practices (Lighthouse)
+
+Audited with Lighthouse on twelve public pages of the production build.
+Accessibility scores before the fixes ranged from 77 (blog detail) to 89
+(home); after the fixes every audited page scores 96 on Lighthouse 12 and
+13, with colour contrast of the brand orange as the only failing audit.
+
+Fixed in this branch:
+- Footer "Contact Us" list: a link wrapped a list item instead of sitting inside it (failed both list audits on every page).
+- Heading order: about-page value cards (h4 after h2), blog and project card titles (h3 directly under the h1), service highlight captions (now plain text, not headings).
+- Blog share buttons had no accessible name and did nothing; they are now real share links to Facebook, X and LinkedIn with labels.
+- Blog body images from the editor without alt text now get the post title as alt plus lazy loading (`lib/utils/htmlImages.ts`). Editors should still write real alt text when inserting images.
+- Light grey text (gray-300/400, neutral-400) on white or light grey raised to gray-600/neutral-600 (contrast 6.8 to 7.8:1).
+- Accessible names that contradicted the visible text (footer links, enquiry tab).
+- Upload API now stores site-relative image paths (`/uploads/...`) instead of the uploading host's absolute URL, so content survives domain changes.
+
+Remaining, needs a brand decision (every one of these is the brand orange):
+- White text on orange `#F97316` / orange-500: contrast 2.8:1 (AA needs 4.5:1, or 3:1 for large text). Affects the header wordmark, buttons, badges, chips and the orange CTA boxes.
+- Orange text on white or light backgrounds: 2.3 to 3.6:1. Affects eyebrow labels, highlighted heading words, category chips, project meta.
+
+Options (ratios computed for white text):
+
+| Option | Ratio | Visual change |
+|---|---|---|
+| Keep `#F97316` behind white text | 2.8 | none, audit keeps failing |
+| Orange-700 `#C2410C` behind white text; orange-700 for small orange text | 5.2 | noticeably deeper orange |
+| Custom `#C94A0A` | 4.7 | smallest shift that passes |
+| Keep `#F97316` backgrounds, dark `#090F1A` text on them | 6.8 | dark-on-orange buttons |
+
+The Lighthouse contrast audit is pass/fail per page, so the accessibility
+score only reaches 100 once the orange decision is applied everywhere.
+
+Best Practices: 100 in a clean browser profile with both Lighthouse 12 and
+13. A lower score in a signed-in Chrome profile comes from third-party
+cookies and DevTools issues attached to that profile, not from the site.
+Some pages showed console errors locally only because the staging database
+references images on the retired staging hostname.
 
 ## 7. Files added or changed
 
@@ -196,7 +243,7 @@ Environment variables (server `.env`, all existing ones unchanged):
 
 | Variable | Required | Purpose |
 |---|---|---|
-| `PUBLIC_SITE_URL` | yes, set to `https://casachicinterior.com` on production | canonical tags, sitemap, robots, Open Graph URLs and email banner links |
+| `PUBLIC_SITE_URL` | recommended: `https://casachicinterior.com` on production | canonical tags, sitemap, robots, Open Graph URLs and email banner links. Must be a full https URL; a missing, localhost, http or scheme-less value is ignored and the request host is used instead |
 | `GOOGLE_SITE_VERIFICATION` | optional | emits the Search Console HTML-tag verification |
 | `MONGODB_DB_NAME` | already set | database selection |
 
@@ -205,14 +252,18 @@ No database migration. The `pageseos` collection is created on first save.
 Steps:
 1. Merge the branch into `main` through a pull request. The build-check job
    runs on the pull request; the deploy job runs after merge.
-2. Before or right after the deploy, confirm `PUBLIC_SITE_URL` is present in
-   `/home/slangera/casachicinterior/.env`; add it if missing and
-   `pm2 restart casachic-basic --update-env`.
+2. Before or right after the deploy, check
+   `grep -n SITE_URL /home/slangera/casachicinterior/.env`. It should read
+   `PUBLIC_SITE_URL=https://casachicinterior.com`; add or correct it and run
+   `pm2 restart casachic-basic --update-env`. If it is absent the site still
+   works and uses the request host, as it did before this branch.
 3. Verify (see section 10).
 4. Optional, once: compress existing images on the server:
    `cd /home/slangera/casachicinterior && npm run optimize:uploads` (dry run),
-   then `npm run optimize:uploads -- --apply`. Backups are written next to the
-   uploads folder.
+   then `npm run optimize:uploads -- --apply`. Backups are written to a new
+   timestamped folder under `~/casachic-upload-backups/`; restore a file by
+   copying it back. Large PNG photos only shrink a little (lossless); for
+   those, re-uploading through the dashboard stores a WebP.
 
 Rollback: redeploy the previous commit (`git reset --hard <sha>` in the app
 folder, rebuild, `pm2 restart casachic-basic`). The new collection can stay;

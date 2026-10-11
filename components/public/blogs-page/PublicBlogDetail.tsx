@@ -16,11 +16,20 @@ import Breadcrumbs, { BreadcrumbLink } from "@/components/public/seo/Breadcrumbs
 
 interface Props {
   breadcrumbs?: BreadcrumbLink[];
+  /** Absolute URL of this post, used by the share links. */
+  shareUrl?: string;
   blog: BlogResponseDTO;
   relatedBlogs?: BlogResponseDTO[];
 }
 
-export default function PublicBlogDetail({ blog, relatedBlogs = [], breadcrumbs }: Props) {
+export default function PublicBlogDetail({ blog, relatedBlogs = [], breadcrumbs, shareUrl }: Props) {
+  const encodedUrl = encodeURIComponent(shareUrl ?? "");
+  const encodedTitle = encodeURIComponent(blog.title);
+  const shareLinks = [
+    { name: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`, Icon: FiFacebook, color: "text-blue-700" },
+    { name: "X", href: `https://twitter.com/intent/tweet?url=${encodedUrl}&text=${encodedTitle}`, Icon: FiTwitter, color: "text-sky-700" },
+    { name: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`, Icon: FiLinkedin, color: "text-blue-800" },
+  ];
   const [searchQuery, setSearchQuery] = useState("");
   const router = useRouter()
 
@@ -113,15 +122,19 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [], breadcrumbs 
               /><p className="text-sm font-bold">this article</p>:
             </span>
             <div className="flex gap-4">
-              <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm text-blue-600 hover:scale-110 transition-transform">
-                <FiFacebook size={20} />
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm text-sky-400 hover:scale-110 transition-transform">
-                <FiTwitter size={20} />
-              </button>
-              <button className="w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm text-blue-700 hover:scale-110 transition-transform">
-                <FiLinkedin size={20} />
-              </button>
+              {shareLinks.map(({ name, href, Icon, color }) => (
+                <a
+                  key={name}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Share this article on ${name}`}
+                  title={`Share on ${name}`}
+                  className={`w-10 h-10 flex items-center justify-center bg-white rounded-full shadow-sm ${color} hover:scale-110 transition-transform`}
+                >
+                  <Icon size={20} aria-hidden="true" />
+                </a>
+              ))}
             </div>
           </div>
         </main>
@@ -165,14 +178,14 @@ export default function PublicBlogDetail({ blog, relatedBlogs = [], breadcrumbs 
                       <h4 className="text-sm font-bold text-gray-800 group-hover:text-orange-500 line-clamp-2 transition-colors">
                         {item.title}
                       </h4>
-                      <span className="text-[10px] text-gray-400 mt-1 uppercase font-bold tracking-widest">
+                      <span className="text-[10px] text-gray-600 mt-1 uppercase font-bold tracking-widest">
                         {item.category?.name}
                       </span>
                     </div>
                   </Link>
                 ))
               ) : (
-                <p className="text-sm text-gray-400 italic">No related posts found.</p>
+                <p className="text-sm text-gray-600 italic">No related posts found.</p>
               )}
             </div>
           </div>
