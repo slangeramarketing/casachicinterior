@@ -146,7 +146,7 @@ export default function ContactSection({ headingAs = "h2", heading }: ContactSec
               </>
             )}
           </HeadingTag>
-          <p className="mt-4 text-gray-500 max-w-xl mx-auto">
+          <p className="mt-4 text-gray-600 max-w-xl mx-auto">
             Ready to transform your home? Fill out the form below and we'll get back to you within 24 hours.
           </p>
         </motion.div>
@@ -285,7 +285,7 @@ function ContactInfo({ icon, title, value, href }: { icon: React.ReactNode; titl
         {icon}
       </div>
       <div>
-        <p className="text-[10px] uppercase font-bold text-gray-400 tracking-widest">{title}</p>
+        <p className="text-[10px] uppercase font-bold text-gray-600 tracking-widest">{title}</p>
         <p className="text-sm font-bold text-[#090F1A]">{value}</p>
       </div>
     </div>

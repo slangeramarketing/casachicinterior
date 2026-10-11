@@ -8,7 +8,7 @@ export default function EnquiryStickyTab({ onClick }: EnquiryStickyTabProps) {
   return (
     <button
       onClick={onClick}
-      aria-label="Open enquiry form"
+      aria-label="Enquire now: open the enquiry form"
       className="
         fixed
         right-3

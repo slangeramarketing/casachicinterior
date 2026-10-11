@@ -3,6 +3,9 @@ import PwaInstallPopup from "@/components/pwa/PwaInstallPopup";
 
 export const metadata: Metadata = {
   manifest: "/manifest.json",
+  // Dashboard and login pages must never appear in search results.
+  // (Unauthenticated crawlers are also redirected to /auth/login.)
+  robots: { index: false, follow: false },
 };
 
 export default function PwaLayout({

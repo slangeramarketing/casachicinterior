@@ -145,9 +145,9 @@ export default function PublicProjectList({ heading }: PublicProjectListProps) {
                     <span className="flex items-center gap-1"><FiClock /> {project.duration}</span>
                   </div>
 
-                  <h3 className="text-xl font-black text-gray-900 group-hover:text-orange-600 transition-colors">
+                  <h2 className="text-xl font-black text-gray-900 group-hover:text-orange-600 transition-colors">
                     {project.title}
-                  </h3>
+                  </h2>
 
                   <p className="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2">
                     {project.shortDescription}

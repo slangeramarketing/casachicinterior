@@ -15,7 +15,7 @@ export default function CategorySlider({ categories, activeCategory, onCategoryC
             <span className="text-xs font-bold uppercase tracking-tighter">All</span>
           </div>
           <p className={`text-[11px] mt-2 font-bold uppercase transition-colors 
-            ${activeCategory === "All" ? "text-orange-600" : "text-neutral-400 group-hover:text-neutral-900"}`}>
+            ${activeCategory === "All" ? "text-orange-600" : "text-neutral-600 group-hover:text-neutral-900"}`}>
             Everything
           </p>
         </div>
@@ -37,7 +37,7 @@ export default function CategorySlider({ categories, activeCategory, onCategoryC
               />
             </div>
             <p className={`text-[11px] mt-2 font-bold uppercase transition-colors 
-              ${activeCategory === cat.slug ? "text-orange-600" : "text-neutral-400 group-hover:text-neutral-900"}`}>
+              ${activeCategory === cat.slug ? "text-orange-600" : "text-neutral-600 group-hover:text-neutral-900"}`}>
               {cat.name}
             </p>
           </div>

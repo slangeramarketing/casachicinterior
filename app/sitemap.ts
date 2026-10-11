@@ -73,7 +73,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const serviceRoutes: MetadataRoute.Sitemap = services.map((service) => ({
+  // The service detail page honours seo.metaRobots, so the sitemap must too.
+  const serviceRoutes: MetadataRoute.Sitemap = services
+    .filter((service) => parseMetaRobots(service.seo?.metaRobots).index)
+    .map((service) => ({
     url: absoluteUrl(siteUrl, `/services/detail/${service.slug}`),
     lastModified: toDate(service.updatedAt),
     changeFrequency: "monthly",
