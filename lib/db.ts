@@ -20,7 +20,12 @@ async function db(): Promise<void> {
     }
 
     const uri = process.env.MONGODB_URI;
+    // Database name is chosen per environment via .env (never via NODE_ENV, because
+    // `next start` on staging also runs with NODE_ENV=production).
+    // Falls back to the staging DB so a missing variable can never hit production data.
+    const dbName = process.env.MONGODB_DB_NAME ?? "casachic_staging_db";
     console.log("Checking URI:", uri?.replace(/:([^:@]+)@/, ':****@')); // पासवर्ड छुपाकर URI प्रिंट करें
+    console.log("Target DB:", dbName);
 
 
     if (!uri) {
@@ -29,7 +34,7 @@ async function db(): Promise<void> {
 
     if (!cached.promise) {
         const opts = {
-            dbName: "casachic_staging_db",
+            dbName,
             bufferCommands: false,
             serverSelectionTimeoutMS: 5000, // 30s बहुत ज़्यादा है, 5s में फेल होने दें
             family: 4,                      // फोर्स करें कि सिर्फ IPv4 (127.0.0.1) ही यूज़ हो
