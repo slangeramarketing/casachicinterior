@@ -3,7 +3,7 @@
  * app/services/[slug]/page.tsx
  *******************************************************/
 
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { Metadata } from "next";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 import { serviceServer } from "@/modules/services/service.server";
@@ -66,7 +66,13 @@ export default async function ServiceCategoryPage(
   const { slug } = await params;
 
   const category = await serviceCategoryServer.getBySlug(slug);
-  if (!category) return notFound();
+  if (!category) {
+    // Older pages and sitemaps linked services as /services/<service-slug>.
+    // Google still requests those URLs; send them to the real detail page.
+    const service = await serviceServer.getBySlug(slug);
+    if (service) permanentRedirect(`/services/detail/${service.slug}`);
+    return notFound();
+  }
 
   // ✅ Public services under category
   const services = await serviceServer.getByCategory(category.id);

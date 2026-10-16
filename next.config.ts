@@ -33,6 +33,14 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
+      // ---- Old paths still requested by Google (Search Console 404 report, Oct 2026) ----
+      { source: "/index.html", destination: "/", permanent: true },
+      { source: "/sitemap", destination: "/site-map", permanent: true },
+      { source: "/terms-of-service", destination: "/terms-and-conditions", permanent: true },
+      { source: "/services/detail/terms-and-conditions", destination: "/terms-and-conditions", permanent: true },
+      { source: "/blog", destination: "/blogs", permanent: true },
+      { source: "/blog/:slug", destination: "/blogs/:slug", permanent: true },
+
       {
         // Serve one hostname only: www -> bare domain (308)
         source: "/:path*",
