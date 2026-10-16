@@ -57,6 +57,18 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        // www.casachicinterior.in was serving the full site as a duplicate host
+        source: "/:path*",
+        has: [
+          {
+            type: "host",
+            value: "www.casachicinterior.in",
+          },
+        ],
+        destination: "https://casachicinterior.com/:path*",
+        permanent: true,
+      },
+      {
         source: "/:path*",
         has: [
           {
