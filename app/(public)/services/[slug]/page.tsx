@@ -9,6 +9,7 @@ import { serviceCategoryServer } from "@/modules/service-category/service-catego
 import { serviceServer } from "@/modules/services/service.server";
 import PublicServicesList from "@/components/public/service-page/PublicServiceList";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
+import { resolveLegacyCategorySlug } from "@/lib/seo/legacySlugs";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -71,6 +72,11 @@ export default async function ServiceCategoryPage(
     // Google still requests those URLs; send them to the real detail page.
     const service = await serviceServer.getBySlug(slug);
     if (service) permanentRedirect(`/services/detail/${service.slug}`);
+
+    // Renamed category slugs (e.g. a typo fixed after launch).
+    const renamed = resolveLegacyCategorySlug(slug);
+    if (renamed) permanentRedirect(`/services/${renamed}`);
+
     return notFound();
   }
 

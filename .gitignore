@@ -48,3 +48,6 @@ keys/
 # Ignore everything inside uploads but keep the folder (Optional)
 public/uploads/*
 !public/uploads/.gitkeep
+
+# Client SEO strategy notes (repo is public)
+SEO-KEYWORD-PLAN.md
