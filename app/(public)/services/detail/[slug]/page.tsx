@@ -14,7 +14,7 @@ import { serviceServer } from "@/modules/services/service.server";
 import PublicServiceDetail from "@/components/public/service-page/PublicServiceDetail";
 import JsonLd from "@/components/public/seo/JsonLd";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
-import { breadcrumbJsonLd, organizationId } from "@/lib/seo/jsonLd";
+import { breadcrumbJsonLd, faqPageJsonLd, organizationId } from "@/lib/seo/jsonLd";
 import { siteConfig } from "@/lib/seo/siteConfig";
 import { parseMetaRobots } from "@/lib/seo/buildPageMetadata";
 
@@ -72,6 +72,8 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   const pageUrl = absoluteUrl(siteUrl, detailPath(service.slug));
 
+  const visibleFaqs = (service.faqs ?? []).filter((f) => f.question?.trim() && f.answer?.trim());
+
   const serviceJsonLd = {
     "@context": "https://schema.org",
     "@type": "Service",
@@ -113,7 +115,14 @@ export default async function ServiceDetailPage({ params }: PageProps) {
 
   return (
     <div className="w-full">
-      <JsonLd data={[serviceJsonLd, breadcrumbJsonLd(siteUrl, breadcrumbs)]} />
+      {/* FAQPage schema only for FAQs that are visibly rendered on this page. */}
+      <JsonLd
+        data={[
+          serviceJsonLd,
+          breadcrumbJsonLd(siteUrl, breadcrumbs),
+          ...(visibleFaqs.length ? [faqPageJsonLd(visibleFaqs)] : []),
+        ]}
+      />
       <PublicServiceDetail
         service={service}
         breadcrumbs={breadcrumbs.map((b) => ({ name: b.name, href: b.path }))}
