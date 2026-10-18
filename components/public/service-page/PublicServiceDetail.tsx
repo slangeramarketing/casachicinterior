@@ -159,12 +159,15 @@ export default function PublicServiceDetail({ service, breadcrumbs }: PublicServ
             <div className="prose prose-lg text-gray-600 leading-relaxed whitespace-pre-wrap">
               {service.description}
             </div>
-            <div className="mt-10 flex items-center gap-6">
-               <div className="bg-[#F2F2F2] px-6 py-4 rounded-xl">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-tighter">Packages From</p>
-                  <p className="text-2xl font-bold text-[#F97316]">₹{service.startingPrice?.toLocaleString()} <span className="text-sm font-normal text-gray-400">/ {service.priceUnit}</span></p>
-               </div>
-            </div>
+            {/* Only show a price when one has been set; "₹0" would mislead visitors. */}
+            {!!service.startingPrice && service.startingPrice > 0 && (
+              <div className="mt-10 flex items-center gap-6">
+                 <div className="bg-[#F2F2F2] px-6 py-4 rounded-xl">
+                    <p className="text-xs text-gray-500 uppercase font-bold tracking-tighter">Packages From</p>
+                    <p className="text-2xl font-bold text-[#F97316]">₹{service.startingPrice.toLocaleString("en-IN")} <span className="text-sm font-normal text-gray-400">/ {service.priceUnit}</span></p>
+                 </div>
+              </div>
+            )}
           </div>
           <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
             <OptimizedImage src={service.gallery[0]?.url || service.coverImage} alt="Detail view" width={100} height={100} fill className="object-cover" />
