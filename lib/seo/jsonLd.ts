@@ -74,6 +74,53 @@ export function breadcrumbJsonLd(siteUrl: string, items: BreadcrumbItem[]): Json
   };
 }
 
+/** FAQPage block. Only use when the same questions are visible on the page. */
+export function faqPageJsonLd(faqs: Array<{ question: string; answer: string }>): JsonLdObject {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.question,
+      acceptedAnswer: { "@type": "Answer", text: f.answer },
+    })),
+  };
+}
+
+export interface AreaServiceInput {
+  slug: string;
+  title: string;
+  description: string;
+  areaName: string;
+  localities: string[];
+  image?: string;
+}
+
+/**
+ * Service block for an area landing page: the organisation provides
+ * interior design in this area and its localities. One Service per
+ * area (not one LocalBusiness per area, which would misrepresent a
+ * single business as several).
+ */
+export function areaServiceJsonLd(siteUrl: string, input: AreaServiceInput): JsonLdObject {
+  const url = absoluteUrl(siteUrl, `/${input.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    "@id": `${url}#service`,
+    name: input.title,
+    description: input.description,
+    serviceType: "Interior design",
+    url,
+    ...(input.image ? { image: absoluteUrl(siteUrl, input.image) } : {}),
+    provider: { "@id": organizationId(siteUrl) },
+    areaServed: [
+      { "@type": "Place", name: input.areaName },
+      ...input.localities.map((l) => ({ "@type": "Place", name: `${l}, ${input.areaName}` })),
+    ],
+  };
+}
+
 /** Serialise for a <script type="application/ld+json"> without allowing </script> breakout. */
 export function serializeJsonLd(data: JsonLdObject | JsonLdObject[]): string {
   return JSON.stringify(data).replace(/</g, "\\u003c");

@@ -260,9 +260,10 @@ export function HighlightsManager({ items, onChange }: {
 /* =====================================================
     FAQs Manager - Added Export
 ===================================================== */
-export function FAQsManager({ items, onChange }: { 
+export function FAQsManager({ items, onChange, label = "Service FAQs*" }: { 
   items: { question: string; answer: string }[], 
-  onChange: (items: { question: string; answer: string }[]) => void 
+  onChange: (items: { question: string; answer: string }[]) => void,
+  label?: string,
 }) {
   const [q, setQ] = useState("");
   const [a, setA] = useState("");
@@ -279,7 +280,7 @@ export function FAQsManager({ items, onChange }: {
   };
   return (
     <div className="space-y-4">
-      <label className="text-sm font-semibold text-gray-700">Service FAQs*</label>
+      <label className="text-sm font-semibold text-gray-700">{label}</label>
       
       {/* Input Box */}
       <div className="p-4 border border-gray-300 rounded-lg bg-gray-50 space-y-3">

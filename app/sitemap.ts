@@ -19,6 +19,7 @@ import { getAllBlogs } from "@/modules/blogs/blog.service";
 import { listServices } from "@/modules/services/service.service";
 import { listServiceCategories } from "@/modules/service-category/service-category.service";
 import { listPageSeo } from "@/modules/seo/seo.service";
+import { listLocations } from "@/modules/locations/location.service";
 import { projects } from "@/lib/data/projects";
 import { absoluteUrl, getSiteUrl } from "@/lib/seo/siteUrl";
 import { MANAGED_PAGES } from "@/lib/seo/managedPages";
@@ -45,11 +46,12 @@ function toDate(value: unknown): Date | undefined {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const siteUrl = await getSiteUrl();
 
-  const [blogs, services, categories, seoEntries] = await Promise.all([
+  const [blogs, services, categories, seoEntries, locations] = await Promise.all([
     safely("blogs", () => getAllBlogs({ status: "published" }), []),
     safely("services", () => listServices({ publicOnly: true }), []),
     safely("service categories", () => listServiceCategories({ publicOnly: true }), []),
     safely("page seo", () => listPageSeo({ status: "published" }), []),
+    safely("locations", () => listLocations({ status: "published" }), []),
   ]);
 
   const noindexRoutes = new Set(
@@ -96,5 +98,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticRoutes, ...categoryRoutes, ...serviceRoutes, ...blogRoutes, ...projectRoutes];
+  // Area landing pages (Dashboard > Locations); the page honours metaRobots, so the sitemap does too.
+  const locationRoutes: MetadataRoute.Sitemap = locations
+    .filter((loc) => parseMetaRobots(loc.metaRobots).index)
+    .map((loc) => ({
+      url: absoluteUrl(siteUrl, `/${loc.slug}`),
+      lastModified: toDate(loc.updatedAt),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    }));
+
+  return [...staticRoutes, ...locationRoutes, ...categoryRoutes, ...serviceRoutes, ...blogRoutes, ...projectRoutes];
 }

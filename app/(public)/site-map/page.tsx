@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { serviceCategoryServer } from "@/modules/service-category/service-category.server";
 import Link from "next/link";
 import { seoServer } from "@/modules/seo/seo.server";
+import { locationServer } from "@/modules/locations/location.server";
 import { buildPageMetadata } from "@/lib/seo/buildPageMetadata";
 import { getSiteUrl } from "@/lib/seo/siteUrl";
 
@@ -23,10 +24,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function SitemapPage() {
-    const [mainServiceCategoryList, topServiceSubCatList, seo] = await Promise.all([
+    const [mainServiceCategoryList, topServiceSubCatList, seo, locations] = await Promise.all([
       serviceCategoryServer.getByParent(null),
       serviceCategoryServer.getTopFiveSubCategories(),
       seoServer.getPublishedForRoute(ROUTE),
+      locationServer.getPublishedLinks(),
     ]);
   return (
     <section className="w-full py-32 bg-white">
@@ -82,6 +84,20 @@ export default async function SitemapPage() {
               ))}
             </ul>
           </div>
+
+          {/* AREAS WE SERVE */}
+          {locations.length > 0 && (
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                Areas We Serve
+              </h2>
+              <ul className="space-y-2 text-gray-700">
+                {locations.map((loc) => (
+                  <li key={loc.slug}><Link href={`/${loc.slug}`} className="text-blue-600 hover:text-orange-500">{loc.title}</Link></li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* OTHER */}
           <div>
