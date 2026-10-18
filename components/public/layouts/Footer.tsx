@@ -1,6 +1,5 @@
 "use client";
 
-import { ServiceResponseDTO } from "@/modules/services/service.dto";
 import Image from "next/image";
 import Link from "next/link";
 import logoTransparent from "@/public/assets/logoTransparent.png";
@@ -13,20 +12,50 @@ import {
   FiInstagram,
 } from "react-icons/fi";
 import { ServiceCategoryResponseDTO } from "@/modules/service-category/service-category.dto";
+import { LocationLinkDTO } from "@/modules/locations/location.dto";
+
+/** Slim link data for a published service (Dashboard > Service). */
+export interface FooterServiceLink {
+  id: string;
+  title: string;
+  slug: string;
+}
 
 interface HeaderProps {
   mainServiceCategoryList: ServiceCategoryResponseDTO[];
   topServiceSubCatList: ServiceCategoryResponseDTO[];
+  /** Published services; the pages that should rank, so every page links to them. */
+  services?: FooterServiceLink[];
+  /** Published area landing pages (Dashboard > Locations). */
+  locations?: LocationLinkDTO[];
 }
 
-export default function Footer({ mainServiceCategoryList, topServiceSubCatList }: HeaderProps) {
+const COMPANY_LINKS = [
+  { name: "About Us", href: "/about" },
+  { name: "Services", href: "/services" },
+  { name: "Projects", href: "/projects" },
+  { name: "Blogs", href: "/blogs" },
+  { name: "Contact", href: "/contact" },
+  { name: "Book Free Consultation", href: "/contact" },
+];
+
+const linkClass = "hover:text-white transition-colors";
+
+export default function Footer({
+  mainServiceCategoryList,
+  topServiceSubCatList,
+  services = [],
+  locations = [],
+}: HeaderProps) {
+  const year = new Date().getFullYear();
+  const hasDesignIdeas = (topServiceSubCatList?.length ?? 0) > 0;
 
   return (
     <footer className="bg-linear-to-b from-[#0B1220] to-[#070C16] text-gray-300">
       <div className="max-w-7xl mx-auto px-6 py-16">
 
-        {/* TOP GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        {/* TOP GRID: brand, solutions, services, (design ideas), company, contact */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-12">
 
           {/* BRAND */}
           <div className="space-y-4">
@@ -58,7 +87,7 @@ export default function Footer({ mainServiceCategoryList, topServiceSubCatList }
             <ul className="space-y-3 text-sm">
               {mainServiceCategoryList?.map((cat) => (
                 <li key={cat.id}>
-                  <Link key={cat.id} href={`/services/${cat.slug}`} >
+                  <Link href={`/services/${cat.slug}`} className={linkClass}>
                     {cat.name}
                   </Link>
                 </li>
@@ -66,16 +95,52 @@ export default function Footer({ mainServiceCategoryList, topServiceSubCatList }
             </ul>
           </div>
 
-          {/* DESIGN IDEAS */}
+          {/* OUR SERVICES: direct links to the service detail pages */}
+          {services.length > 0 && (
+            <div>
+              <h3 className="text-white font-semibold mb-4">
+                Our Services
+              </h3>
+              <ul className="space-y-3 text-sm">
+                {services.slice(0, 8).map((service) => (
+                  <li key={service.id}>
+                    <Link href={`/services/detail/${service.slug}`} className={linkClass}>
+                      {service.title}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* DESIGN IDEAS: sub-categories, only when any exist */}
+          {hasDesignIdeas && (
+            <div>
+              <h3 className="text-white font-semibold mb-4">
+                Design Ideas
+              </h3>
+              <ul className="space-y-3 text-sm">
+                {topServiceSubCatList.map((subCat) => (
+                  <li key={subCat.id}>
+                    <Link href={`/services/${subCat.slug}`} className={linkClass}>
+                      {subCat.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* COMPANY */}
           <div>
             <h3 className="text-white font-semibold mb-4">
-              Design Ideas
+              Company
             </h3>
             <ul className="space-y-3 text-sm">
-              {topServiceSubCatList?.map((subCat) => (
-                <li key={subCat.id}>
-                  <Link key={subCat.id} href={`/services/${subCat.slug}`} >
-                    {subCat.name}
+              {COMPANY_LINKS.map((item) => (
+                <li key={item.name}>
+                  <Link href={item.href} className={linkClass}>
+                    {item.name}
                   </Link>
                 </li>
               ))}
@@ -116,16 +181,32 @@ export default function Footer({ mainServiceCategoryList, topServiceSubCatList }
           </div>
         </div>
 
+        {/* AREAS WE SERVE: internal links to the area landing pages */}
+        {locations.length > 0 && (
+          <div className="border-t border-white/10 mt-12 pt-6 text-sm">
+            <h3 className="text-white font-semibold mb-3">Areas We Serve</h3>
+            <ul className="flex flex-wrap gap-x-6 gap-y-2">
+              {locations.map((loc) => (
+                <li key={loc.slug}>
+                  <Link href={`/${loc.slug}`} className={linkClass}>
+                    {loc.title}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* DIVIDER */}
         <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-sm">
 
           <p>
-            © 2025 casachic Interior. All Rights Reserved.
+            © {year} Casa Chic Interior. All Rights Reserved.
           </p>
 
           <div className="flex gap-6">
             <Link href="/privacy-policy" className="hover:text-white">Privacy Policy</Link>
-            <Link href="terms-and-conditions" className="hover:text-white">Terms of Service</Link>
+            <Link href="/terms-and-conditions" className="hover:text-white">Terms &amp; Conditions</Link>
             <Link href="/site-map" className="hover:text-white">Sitemap</Link>
           </div>
         </div>

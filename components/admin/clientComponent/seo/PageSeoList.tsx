@@ -22,6 +22,7 @@ import { PageSeoResponseDTO } from "@/modules/seo/seo.dto";
 import { PageSeoStatus } from "@/modules/seo/seo.types";
 import { deletePageSeoAction } from "@/app/actions/seo.action";
 import { MANAGED_PAGES } from "@/lib/seo/managedPages";
+import { formatIst } from "@/lib/utils/formatIst";
 
 interface PageSeoListProps {
   entries: PageSeoResponseDTO[];
@@ -50,20 +51,6 @@ interface Row {
   entry: PageSeoResponseDTO | null;
 }
 
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-/**
- * Same output on the server and in every browser: a fixed IST offset and
- * fixed month names, instead of toLocaleString(), whose result depends on
- * the machine's locale and timezone and caused a hydration mismatch.
- */
-function formatUpdatedAt(iso: string): string {
-  const t = Date.parse(iso);
-  if (Number.isNaN(t)) return "";
-  const d = new Date(t + 330 * 60 * 1000);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}, ${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())} IST`;
-}
 
 export default function PageSeoList({ entries, siteUrl }: PageSeoListProps) {
   const router = useRouter();
@@ -201,7 +188,7 @@ export default function PageSeoList({ entries, siteUrl }: PageSeoListProps) {
                       </div>
                     )}
                     <p className="text-[10px] text-gray-400 mt-2">
-                      Updated {formatUpdatedAt(row.entry.updatedAt)}
+                      Updated {formatIst(row.entry.updatedAt)}
                     </p>
                   </>
                 ) : (
